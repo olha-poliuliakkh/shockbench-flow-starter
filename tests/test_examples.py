@@ -76,6 +76,16 @@ def test_policy_search(env_with_cache, tmp_path):
         assert len(params["fraction"]) == 20 and (best / "agent.py").is_file()
 
 
+def test_evolve(env_with_cache, tmp_path):
+    args = ["--generations=1", "--n_mutate=2", "--train_episodes=2", "--quick", "--n_jobs=1", "--workers=1"]
+    args += ["--seeds=[heuristic]", "--champion=heuristic", "--nopromote", "--out=run"]
+    out = run("08_evolve.py", *args, env=env_with_cache, cwd=tmp_path)
+    assert "it is the champion itself" in out or "held out" in out
+    archive = [json.loads(ln) for ln in (tmp_path / "run" / "archive.jsonl").read_text().splitlines()]
+    assert [r["gen"] for r in archive] == [0, 1, 1] and all(r["rss"] is not None for r in archive)
+    assert (tmp_path / "run" / "gen1" / "mutate_01" / "params.json").is_file()
+
+
 def test_dashboard(env_with_cache, tmp_path):
     run("07_dashboard.py", "--episode=29", "--quick", "--n_jobs=1", "--out=run", env=env_with_cache, cwd=tmp_path)
     for name in ("network.png", "dashboard_max.png", "episode_max.gif", "record_random.npz"):

@@ -24,9 +24,10 @@ classifiers = [
 requires-python = ">=3.12,<3.14"
 
 dependencies = [
-    "shockbench-flow[gym] >= 0.1.2",  # the benchmark; uv.lock holds the exact version (README, "Updating")
+    "shockbench-flow[gym] >= 0.1.2", # the benchmark; uv.lock holds the exact version (README, "Updating")
     "fire ~= 0.7.1",
-    "python-dotenv ~= 1.2.2",  # `sbf` reads .env
+    "python-dotenv ~= 1.2.2", # `sbf` reads .env
+    "anthropic>=1.11.0",
 ]
 
 [project.optional-dependencies]
