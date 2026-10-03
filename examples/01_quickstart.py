@@ -5,6 +5,7 @@
 
 The same episode index always replays the same scenario, the one ``sbf evaluate --episodes=[n]`` scores.
 """
+# Good luck!
 
 import fire
 import gymnasium as gym
