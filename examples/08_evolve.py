@@ -4,7 +4,8 @@
     uv run python examples/08_evolve.py --task=small --generations=8 --n_llm=4 --n_mutate=8 --train_episodes=16
 
 A candidate is a submission folder. Each generation, Claude reads a parent's agent.py and its diagnostics (where it
-loses against the clairvoyant plan, what disrupted those episodes) and writes a new agent.py (``--n_llm``, needs
+loses against the clairvoyant plan, what disrupted those episodes) and writes a new agent.py (``--n_llm``; through
+the Claude Code CLI ``claude -p`` on your subscription with ``--llm=cli``, or the API with ``--llm=api`` and
 ANTHROPIC_API_KEY); the mutation of 06 perturbs the numbers of ``params.json`` or the ``PARAMS`` dict (``--n_mutate``).
 Every candidate must pass the server's import rule, then plays the same training episodes of your own root under the
 CPU budget. At the end the best is compared, paired, with the champion on the held-out dev episodes and replaces it
@@ -13,8 +14,11 @@ in ``agents/`` only when it wins there. Nothing here talks to Codabench.
 
 import ast
 import json
+import os
 import re
 import shutil
+import subprocess
+import tempfile
 import time
 from pathlib import Path
 
@@ -214,7 +218,28 @@ def ask_claude(system: str, user: str, model: str, effort: str) -> tuple[str, st
     return "".join(b.text for b in message.content if b.type == "text"), message.stop_reason
 
 
-def propose_llm(parent: dict, folder: Path, system: str, model: str, effort: str) -> str | None:
+def ask_claude_cli(system: str, user: str, model: str, effort: str) -> tuple[str, str]:
+    """The same question through the Claude Code CLI (``claude -p``, your subscription): a text-only call, no tools.
+
+    Runs outside the repository so the CLI reads no project instructions; one call may take several minutes.
+    """
+    cmd = ["claude", "-p", "--output-format", "text", "--tools", "", "--no-session-persistence"]
+    cmd += ["--system-prompt", system, "--model", model, "--effort", effort]
+    proc = subprocess.run(cmd, input=user, capture_output=True, text=True, timeout=1800, cwd=tempfile.gettempdir())
+    if proc.returncode != 0:
+        return proc.stdout, f"exit {proc.returncode}: {proc.stderr.strip()[-500:]}"
+    return proc.stdout, "end_turn"
+
+
+ASK = {"api": ask_claude, "cli": ask_claude_cli}
+DEFAULT_MODEL = {"api": "claude-opus-5-5", "cli": "opus"}
+
+
+def llm_available(llm: str) -> bool:
+    return bool(os.environ.get("ANTHROPIC_API_KEY")) if llm == "api" else shutil.which("claude") is not None
+
+
+def propose_llm(parent: dict, folder: Path, system: str, model: str, effort: str, llm: str = "cli") -> str | None:
     """Ask for a child of ``parent``; write it to ``folder``; the model's explanation, or None when there is no code."""
     code = Path(parent["folder"], "agent.py").read_text()
     user = (
@@ -226,7 +251,7 @@ def propose_llm(parent: dict, folder: Path, system: str, model: str, effort: str
         )
         + f"\n# Diagnostics\n{parent['feedback']}\n\nWrite the improved agent.py now."
     )
-    text, stop = ask_claude(system, user, model, effort)
+    text, stop = ASK[llm](system, user, model, effort)
     folder.mkdir(parents=True)
     (folder / "reply.md").write_text(f"# parent {parent['id']} (stop {stop})\n\n{text}")
     files = {}
@@ -258,7 +283,8 @@ def main(
     quick: bool = False,
     n_jobs: int = -1,
     workers: int = 4,
-    model: str = "claude-opus-5-5",
+    llm: str = "cli",
+    model: str | None = None,
     effort: str = "high",
     seeds: tuple[str, ...] = ("mine", "heuristic"),
     champion: str = "mine",
@@ -275,14 +301,15 @@ def main(
         train_episodes: episodes of that root every candidate plays (the same ones: paired differences).
         holdout: held-out dev episodes for the final check: dev, a count or a list.
         generations: rounds of the search.
-        n_llm: children per generation written by Claude (needs ANTHROPIC_API_KEY).
+        n_llm: children per generation written by Claude.
         n_mutate: children per generation from the numeric mutation.
         elite: candidates kept as parents.
         sigma: the mutation's scale.
         quick: seconds, not the leaderboard's numbers (smoke tests only).
         n_jobs: workers of the references' first computation (-1: all cores).
         workers: joblib workers that play a candidate's episodes in parallel.
-        model: the Claude model of the proposer.
+        llm: how Claude is called: cli (``claude -p``, your Claude Code subscription) or api (ANTHROPIC_API_KEY).
+        model: the Claude model of the proposer (default: opus for cli, claude-opus-5-5 for api).
         effort: its effort level (low, medium, high, xhigh, max).
         seeds: agents that start the archive (names of agents/ or folders).
         champion: the agent of agents/ the best must beat held out; replaced by it on a win (a copy is kept).
@@ -308,8 +335,12 @@ def main(
     system = SYSTEM.format(
         task=task, T=T, budget=budget, fields=fields.strip(), send_max={"tiny": 0.68, "small": 0.41}.get(task, "?")
     )
-    if n_llm and not __import__("os").environ.get("ANTHROPIC_API_KEY"):
-        print("ANTHROPIC_API_KEY is not set: n_llm = 0 (numeric mutation only)")
+    if llm not in ASK:
+        raise ValueError(f"llm must be one of {list(ASK)}, got {llm!r}")
+    model = model or DEFAULT_MODEL[llm]
+    if n_llm and not llm_available(llm):
+        need = "ANTHROPIC_API_KEY" if llm == "api" else "the claude command"
+        print(f"{need} is not available: n_llm = 0 (numeric mutation only)")
         n_llm = 0
     archive: list[dict] = []
     log = out / "archive.jsonl"
@@ -353,7 +384,7 @@ def main(
             parent = parents[i % len(parents)]
             folder = out / f"gen{g}" / f"llm_{i:02d}"
             try:
-                note = propose_llm(parent, folder, system, model, effort)
+                note = propose_llm(parent, folder, system, model, effort, llm)
             except Exception as err:  # noqa: BLE001 - an API error must not stop the search
                 print(f"  llm_{i:02d}: {type(err).__name__}: {err}")
                 continue

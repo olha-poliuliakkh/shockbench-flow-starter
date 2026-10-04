@@ -25,26 +25,7 @@ PARAMS = {
     "shed_weight": 1.0,  # multiplies the grids' value of lost load
     "closed_below": 0.05,  # a strait this open or less carries nothing in the forecast
     "holding_weight": 1.0,  # multiplies holding costs
-    "reopen_trust": 0.8,  # share of a strait's nominal throughput expected from its announced end-of-closure week
-    "queue_scale": 0.0,  # queue delay and holding expected at a partly open strait (1.0 scored worse on Small dev)
-    "recover_weeks": 0.0,  # a cut edge capacity expected back at nominal with this time constant (4.0 scored worse)
-    "buffer_weight": 1.0,  # weight of the rationing buffer: a grid's rationed fuel is kept at psi x ibar (0: ignore)
-    "fab_energy_weight": 1.0,  # fuel the grid burns for its fabs' lot starts, share_k x e_f per wafer (0: ignore)
-    "fab_shed_tol": 0.0,  # base load first: fab energy only while shed < this share of load (0 off; 0.01 scored worse)
-    "fab_w_cost": 1e8,  # USD per GWh of fab energy the plan would take while shedding (above any lot's worth)
-    "pipeline_closure": 1.0,  # 1: cargo bound for a closed strait arrives after its announced reopening, else never
-    "_bounds": {
-        "horizon": [4, 30],
-        "terminal_frac": [0, 1.5],
-        "closed_below": [0, 0.9],
-        "reopen_trust": [0, 1],
-        "queue_scale": [0, 3],
-        "recover_weeks": [0, 30],
-        "buffer_weight": [0, 3],
-        "fab_energy_weight": [0, 2],
-        "fab_shed_tol": [0.001, 0.2],
-        "pipeline_closure": [0, 1],
-    },
+    "_bounds": {"horizon": [4, 30], "terminal_frac": [0, 1.5], "closed_below": [0, 0.9]},
 }
 if (HERE / "params.json").is_file():
     PARAMS |= json.loads((HERE / "params.json").read_text())
@@ -103,13 +84,6 @@ class Agent:
             p = by_id[self.node_id[n]]["fab"]
             k_in, k_out = self.k_id.index(p["input"]), self.k_id.index(p["product"])
             self.fabs.append((self.j_of.get((n, k_in), -1), self.j_of.get((n, k_out), -1), int(p["tau"])))
-        # each fab's grid ordinal and energy per wafer: the grid burns share_k x e_f x p_f of each of its fuels
-        self.fab_grid, self.fab_e = [], []
-        for n in lay["fabs"]:
-            p = by_id[self.node_id[n]]["fab"]
-            gnode = self.node_id.index(p["grid"]) if p.get("grid") in self.node_id else -1
-            self.fab_grid.append(lay["grids"].index(gnode) if gnode in lay["grids"] else -1)
-            self.fab_e.append(float(p.get("e") or 0.0))
         self.osats, self.osat_of = [], []  # one entry per (osat, raw k): (j_raw, j_packaged, tau, osat ordinal)
         for o, n in enumerate(lay["osats"]):
             p = by_id[self.node_id[n]]["osat"]
@@ -119,18 +93,6 @@ class Agent:
                     self.j_of.get((n, self.k_id.index(packaged)), -1),
                 )
                 self.osats.append((j_raw, j_pk, int(p["tau"]), o))
-        # gas rationing: below psi x ibar of its rationed fuel at the end of a week, a grid's segment output of that
-        # fuel next week scales by stock / threshold; one unit short costs about voll x share x G_bar / threshold
-        self.ration = []  # (j of the rationed fuel's slot, threshold, USD per unit below it)
-        psi = float(inst.get("params", {}).get("psi", 0.0))
-        for n in lay["grids"]:
-            p = by_id[self.node_id[n]]["grid"]
-            fuel = p.get("rationed")
-            ibar = (p.get("ibar") or {}).get(fuel)
-            if fuel in self.k_id and ibar and psi > 0 and (n, self.k_id.index(fuel)) in self.j_of:
-                threshold = psi * float(ibar)
-                marginal = float(p["voll"]) * float(p["shares"].get(fuel, 0.0)) * float(p["deliverable"]) / threshold
-                self.ration.append((self.j_of[(n, self.k_id.index(fuel))], threshold, marginal))
         self.grid_burn = []  # (grid ordinal, j of the fuel slot, share of the base load, voll)
         for g, n in enumerate(lay["grids"]):
             p = by_id[self.node_id[n]]["grid"]
@@ -184,28 +146,6 @@ class Agent:
         ):
             if w >= t:
                 pend[(int(e), int(k))] = min(pend.get((int(e), int(k)), 10**9), int(w) - t)
-        # straits: the weeks a partly open one delays cargo, and the queue holding that costs
-        delay, queue_cost = {}, {}  # chokepoint -> extra weeks; (chokepoint, k) -> USD per unit
-        for c, row in self.chk_row.items():
-            op = float(open_[row])
-            if PARAMS["closed_below"] < op < 1.0:
-                extra = (1.0 / op - 1.0) * PARAMS["queue_scale"]
-                delay[c] = int(np.ceil(extra))
-                for k, name in enumerate(self.k_id):
-                    qh = self.chk_params[c].get("queue_holding", {}).get(name)
-                    if qh:
-                        cls = int(war[row])
-                        queue_cost[(c, k)] = qh[min(cls, len(qh) - 1)] * extra
-        # announced ends of closures: the strait reopens in the window from that week
-        reopen = {}  # chokepoint -> first window week it is open again
-        if "closure_end.chokepoint" in o:
-            ends = zip(o["closure_end.chokepoint"], o["closure_end.end_week"], o["closure_end.end_week.observed"])
-            for c, w, ok in ends:
-                if ok and int(c) in self.chk_row and int(w) > t:
-                    reopen[int(c)] = min(reopen.get(int(c), H), int(w) - t)
-        closed = {c for c, row in self.chk_row.items() if float(open_[row]) <= PARAMS["closed_below"]}
-        use_pc = PARAMS["pipeline_closure"] >= 0.5
-
         for s, (es, cs, k) in enumerate(zip(self.route_edges, self.route_chk, self.k_s)):
             cost[s] = sum(c_e[e] + tariff[e, k] * v[k] for e in es)
             for c in cs:
@@ -213,8 +153,6 @@ class Agent:
                 wr = self.chk_params[c].get("war_risk_cost", {}).get(self.k_id[k])
                 if wr:
                     cost[s] += wr[min(cls, len(wr) - 1)]
-                cost[s] += queue_cost.get((c, k), 0.0)
-                lead[s] += delay.get(c, 0)
             if any(proh[e, k] for e in es):
                 blocked_from[s] = 0
             else:
@@ -229,11 +167,10 @@ class Agent:
             if j >= 0 and 0 <= h < H and q > 0:
                 arr[h, j] += q
 
-        for e, k, lane, lane_ok, q, w, ok in zip(
+        for e, k, lane, q, w, ok in zip(
             o["pipeline.edge"],
             o["pipeline.k"],
             o["pipeline.lane"],
-            o["pipeline.lane.observed"],
             o["pipeline.qty"],
             o["pipeline.arrival_week"],
             o["pipeline.qty.observed"],
@@ -241,36 +178,29 @@ class Agent:
             if not ok or q <= 0:
                 continue
             e, k = int(e), int(k)
-            if lane_ok and 0 <= int(lane) < len(self.lane_edges) and e in self.lane_edges[int(lane)]:
+            if (
+                o["pipeline.lane.observed"] is not None
+                and lane >= 0
+                and int(lane) < len(self.lane_edges)
+                and e in self.lane_edges[int(lane)]
+            ):
                 es = self.lane_edges[int(lane)]
-                i0 = es.index(e)
-                h_arr = int(w) - t + int(sum(tau[x] for x in es[i0 + 1 :]))
-                lost = False
-                if use_pc:  # a closed strait still ahead holds the cargo until its announced reopening
-                    for idx in range(i0, len(es) - 1):
-                        c = int(self.edge_head[es[idx]])
-                        if c in closed:
-                            if c in reopen:
-                                h_arr = max(h_arr, reopen[c] + int(sum(tau[x] for x in es[idx + 1 :])))
-                            else:
-                                lost = True
-                if not lost:
-                    add(self.j_of.get((self.edge_head[es[-1]], k), -1), h_arr, float(q))
+                rest = es[es.index(e) + 1 :]
+                add(
+                    self.j_of.get((self.edge_head[es[-1]], k), -1),
+                    int(w) - t + int(sum(tau[x] for x in rest)),
+                    float(q),
+                )
             else:
                 add(self.j_of.get((self.edge_head[e], k), -1), int(w) - t, float(q))
         if self.lot_keys and "queue_lots.qty" in o:
             qty = o["queue_lots.qty"].sum(axis=1)
             for (c, k, lane, nxt), q in zip(self.lot_keys, qty):
-                if q <= 0:
+                if q <= 0 or open_[self.chk_row[c]] <= PARAMS["closed_below"]:
                     continue
                 es = self.lane_edges[lane]
                 rest = es[es.index(nxt) :] if nxt in es else [nxt]
-                h_arr = int(sum(tau[x] for x in rest)) + delay.get(c, 0)
-                if c in closed:
-                    if not (use_pc and c in reopen):
-                        continue
-                    h_arr += reopen[c]
-                add(self.j_of.get((self.edge_head[es[-1]], k), -1), h_arr, float(q))
+                add(self.j_of.get((self.edge_head[es[-1]], k), -1), int(sum(tau[x] for x in rest)), float(q))
         for n, k, q, w, ok in zip(o["wip.node"], o["wip.k"], o["wip.qty"], o["wip.out_week"], o["wip.qty.observed"]):
             if ok and q > 0:
                 add(self.j_of.get((int(n), int(k)), -1), int(w) - t, float(q))
@@ -278,9 +208,7 @@ class Agent:
         # columns
         F, M, D, G = len(self.fabs), len(self.osats), len(self.demands), len(self.grid_burn)
         U_ = len(self.supply_j)
-        R = len(self.ration)
-        NG = len(o["graph_now.grid.y_bar"])
-        sizes = {"x": S, "I": J, "O": J, "lift": U_, "p": F, "q": M, "U": D, "shed": G, "buf": R, "w": NG}
+        sizes = {"x": S, "I": J, "O": J, "lift": U_, "p": F, "q": M, "U": D, "shed": G}
         off, n = {}, 0
         for name, size in sizes.items():
             off[name] = n
@@ -378,40 +306,12 @@ class Agent:
                     rhs[h, j] -= dem
                     balance[h][j].append((cu, -1.0))
             for g, (grid, j, share, voll) in enumerate(self.grid_burn):
-                if PARAMS["fab_energy_weight"] > 0:  # the fabs' draw on this fuel, per lot started
-                    for f, (fg, e_f) in enumerate(zip(self.fab_grid, self.fab_e)):
-                        if fg == grid and e_f > 0:
-                            balance[h][j].append((col("p", h, f), share * e_f * PARAMS["fab_energy_weight"]))
                 burn = share * max(0.0, float(o["graph_now.grid.y_bar"][grid]))
                 cs_ = col("shed", h, g)
                 ub[cs_] = burn
                 cost_vec[cs_] = voll * PARAMS["shed_weight"]
                 rhs[h, j] -= burn
                 balance[h][j].append((cs_, -1.0))
-            # base load first: a grid's fabs share only the headroom G_bar - y_bar, and get nothing once the grid
-            # sheds more than a small tolerance:  sum_f e_f p_f + (headroom / tol) sum_k shed_gk - w <= headroom,
-            # with w >= 0 priced above any gain from a lot, so the LP cuts the starts instead of paying it
-            if PARAMS["fab_shed_tol"] > 0:
-                for grid in range(NG):
-                    fabs = [f for f, fg in enumerate(self.fab_grid) if fg == grid and self.fab_e[f] > 0]
-                    if not fabs:
-                        continue
-                    y_bar = max(0.0, float(o["graph_now.grid.y_bar"][grid]))
-                    headroom = max(0.0, float(o["graph_now.grid.G_bar"][grid]) - y_bar)
-                    tol = max(PARAMS["fab_shed_tol"] * y_bar, 1e-6)
-                    cw = col("w", h, grid)
-                    cost_vec[cw] = PARAMS["fab_w_cost"]
-                    ent = [(col("p", h, f), self.fab_e[f]) for f in fabs] + [(cw, -1.0)]
-                    ent += [
-                        (col("shed", h, g), headroom / tol)
-                        for g, (gr, _j, _s, _v) in enumerate(self.grid_burn)
-                        if gr == grid
-                    ]
-                    le(ent, headroom)
-            for i, (j, threshold, marginal) in enumerate(self.ration):  # I[h, j] + buf >= threshold
-                cb = col("buf", h, i)
-                cost_vec[cb] = marginal * PARAMS["buffer_weight"]
-                le([(col("I", h, j), -1.0), (cb, -1.0)], -threshold)
             # dispatch draws on the stock on hand at the start of the week
             for j in set(self.j_out):
                 if j < 0:
@@ -423,17 +323,10 @@ class Agent:
                     le(ent, I0[j])
             for e in self.used_edges:
                 ent = [(col("x", h, s), 1.0) for s in range(S) if e in self.route_edges[s]]
-                cap_e = max(0.0, float(u[e]))
-                if PARAMS["recover_weeks"] > 0 and cap_e < self.u0[e]:  # a cut recovers toward nominal
-                    cap_e += (self.u0[e] - cap_e) * (1.0 - np.exp(-h / PARAMS["recover_weeks"]))
-                le(ent, cap_e)
+                le(ent, max(0.0, float(u[e])))
             for c, pool in self.chk_pairs:
                 row = self.chk_row[c]
                 cap = 0.0 if open_[row] <= PARAMS["closed_below"] else max(0.0, float(kappa[pool][row]))
-                if c in reopen and h >= reopen[c]:
-                    p = self.chk_params[c]
-                    nominal = float(p.get("mu", {}).get(pool, 0.0)) * float(p.get("k_c", 1.0))
-                    cap = max(cap, PARAMS["reopen_trust"] * nominal)
                 ent = [
                     (col("x", h, s), 1.0) for s in range(S) if c in self.route_chk[s] and self.pool[self.k_s[s]] == pool
                 ]
