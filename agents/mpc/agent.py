@@ -33,6 +33,7 @@ PARAMS = {
     "fab_shed_tol": 0.0,  # base load first: fab energy only while shed < this share of load (0 off; 0.01 scored worse)
     "fab_w_cost": 1e8,  # USD per GWh of fab energy the plan would take while shedding (above any lot's worth)
     "pipeline_closure": 1.0,  # 1: cargo bound for a closed strait arrives after its announced reopening, else never
+    "tanker_control": 1.0,  # 1: the LP releases tanker cargo queued at straits itself (release_mode 1, override_qty)
     "_bounds": {
         "horizon": [4, 30],
         "terminal_frac": [0, 1.5],
@@ -44,6 +45,7 @@ PARAMS = {
         "fab_energy_weight": [0, 2],
         "fab_shed_tol": [0.001, 0.2],
         "pipeline_closure": [0, 1],
+        "tanker_control": [0, 1],
     },
 }
 if (HERE / "params.json").is_file():
@@ -90,9 +92,7 @@ class Agent:
             self.j_out.append(self.j_of.get((edges["tail"][es[0]], k), -1))
             self.j_in.append(self.j_of.get((edges["head"][es[-1]], k), -1))
         self.k_s = np.array(self.k_s)
-        self.used_edges = sorted({e for es in self.route_edges for e in es})
         self.chk_row = {c: i for i, c in enumerate(lay["chokepoints"])}
-        self.chk_pairs = sorted({(c, self.pool[k]) for cs, k in zip(self.route_chk, self.k_s) for c in cs})
         self.lane_edges = lanes["edges"]
         self.edge_head, self.edge_tail = edges["head"], edges["tail"]
 
@@ -149,6 +149,49 @@ class Agent:
         self.u0 = np.array([u if u is not None else 0.0 for u in edges["u0"]], dtype=float)
         self.last_flows = np.zeros(S)
 
+        # tanker cargo (commodities with an override): under tanker_control a lane dispatch only reaches the lane's
+        # first strait, where it joins the queue (c, k); the LP then releases it on the override slots of (c, k),
+        # each a path to the next strait on its lane or to the lane's end
+        chk_set = set(lay["chokepoints"])
+        self.tanker = [bool(f) for f in st["commodities"]["override"]]
+        self.pairs = [tuple(x) for x in lay.get("release_pairs", [])]
+        self.pair_of = {p: i for i, p in enumerate(self.pairs)}
+        self.tk_on = PARAMS["tanker_control"] >= 0.5 and bool(self.pairs)
+        self.tk_dest = [-1] * S  # slot -> queue pair its dispatch joins (-1: a stock slot, as j_in)
+        self.cap_edges = [list(es) for es in self.route_edges]  # edges a dispatch occupies this week
+        self.cap_chk = [list(cs) for cs in self.route_chk]  # straits whose throughput a dispatch uses
+        if self.tk_on:
+            for s in range(S):
+                es, k = self.route_edges[s], int(self.k_s[s])
+                if not self.tanker[k] or slots["lane"][s] is None:
+                    continue
+                first = next((i for i, e in enumerate(es) if edges["head"][e] in chk_set), None)
+                if first is None or (edges["head"][es[first]], k) not in self.pair_of:
+                    continue
+                self.tk_dest[s] = self.pair_of[(edges["head"][es[first]], k)]
+                self.j_in[s] = -1
+                self.cap_edges[s] = es[: first + 1]
+                self.cap_chk[s] = []  # the throughput is used when the LP releases, not at dispatch
+        ov = st["override_slots"]
+        self.ov = []  # (pair from, out edge, path edges, stop pair or -1, stop stock slot or -1, straits passed)
+        for o in range(len(ov["chokepoint"])):
+            c, k, e, lane = ov["chokepoint"][o], ov["k"][o], ov["out_edge"][o], ov["lane"][o]
+            full = list(lanes["edges"][lane]) if lane is not None and e in lanes["edges"][lane] else [e]
+            path = full[full.index(e) :]
+            stop = next((i for i, x in enumerate(path) if edges["head"][x] in chk_set), None)
+            if stop is not None:
+                path = path[: stop + 1]
+                stop_pair, stop_j = self.pair_of.get((edges["head"][path[-1]], k), -1), -1
+            else:
+                stop_pair, stop_j = -1, self.j_of.get((edges["head"][path[-1]], k), -1)
+            passed = [edges["head"][x] for x in path if edges["head"][x] in chk_set]
+            self.ov.append((self.pair_of.get((c, k), -1), e, path, stop_pair, stop_j, passed))
+        self.used_edges = sorted({e for es in self.cap_edges for e in es} | {ov_[1] for ov_ in self.ov})
+        self.chk_pairs = sorted(
+            {(c, self.pool[k]) for cs, k in zip(self.cap_chk, self.k_s) for c in cs}
+            | ({(c, self.pool[k]) for c, k in self.pairs} if self.tk_on else set())
+        )
+
     # ------------------------------------------------------------------------------------------------ the week
 
     def act(self, observation):
@@ -160,11 +203,20 @@ class Agent:
             flows = self._solve(o, t, H)
         except Exception:  # noqa: BLE001 - a failed solve must not hand the week to the naive rule
             flows = None
+        release = None
+        if isinstance(flows, tuple):
+            flows, release = flows
         if flows is None:
             flows = self.last_flows if t > 1 else self.u0[[es[0] for es in self.route_edges]]
         flows = np.nan_to_num(np.maximum(flows, 0.0)) * mask
         self.last_flows = flows
-        return {"flows": flows}
+        action = {"flows": flows}
+        if release is not None:
+            qty, mode = release
+            om = o["override_mask"].astype(float)
+            action["override_qty"] = np.nan_to_num(np.maximum(qty, 0.0)) * om
+            action["release_mode"] = mode
+        return action
 
     def _solve(self, o, t, H):
         S, J = self.S, len(self.stock)
@@ -206,7 +258,10 @@ class Agent:
         closed = {c for c, row in self.chk_row.items() if float(open_[row]) <= PARAMS["closed_below"]}
         use_pc = PARAMS["pipeline_closure"] >= 0.5
 
-        for s, (es, cs, k) in enumerate(zip(self.route_edges, self.route_chk, self.k_s)):
+        for s, (es, cs, k) in enumerate(zip(self.cap_edges, self.cap_chk, self.k_s)):
+            if self.tk_dest[s] >= 0:  # a tanker lane: the dispatch only runs to the first strait
+                lead[s] = int(sum(tau[e] for e in es))
+                cs = [self.edge_head[es[-1]]]
             cost[s] = sum(c_e[e] + tariff[e, k] * v[k] for e in es)
             for c in cs:
                 cls = int(war[self.chk_row[c]])
@@ -222,12 +277,41 @@ class Agent:
         if o["action_mask.observed"][0]:
             blocked_from = np.where(o["action_mask"] == 0, np.minimum(blocked_from, 0), blocked_from)
 
-        # known arrivals into stock slots per window week
+        # override slots this week: lead, cost and the first blocked week of each release path
+        P, NO = (len(self.pairs), len(self.ov)) if self.tk_on else (0, 0)
+        ov_lead, ov_cost, ov_blocked = np.zeros(NO, dtype=int), np.zeros(NO), np.full(NO, H)
+        for i, (p_from, e_out, path, _sp, _sj, passed) in enumerate(self.ov[:NO]):
+            k = self.pairs[p_from][1] if p_from >= 0 else 0
+            ov_lead[i] = int(sum(tau[x] for x in path))
+            ov_cost[i] = sum(c_e[x] + tariff[x, k] * v[k] for x in path)
+            for c in passed:
+                cls = int(war[self.chk_row[c]])
+                wr = self.chk_params[c].get("war_risk_cost", {}).get(self.k_id[k])
+                if wr:
+                    ov_cost[i] += wr[min(cls, len(wr) - 1)]
+            if p_from < 0 or any(proh[x, k] for x in path):
+                ov_blocked[i] = 0
+            else:
+                ov_blocked[i] = min([H] + [pend[(x, k)] for x in path if (x, k) in pend])
+            if o["override_mask.observed"][0] and o["override_mask"][i] == 0:
+                ov_blocked[i] = min(ov_blocked[i], 0)
+        q_hold = np.zeros(P)  # queue holding per unit-week at each pair
+        for i, (c, k) in enumerate(self.pairs[:P]):
+            qh = self.chk_params[c].get("queue_holding", {}).get(self.k_id[k])
+            if qh:
+                q_hold[i] = qh[min(int(war[self.chk_row[c]]), len(qh) - 1)]
+
+        # known arrivals into stock slots (and tanker queues) per window week
         arr = np.zeros((H, J))
+        arrQ = np.zeros((H, max(P, 1)))
 
         def add(j, h, q):
             if j >= 0 and 0 <= h < H and q > 0:
                 arr[h, j] += q
+
+        def add_q(p, h, q):
+            if p >= 0 and 0 <= h < H and q > 0:
+                arrQ[h, p] += q
 
         for e, k, lane, lane_ok, q, w, ok in zip(
             o["pipeline.edge"],
@@ -241,7 +325,13 @@ class Agent:
             if not ok or q <= 0:
                 continue
             e, k = int(e), int(k)
-            if lane_ok and 0 <= int(lane) < len(self.lane_edges) and e in self.lane_edges[int(lane)]:
+            if self.tk_on and self.tanker[k]:  # tanker cargo: it stops at the next strait, else at the edge's head
+                head = self.edge_head[e]
+                if (head, k) in self.pair_of:
+                    add_q(self.pair_of[(head, k)], int(w) - t, float(q))
+                else:
+                    add(self.j_of.get((head, k), -1), int(w) - t, float(q))
+            elif lane_ok and 0 <= int(lane) < len(self.lane_edges) and e in self.lane_edges[int(lane)]:
                 es = self.lane_edges[int(lane)]
                 i0 = es.index(e)
                 h_arr = int(w) - t + int(sum(tau[x] for x in es[i0 + 1 :]))
@@ -258,10 +348,20 @@ class Agent:
                     add(self.j_of.get((self.edge_head[es[-1]], k), -1), h_arr, float(q))
             else:
                 add(self.j_of.get((self.edge_head[e], k), -1), int(w) - t, float(q))
+        Q0 = np.zeros(max(P, 1))
+        if self.tk_on and not self.lot_keys and "queue_lots.chokepoint" in o:  # Tiny: one entry per lot
+            for c, k, q, ok in zip(
+                o["queue_lots.chokepoint"], o["queue_lots.k"], o["queue_lots.qty"], o["queue_lots.qty.observed"]
+            ):
+                if ok and q > 0 and (int(c), int(k)) in self.pair_of:
+                    Q0[self.pair_of[(int(c), int(k))]] += float(q)
         if self.lot_keys and "queue_lots.qty" in o:
             qty = o["queue_lots.qty"].sum(axis=1)
             for (c, k, lane, nxt), q in zip(self.lot_keys, qty):
                 if q <= 0:
+                    continue
+                if self.tk_on and (c, k) in self.pair_of:
+                    Q0[self.pair_of[(c, k)]] += float(q)
                     continue
                 es = self.lane_edges[lane]
                 rest = es[es.index(nxt) :] if nxt in es else [nxt]
@@ -281,6 +381,7 @@ class Agent:
         R = len(self.ration)
         NG = len(o["graph_now.grid.y_bar"])
         sizes = {"x": S, "I": J, "O": J, "lift": U_, "p": F, "q": M, "U": D, "shed": G, "buf": R, "w": NG}
+        sizes |= {"Q": P, "y": NO}
         off, n = {}, 0
         for name, size in sizes.items():
             off[name] = n
@@ -316,7 +417,36 @@ class Agent:
 
         balance = [[[] for _ in range(J)] for _ in range(H)]  # entries per (h, j)
         rhs = arr.copy()
+        qbal = [[[] for _ in range(P)] for _ in range(H)]  # tanker queue balance entries per (h, pair)
+        qrhs = arrQ[:, :P].copy()
         for h in range(H):
+            for p in range(P):
+                cq = col("Q", h, p)
+                qbal[h][p].append((cq, 1.0))
+                if h > 0:
+                    qbal[h][p].append((col("Q", h - 1, p), -1.0))
+                else:
+                    qrhs[0, p] += Q0[p]
+                cost_vec[cq] = q_hold[p]
+                if h == H - 1:
+                    cost_vec[cq] -= PARAMS["terminal_frac"] * v[self.pairs[p][1]]
+            for i, (p_from, e_out, path, stop_p, stop_j, _passed) in enumerate(self.ov[:NO]):
+                cy = col("y", h, i)
+                if h >= ov_blocked[i] or p_from < 0:
+                    ub[cy] = 0.0
+                cost_vec[cy] = ov_cost[i]
+                qbal[h][p_from].append((cy, 1.0))
+                ha = h + ov_lead[i]
+                if stop_p >= 0:
+                    if ha < H:
+                        qbal[ha][stop_p].append((cy, -1.0))
+                    else:
+                        cost_vec[cy] -= PARAMS["terminal_frac"] * v[self.pairs[stop_p][1]]
+                elif stop_j >= 0:
+                    if ha < H:
+                        balance[ha][stop_j].append((cy, -1.0))
+                    else:
+                        cost_vec[cy] -= self.value[stop_j]
             for j in range(J):
                 balance[h][j].append((col("I", h, j), 1.0))
                 if h > 0:
@@ -334,7 +464,12 @@ class Agent:
                 cost_vec[cx] = cost[s]
                 balance[h][self.j_out[s]].append((cx, 1.0))
                 ha = h + lead[s]
-                if self.j_in[s] >= 0:
+                if self.tk_dest[s] >= 0:
+                    if ha < H:
+                        qbal[ha][self.tk_dest[s]].append((cx, -1.0))
+                    else:
+                        cost_vec[cx] -= PARAMS["terminal_frac"] * v[self.k_s[s]]
+                elif self.j_in[s] >= 0:
                     if ha < H:
                         balance[ha][self.j_in[s]].append((cx, -1.0))
                     else:
@@ -422,7 +557,8 @@ class Agent:
                 else:
                     le(ent, I0[j])
             for e in self.used_edges:
-                ent = [(col("x", h, s), 1.0) for s in range(S) if e in self.route_edges[s]]
+                ent = [(col("x", h, s), 1.0) for s in range(S) if e in self.cap_edges[s]]
+                ent += [(col("y", h, i), 1.0) for i in range(NO) if self.ov[i][1] == e]
                 cap_e = max(0.0, float(u[e]))
                 if PARAMS["recover_weeks"] > 0 and cap_e < self.u0[e]:  # a cut recovers toward nominal
                     cap_e += (self.u0[e] - cap_e) * (1.0 - np.exp(-h / PARAMS["recover_weeks"]))
@@ -435,12 +571,21 @@ class Agent:
                     nominal = float(p.get("mu", {}).get(pool, 0.0)) * float(p.get("k_c", 1.0))
                     cap = max(cap, PARAMS["reopen_trust"] * nominal)
                 ent = [
-                    (col("x", h, s), 1.0) for s in range(S) if c in self.route_chk[s] and self.pool[self.k_s[s]] == pool
+                    (col("x", h, s), 1.0) for s in range(S) if c in self.cap_chk[s] and self.pool[self.k_s[s]] == pool
+                ]
+                ent += [
+                    (col("y", h, i), 1.0)
+                    for i in range(NO)
+                    if self.ov[i][0] >= 0
+                    and self.pairs[self.ov[i][0]][0] == c
+                    and self.pool[self.pairs[self.ov[i][0]][1]] == pool
                 ]
                 le(ent, cap)
         for h in range(H):
             for j in range(J):
                 eq(balance[h][j], rhs[h, j])
+            for p in range(P):
+                eq(qbal[h][p], qrhs[h, p])
         for j in range(J):
             cost_vec[col("I", H - 1, j)] -= self.value[j]
 
@@ -458,4 +603,15 @@ class Agent:
         )
         if res.status != 0 or res.x is None:
             return None
-        return res.x[off["x"] : off["x"] + S]
+        flows = res.x[off["x"] : off["x"] + S]
+        if not self.tk_on:
+            return flows
+        # the week's tanker releases: release_mode 1 on every pair with a sendable override slot, its quantities
+        # from the plan (0 holds); pairs without a sendable slot keep the default release
+        qty = np.zeros(self.n_override)
+        qty[:NO] = res.x[off["y"] : off["y"] + NO]
+        mode = np.zeros(self.n_pairs, dtype=np.int64)
+        for i, (p_from, *_rest) in enumerate(self.ov[:NO]):
+            if p_from >= 0 and ov_blocked[i] > 0:
+                mode[p_from] = 1
+        return flows, (qty, mode)
