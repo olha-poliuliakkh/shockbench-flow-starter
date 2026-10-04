@@ -32,6 +32,10 @@ dependencies = [
 [project.optional-dependencies]
 # examples/05_train_ppo.py: `uv sync --extra rl`
 rl = ["shockbench-flow[rl] >= 0.1.2"]
+evolve = [
+    "anthropic>=1.11.0",
+    "cma>=4.5.0",
+]
 
 [project.scripts]
 sbf = "sbf_starter.cli:main"
@@ -54,6 +58,8 @@ packages = ["src/sbf_starter"]
 [tool.ruff]
 line-length = 120
 target-version = "py312"
+# the planner vendored into agents by scripts/vendor_planner.py stays byte-identical to the package
+extend-exclude = ["agents/*/sbfplan"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I"]

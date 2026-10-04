@@ -37,10 +37,17 @@ itself is the `shockbench-flow` package from PyPI (`>= 0.1.2` in
 ```
 agents/<name>/     # one submission folder per agent: agent.py and the files it loads (weights are committed)
                    #   shipped: template (send the maximum), random, heuristic (reads params.json if present)
+                   #   mine: the LP planner (package's mpc_det, vendored as sbfplan/ by scripts/vendor_planner.py,
+                   #   solved by SciPy) in a frozen frame.py, with four EVOLVE blocks in agent.py
+                   #   evo_champion: the evolution loop's current champion (written by examples/08_evolve.py)
 examples/          # 01_quickstart.py ... 07_dashboard.py, each self-contained; ppo_agent.py is the PPO submission's agent.py
+                   #   08_evolve.py: the AlphaEvolve loop (docs/EVOLVE_DESIGN.md); 09_stress.py: stress tests on
+                   #   stratified private episodes (levels, Full, paired, CPU and memory)
+src/sbf_starter/evolve/  # the loop's pools, evaluator, feedback, prompts, mutator, CMA-ES tuner, archive
 src/sbf_starter/   # the `sbf` CLI (cli.py), scoring.py, check.py (isolated timed run), container.py (--docker),
                    #   codabench.py (token, upload, status), agents.py (names -> folders), play.py (closures)
-scripts/           # fields_docs.py: regenerates docs/fields/ from the installed shockbench-flow
+scripts/           # fields_docs.py: regenerates docs/fields/ from the installed shockbench-flow;
+                   #   vendor_planner.py: copies the package's planner into an agent folder as sbfplan/
 docs/              # GUIDE.md, fields/ (every observation and action field), img/
 tests/             # uv run pytest -n 3
 outputs/           # run folders outputs/<example>/<date_time>/ and packed zips (gitignored)
@@ -64,6 +71,9 @@ Always run Python through `uv run` (the locked environment). `AGENT` is a name
 | Submissions and scores        | `uv run sbf status`                                                      |
 | Run an example                | `uv run python examples/0N_name.py --task=small --key=value`             |
 | Add a dependency              | `uv add <package>` (training only: agent.py cannot import it)            |
+| Evolve the LP agent           | `uv sync --extra evolve`, then `uv run python examples/08_evolve.py` (`--dry_run` offline) |
+| Stress-test an agent          | `uv run python examples/09_stress.py --agent=mine --levels=3,4 --root=123` |
+| Re-vendor the planner         | `uv run python scripts/vendor_planner.py agents/mine`, then `uv run pytest tests/test_planner_port.py` |
 | Update shockbench-flow        | `uv sync --upgrade-package shockbench-flow` (never edit a version)       |
 | Tests                         | `uv run pytest -n 3`                                                     |
 | Lint / format                 | `make lint`                                                              |
@@ -113,6 +123,8 @@ must respect:
   `heuristic` agent reads its numbers from a `params.json` beside it when there
   is one (`examples/06_policy_search.py` writes one).
 - Draw randomness from local seeded generators (`np.random.default_rng(seed)`).
+- `agents/mine/frame.py` and `agents/mine/sbfplan/` are frozen: the loop rejects candidates whose copies differ,
+  and ruff skips `sbfplan/`. Change the frame deliberately, then start a new evolution run.
 - Verify before reporting done: `uv run sbf check <agent> --task=small` for an
   agent, a run with small settings for an example, `uv run pytest -n 3` for code.
   If a check cannot run (no Docker, no network), say so.
