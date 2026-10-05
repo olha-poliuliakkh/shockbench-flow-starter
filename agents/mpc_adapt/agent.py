@@ -1,4 +1,11 @@
-"""MPC: every week, solve a small linear program over the next H weeks and send its first week.
+"""MPC that learns inside the episode: every week, solve a small linear program over the next H weeks, send its first
+week, and update what it believes about the weeks ahead from what the last weeks showed.
+
+What it learns: how long a dip in a strait's throughput (``graph_now.kappa.*``) lasts. A dip seen now is expected to
+recover toward the strait's normal throughput with the probability that a dip of its age ends within h weeks. That
+survival curve starts from durations measured offline on our own roots (``kappa_durations``) and, during the episode,
+every dip that ends adds its duration (weighted against the prior by ``kappa_prior_weight``). Nothing carries over
+between episodes: one Agent per episode.
 
 A simplified copy of the organisers' ``mpc_det`` in the server's packages (numpy, scipy). The model: flows on the
 action slots (a slot is a route: an edge, or a lane through straits, with its lead time, freight, tariffs and
@@ -34,9 +41,152 @@ PARAMS = {
     "fab_w_cost": 1e8,  # USD per GWh of fab energy the plan would take while shedding (above any lot's worth)
     "pipeline_closure": 1.0,  # 1: cargo bound for a closed strait arrives after its announced reopening, else never
     "tanker_control": 1.0,  # 1: the LP releases tanker cargo queued at straits itself (release_mode 1, override_qty)
-    "_fixed": ["fab_shed_tol", "fab_w_cost", "pipeline_closure", "tanker_control"],  # a search leaves these as they are
+    "feedback": 0.0,  # 1: demand and fuel margins learnt from planned vs realized shortage and shed (hurt on Full)
+    "fb_lag": 4,  # the plan made this many weeks earlier is the one a week's outcome is compared with
+    "fb_rate": 0.5,  # margin step per unit of surprise (unmet or shed beyond the plan, as a share of the need)
+    "fb_decay": 0.05,  # share of a margin given back each week without a surprise
+    "fb_max": 0.5,  # largest margin
+    "kappa_belief": 1.0,  # 1: a throughput dip recovers by the learned survival curve; 0: it persists (the old belief)
+    "kappa_prior_weight": 3.0,  # pseudo-count of the offline durations against the dips ended in this episode
+    "kappa_durations": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        4,
+        4,
+        7,
+        7,
+        7,
+        7,
+        11,
+        11,
+        17,
+        17,
+        22,
+        22,
+        30,
+        30,
+    ],  # weeks of ended throughput dips, own roots
+    "_fixed": [
+        "feedback",
+        "kappa_belief",
+        "kappa_durations",
+        "fab_shed_tol",
+        "fab_w_cost",
+        "pipeline_closure",
+        "tanker_control",
+    ],  # a search leaves these as they are
     "_bounds": {
         "horizon": [4, 30],
+        "kappa_prior_weight": [0.5, 100],
+        "fb_lag": [1, 8],
+        "fb_rate": [0, 3],
+        "fb_decay": [0, 0.5],
+        "fb_max": [0, 2],
         "shortage_weight": [0.2, 3],
         "shed_weight": [0.2, 3],
         "holding_weight": [0, 3],
@@ -58,6 +208,10 @@ if (HERE / "params.json").is_file():
 
 class Agent:
     def __init__(self, config=None):
+        # what the episode teaches: each (strait, pool)'s normal throughput, the age of a dip now, ended dips' weeks
+        self.k_nom, self.k_age, self.k_ended, self.k_curve = {}, {}, [], {}
+        # the plans made each week (unmet demand and fuel shed per window week) and the margins they taught
+        self.plans, self.m_dem, self.m_fuel = {}, None, None
         st, lay = config["static"], config["layout"]
         inst = st["instance"]
         self.T = int(config["T"])
@@ -198,11 +352,77 @@ class Agent:
 
     # ------------------------------------------------------------------------------------------------ the week
 
+    def _learn(self, o) -> None:
+        """Last week's throughputs: start, age or end each strait pool's dip; an ended dip joins the survival curve."""
+        for c, pool in self.chk_pairs:
+            key, row = (c, pool), self.chk_row[c]
+            if not o[f"graph_now.kappa.{pool}.observed"][row]:
+                continue
+            val = float(o[f"graph_now.kappa.{pool}"][row])
+            nom = self.k_nom.setdefault(key, val)
+            if val < nom * (1 - 1e-6):
+                self.k_age[key] = self.k_age[key] + 1 if key in self.k_age else 0
+            elif key in self.k_age:
+                self.k_ended.append(self.k_age.pop(key) + 1)
+                self.k_curve = {}
+            if val > nom:  # a higher normal than the first week showed
+                self.k_nom[key] = val
+
+    def _learn_margins(self, o, t: int) -> None:
+        """Week t - 1 against the plan made fb_lag weeks before it: more unmet demand or more shed than planned raises
+        that demand's or that grid's margin; a week without such a surprise gives a little of it back."""
+        D, G = len(self.demands), len(self.grid_burn)
+        if self.m_dem is None:
+            self.m_dem, self.m_fuel = np.zeros(D), np.zeros(G)
+        week, lag = t - 1, int(PARAMS["fb_lag"])
+        plan = self.plans.get(week - lag)
+        self.plans = {w: p for w, p in self.plans.items() if w > week - lag - 1}
+        if plan is None or lag >= plan[0].shape[0]:
+            return
+        U, SH, need = plan[0][lag], plan[1][lag], plan[2]
+        rate, decay, cap = PARAMS["fb_rate"], PARAMS["fb_decay"], PARAMS["fb_max"]
+        if o["last_week.sinks.demand.observed"].any():
+            dem = np.asarray(o["last_week.sinks.demand"], dtype=float)
+            unmet = np.maximum(0.0, dem - np.asarray(o["last_week.sinks.served"], dtype=float))
+            surprise = np.where(dem > 0, (unmet - U) / np.maximum(dem, 1e-9), 0.0)
+            self.m_dem = np.clip(np.where(surprise > 0, self.m_dem + rate * surprise, self.m_dem * (1 - decay)), 0, cap)
+        if o["last_week.shed.qty"].size and o["last_week.shed.qty.observed"].any():
+            shed = np.asarray(o["last_week.shed.qty"], dtype=float)
+            y = np.asarray(o["graph_now.grid.y_bar"], dtype=float)
+            for g, (grid, _j, _share, _voll) in enumerate(self.grid_burn):
+                real = shed[grid] / y[grid] if y[grid] > 0 else 0.0
+                planned = SH[g] / need[g] if need[g] > 0 else 0.0
+                s_ = real - planned
+                self.m_fuel[g] = min(cap, self.m_fuel[g] + rate * s_) if s_ > 0 else self.m_fuel[g] * (1 - decay)
+
+    def _p_recovered(self, age: int, h: int) -> float:
+        """P(a dip of this age has ended within h weeks): the offline durations, then this episode's ended dips."""
+        if h <= 0:
+            return 0.0
+        if (age, h) not in self.k_curve:
+            prior = np.asarray(PARAMS["kappa_durations"], dtype=float)
+            own = np.asarray(self.k_ended, dtype=float)
+            d = np.concatenate([prior, own])
+            w = np.concatenate(
+                [np.full(len(prior), PARAMS["kappa_prior_weight"] / max(1, len(prior))), np.ones(len(own))]
+            )
+            alive = d > age
+            self.k_curve[(age, h)] = (
+                float(w[alive & (d <= age + h)].sum() / w[alive].sum()) if w[alive].sum() > 0 else 0.0
+            )
+        return self.k_curve[(age, h)]
+
     def act(self, observation):
         o = observation
         t = int(o["week"][0])
         H = max(1, min(self.H, self.T - t + 1))
         mask = o["action_mask"].astype(float)
+        try:
+            self._learn(o)
+            if PARAMS["feedback"] >= 0.5:
+                self._learn_margins(o, t)
+        except Exception:  # noqa: BLE001 - learning must never cost a week
+            pass
         try:
             flows = self._solve(o, t, H)
         except Exception:  # noqa: BLE001 - a failed solve must not hand the week to the naive rule
@@ -510,6 +730,8 @@ class Agent:
                 )
             for d, (j, pi) in enumerate(self.demands):
                 dem = max(0.0, float(forecast[d, min(h, forecast.shape[1] - 1)]))
+                if h > 0 and self.m_dem is not None:
+                    dem *= 1.0 + self.m_dem[d]
                 cu = col("U", h, d)
                 ub[cu] = dem
                 cost_vec[cu] = pi
@@ -522,6 +744,8 @@ class Agent:
                         if fg == grid and e_f > 0:
                             balance[h][j].append((col("p", h, f), share * e_f * PARAMS["fab_energy_weight"]))
                 burn = share * max(0.0, float(o["graph_now.grid.y_bar"][grid]))
+                if h > 0 and self.m_fuel is not None:
+                    burn *= 1.0 + self.m_fuel[g]
                 cs_ = col("shed", h, g)
                 ub[cs_] = burn
                 cost_vec[cs_] = voll * PARAMS["shed_weight"]
@@ -570,6 +794,9 @@ class Agent:
             for c, pool in self.chk_pairs:
                 row = self.chk_row[c]
                 cap = 0.0 if open_[row] <= PARAMS["closed_below"] else max(0.0, float(kappa[pool][row]))
+                key = (c, pool)
+                if cap > 0 and PARAMS["kappa_belief"] >= 0.5 and key in self.k_age:  # the dip may end in the window
+                    cap += (self.k_nom[key] - cap) * self._p_recovered(self.k_age[key], h)
                 if c in reopen and h >= reopen[c]:
                     p = self.chk_params[c]
                     nominal = float(p.get("mu", {}).get(pool, 0.0)) * float(p.get("k_c", 1.0))
@@ -607,6 +834,14 @@ class Agent:
         )
         if res.status != 0 or res.x is None:
             return None
+        need = np.array(
+            [share * max(0.0, float(o["graph_now.grid.y_bar"][gr])) for gr, _j, share, _v in self.grid_burn]
+        )
+        self.plans[t] = (
+            res.x[off["U"] : off["U"] + H * D].reshape(H, D),
+            res.x[off["shed"] : off["shed"] + H * G].reshape(H, G),
+            need,
+        )
         flows = res.x[off["x"] : off["x"] + S]
         if not self.tk_on:
             return flows

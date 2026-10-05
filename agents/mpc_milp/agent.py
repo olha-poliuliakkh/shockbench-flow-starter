@@ -1,4 +1,11 @@
-"""MPC: every week, solve a small linear program over the next H weeks and send its first week.
+"""MPC with the grids' base-load-first rule: every week, solve a small mixed-integer program over the next H weeks
+and send its first week.
+
+The simulator gives a grid's fabs energy only after the grid's whole base load is served (``base_first``): a grid
+that sheds any load starts no lots. A binary z per grid with fabs and window week encodes it: z = 1 lets the fabs
+draw energy and forbids shed; z = 0 forbids fab energy. The plan can then concentrate scarce fuel (LNG) on the grids
+whose fabs are worth running. Solved by ``scipy.optimize.milp`` (HiGHS) under a time limit; without a solution in
+time the week falls back to the linear program without the rule.
 
 A simplified copy of the organisers' ``mpc_det`` in the server's packages (numpy, scipy). The model: flows on the
 action slots (a slot is a route: an edge, or a lane through straits, with its lead time, freight, tariffs and
@@ -14,7 +21,7 @@ from pathlib import Path
 
 import numpy as np
 import scipy.sparse as sp
-from scipy.optimize import linprog
+from scipy.optimize import Bounds, LinearConstraint, linprog, milp
 
 
 HERE = Path(__file__).resolve().parent
@@ -34,7 +41,17 @@ PARAMS = {
     "fab_w_cost": 1e8,  # USD per GWh of fab energy the plan would take while shedding (above any lot's worth)
     "pipeline_closure": 1.0,  # 1: cargo bound for a closed strait arrives after its announced reopening, else never
     "tanker_control": 1.0,  # 1: the LP releases tanker cargo queued at straits itself (release_mode 1, override_qty)
-    "_fixed": ["fab_shed_tol", "fab_w_cost", "pipeline_closure", "tanker_control"],  # a search leaves these as they are
+    "fab_threshold": 1.0,  # 1: base load first as binaries (fab energy only while the grid sheds nothing); 0: off
+    "milp_weeks": 16,  # window weeks whose z is binary; later weeks keep z continuous in [0, 1]
+    "milp_time": 0.8,  # seconds the MILP may take before the week falls back to the LP
+    "milp_gap": 0.002,  # relative optimality gap at which the MILP stops
+    "_fixed": [
+        "fab_threshold",
+        "fab_shed_tol",
+        "fab_w_cost",
+        "pipeline_closure",
+        "tanker_control",
+    ],  # a search leaves these as they are
     "_bounds": {
         "horizon": [4, 30],
         "shortage_weight": [0.2, 3],
@@ -152,6 +169,7 @@ class Agent:
         self.n_pairs = config["spaces"]["action"]["release_mode"]["shape"]
         self.u0 = np.array([u if u is not None else 0.0 for u in edges["u0"]], dtype=float)
         self.last_flows = np.zeros(S)
+        self.milp_log = []  # per week: (milp status, a solution came back) or None
 
         # tanker cargo (commodities with an override): under tanker_control a lane dispatch only reaches the lane's
         # first strait, where it joins the queue (c, k); the LP then releases it on the override slots of (c, k),
@@ -384,7 +402,7 @@ class Agent:
         U_ = len(self.supply_j)
         R = len(self.ration)
         NG = len(o["graph_now.grid.y_bar"])
-        sizes = {"x": S, "I": J, "O": J, "lift": U_, "p": F, "q": M, "U": D, "shed": G, "buf": R, "w": NG}
+        sizes = {"x": S, "I": J, "O": J, "lift": U_, "p": F, "q": M, "U": D, "shed": G, "buf": R, "w": NG, "z": NG}
         sizes |= {"Q": P, "y": NO}
         off, n = {}, 0
         for name, size in sizes.items():
@@ -395,6 +413,7 @@ class Agent:
             return off[name] + h * sizes[name] + i
 
         lb, ub = np.zeros(n), np.full(n, np.inf)
+        integer = []  # the binary columns (z of the first milp_weeks weeks)
         cost_vec = np.zeros(n)
         I0 = o["stock.qty"].astype(float)
         forecast = o["demand_forecast.qty"]
@@ -547,6 +566,21 @@ class Agent:
                         if gr == grid
                     ]
                     le(ent, headroom)
+            # base load first: shed_g <= y_bar (1 - z), fab energy_g <= E_max z (z binary in the first weeks)
+            for grid in range(NG):
+                cz = col("z", h, grid)
+                fabs = [f for f, fg in enumerate(self.fab_grid) if fg == grid and self.fab_e[f] > 0]
+                if PARAMS["fab_threshold"] < 0.5 or not fabs:
+                    ub[cz] = 0.0
+                    continue
+                ub[cz] = 1.0
+                y_bar = max(0.0, float(o["graph_now.grid.y_bar"][grid]))
+                sheds = [(col("shed", h, g), 1.0) for g, (gr, _j, _s, _v) in enumerate(self.grid_burn) if gr == grid]
+                le(sheds + [(cz, y_bar)], y_bar)
+                e_max = sum(self.fab_e[f] * max(0.0, float(o["graph_now.fab.cap_eff"][f])) for f in fabs)
+                le([(col("p", h, f), self.fab_e[f]) for f in fabs] + [(cz, -e_max)], 0.0)
+                if h < PARAMS["milp_weeks"]:
+                    integer.append(cz)
             for i, (j, threshold, marginal) in enumerate(self.ration):  # I[h, j] + buf >= threshold
                 cb = col("buf", h, i)
                 cost_vec[cb] = marginal * PARAMS["buffer_weight"]
@@ -596,16 +630,38 @@ class Agent:
         A_eq = sp.csr_matrix((vals_eq, (rows_eq, cols_eq)), shape=(r_eq[0], n))
         A_ub = sp.csr_matrix((vals_ub, (rows_ub, cols_ub)), shape=(r_ub[0], n))
         ub = np.maximum(ub, lb)
-        res = linprog(
-            cost_vec,
-            A_ub=A_ub,
-            b_ub=np.array(b_ub),
-            A_eq=A_eq,
-            b_eq=np.array(b_eq),
-            bounds=np.c_[lb, ub],
-            method="highs",
-        )
-        if res.status != 0 or res.x is None:
+        res = None
+        if integer:
+            kind = np.zeros(n)
+            kind[integer] = 1
+            try:
+                res = milp(
+                    cost_vec,
+                    constraints=[
+                        LinearConstraint(A_ub, -np.inf, np.array(b_ub)),
+                        LinearConstraint(A_eq, np.array(b_eq), np.array(b_eq)),
+                    ],
+                    integrality=kind,
+                    bounds=Bounds(lb, ub),
+                    options={"time_limit": float(PARAMS["milp_time"]), "mip_rel_gap": float(PARAMS["milp_gap"])},
+                )
+            except Exception:  # noqa: BLE001 - the LP below plays the week
+                res = None
+            self.milp_log.append(None if res is None else (int(res.status), res.x is not None))
+            if res is not None and res.x is None:
+                res = None
+        if res is None:
+            ub[off["z"] : off["z"] + H * NG] = np.where(ub[off["z"] : off["z"] + H * NG] > 0, 1.0, 0.0)
+            res = linprog(
+                cost_vec,
+                A_ub=A_ub,
+                b_ub=np.array(b_ub),
+                A_eq=A_eq,
+                b_eq=np.array(b_eq),
+                bounds=np.c_[lb, ub],
+                method="highs",
+            )
+        if res.x is None or (getattr(res, "status", 0) != 0 and not integer):
             return None
         flows = res.x[off["x"] : off["x"] + S]
         if not self.tk_on:

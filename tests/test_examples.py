@@ -86,7 +86,35 @@ def test_evolve(env_with_cache, tmp_path):
     assert (tmp_path / "run" / "gen1" / "mutate_01" / "params.json").is_file()
 
 
+def test_evolve_rotate(env_with_cache, tmp_path):
+    args = ["--generations=2", "--n_mutate=1", "--train_episodes=2", "--quick", "--n_jobs=1", "--workers=1"]
+    args += ["--rotate", "--elite=1", "--seeds=[heuristic]", "--champion=heuristic", "--nopromote", "--out=run"]
+    run("08_evolve.py", *args, env=env_with_cache, cwd=tmp_path)
+    archive = [json.loads(ln) for ln in (tmp_path / "run" / "archive.jsonl").read_text().splitlines()]
+    assert [r["scored_gen"] for r in archive] == [0, 1, 1, 2, 2]  # each generation's parent plays its root again
+    assert [r["entropy"] for r in archive] == [20261003, 20261004, 20261004, 20261005, 20261005]
+    assert "where this program paid" in archive[0]["feedback"]
+
+
 def test_dashboard(env_with_cache, tmp_path):
     run("07_dashboard.py", "--episode=29", "--quick", "--n_jobs=1", "--out=run", env=env_with_cache, cwd=tmp_path)
     for name in ("network.png", "dashboard_max.png", "episode_max.gif", "record_random.npz"):
         assert (tmp_path / "run" / name).is_file(), name
+
+
+def test_apply_edits():
+    spec = importlib.util.spec_from_file_location("evolve", EXAMPLES / "08_evolve.py")
+    evolve = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(evolve)
+    code = "a = 1\nb = 2\nc = 2\n"
+    edit = "idea\n<<<<<<< SEARCH\na = 1\n=======\na = 10\n>>>>>>> REPLACE\n"
+    assert evolve.apply_edits(code, edit) == ("a = 10\nb = 2\nc = 2\n", None)
+    removed = "<<<<<<< SEARCH\nb = 2\nc = 2\n=======\n>>>>>>> REPLACE"
+    assert evolve.apply_edits(code, removed) == ("a = 1\n\n", None)
+    missing = evolve.apply_edits(code, "<<<<<<< SEARCH\nd = 4\n=======\nd = 5\n>>>>>>> REPLACE")
+    assert missing[0] is None and "occurs 0 times" in missing[1]
+    twice = evolve.apply_edits(code, "<<<<<<< SEARCH\n= 2\n=======\n= 3\n>>>>>>> REPLACE")
+    assert twice[0] is None and "occurs 2 times" in twice[1]
+    full = "here\n```python\nclass Agent:\n    pass\n```\n"
+    assert evolve.apply_edits(code, full) == ("class Agent:\n    pass\n", None)
+    assert evolve.apply_edits(code, "no code")[0] is None
