@@ -169,3 +169,45 @@ def test_prompts_carry_the_economics_and_the_frame_api():
     user = prompts.user_prompt("announcements", "text", ["belief", "forecast"], parent, "report", [], [])
     assert "def forecast(w, s, mem)" in user and "You may rewrite: belief, forecast." in user
     json.dumps(user)
+
+
+def test_cached_plays_never_cross_pools_that_share_a_name(tmp_path):
+    """A pool named 'screen' at 8 episodes and at 32 must not read each other's cached rows (the bootstrap crash)."""
+    from sbf_starter.evolve.evaluate import Evaluator, pool_key
+
+    class FakeSet:
+        def __init__(self, episodes):
+            self.task, self.regime, self.entropy, self.episodes = "small", "standard", 7, tuple(episodes)
+            self.fq_replications, self.cut_draws, self.played = 1000, 2000, 0
+            self.references = [
+                {"episode": n, "stratum": 1, "excluded": None, "J_naive_cents": 10, "J_oracle_cents": 5}
+                for n in episodes
+            ]
+
+        def play(self, folder, cpu_budget=False, n_jobs=1):
+            self.played += 1
+            return [
+                {
+                    "episode": n,
+                    "J_policy_cents": 8,
+                    "fallback_weeks": 0,
+                    "cpu_weeks": 0,
+                    "invalid_entries": 0,
+                    "first_error": None,
+                }
+                for n in self.episodes
+            ]
+
+        def rss(self, J):
+            return {"rss": 0.4}
+
+    small, large = FakeSet(range(8)), FakeSet(range(32))
+    assert pool_key(small) != pool_key(large)
+    folder = tmp_path / "agent"
+    folder.mkdir()
+    (folder / "agent.py").write_text("class Agent: pass\n")
+    Evaluator({"screen": small}, tmp_path / "cache").play(folder, "screen")
+    res = Evaluator({"screen": large}, tmp_path / "cache").play(folder, "screen")
+    assert len(res.J) == 32 and large.played == 1
+    again = Evaluator({"screen": large}, tmp_path / "cache").play(folder, "screen")
+    assert len(again.J) == 32 and large.played == 1  # the matching entry is reused

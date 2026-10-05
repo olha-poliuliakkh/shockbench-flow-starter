@@ -131,6 +131,16 @@ def paired_gap(es, J_a, J_b, n_boot: int = 2000, seed: int = 0, level: float = 0
     return {"diff": diff, "lo": float(lo), "hi": float(hi), "p_better": float((d > 0).mean())}
 
 
+def pool_key(es) -> str:
+    """A short fingerprint of an EpisodeSet's content: task, regime, root, episodes and reference settings.
+
+    Cached plays are keyed by it, so two pools that share a name (``screen`` at 8 or at 32 episodes per level, or the
+    same name on another root) never read each other's results.
+    """
+    doc = [es.task, es.regime, int(es.entropy), [int(n) for n in es.episodes], es.fq_replications, es.cut_draws]
+    return hashlib.sha256(json.dumps(doc).encode()).hexdigest()[:12]
+
+
 class Evaluator:
     """Plays candidate folders on named EpisodeSets, caching per-episode rows on disk by (file hash, pool)."""
 
@@ -149,6 +159,10 @@ class Evaluator:
         if pool in self.composites:
             parts = [self.play(folder, part) for part in self.composites[pool]]
             J = [j for r in parts for j in r.J]
+            if len(J) != len(es.episodes):
+                raise ValueError(
+                    f"composite pool {pool}: its parts hold {len(J)} episodes, the pool {len(es.episodes)}"
+                )
             return Result(
                 pool=pool,
                 J=J,
@@ -161,10 +175,11 @@ class Evaluator:
                 rows=[row for r in parts for row in r.rows],
             )
         sha = files_sha256(folder)
-        path = self.cache_dir / f"{sha[:24]}-{pool}.json"
+        path = self.cache_dir / f"{sha[:24]}-{pool}-{pool_key(es)}.json"
         if path.is_file():
             doc = json.loads(path.read_text())
-            return Result(**doc)
+            if [r.get("episode") for r in doc.get("rows", [])] == list(es.episodes):
+                return Result(**doc)  # else a stale or foreign entry: play again
         t = time.perf_counter()
         rows = es.play(str(folder), cpu_budget=True, n_jobs=self.workers)
         J = [int(r["J_policy_cents"]) for r in rows]

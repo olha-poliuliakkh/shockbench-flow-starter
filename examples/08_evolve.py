@@ -179,7 +179,7 @@ def main(
             crisis=crisis,
             cell="2-2",
             params=json.loads((sdir / "params.json").read_text()) if (sdir / "params.json").exists() else {},
-            spec=[],
+            spec=json.loads((sdir / "params_spec.json").read_text()) if (sdir / "params_spec.json").exists() else [],
             usd=0.0,
         )
         arch.update("seed", report=train_report("seed", sdir, res, naive_J, "naive"))
@@ -257,29 +257,46 @@ def main(
                 proposal, meta = None, {"usd": 0.0, "error": f"{type(err).__name__}: {err}"}
             made += 1
             cid = f"c{arch.count() + 1:04d}"
-            outcome = _evaluate(
-                cid,
-                job,
-                proposal,
-                meta,
-                run,
-                arch,
-                ev,
-                sets,
-                seed_dir,
-                task,
-                smoke_episode,
-                tune,
-                tune_generations,
-                tune_popsize,
-                seed,
-                challenge_margin,
-                full_gate,
-                champion_dir,
-                train_report,
-                fixes,
-                say,
-            )
+            try:
+                outcome = _evaluate(
+                    cid,
+                    job,
+                    proposal,
+                    meta,
+                    run,
+                    arch,
+                    ev,
+                    sets,
+                    seed_dir,
+                    task,
+                    smoke_episode,
+                    tune,
+                    tune_generations,
+                    tune_popsize,
+                    seed,
+                    challenge_margin,
+                    full_gate,
+                    champion_dir,
+                    train_report,
+                    fixes,
+                    say,
+                )
+            except Exception as err:  # an evaluator fault on one candidate never stops the run
+                import traceback
+
+                (run / "candidates" / cid).mkdir(parents=True, exist_ok=True)
+                (run / "candidates" / cid / "error.txt").write_text(traceback.format_exc())
+                if arch.get(cid) is None:
+                    arch.add(
+                        id=cid,
+                        parent=job["parent"]["id"],
+                        island=job["island"],
+                        directive=job["directive"],
+                        stage="error",
+                        reason=f"{type(err).__name__}: {err}"[:2000],
+                    )
+                say(f"{cid}: evaluator error {type(err).__name__}: {err} (traceback in candidates/{cid}/error.txt)")
+                outcome = {"stage": "error", "reason": f"{type(err).__name__}: {err}"[:300]}
             event(
                 id=cid,
                 island=job["island"],

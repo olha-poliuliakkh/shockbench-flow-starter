@@ -1,0 +1,68 @@
+[
+ {
+  "name": "warning_alpha",
+  "default": 0.5,
+  "low": 0.1,
+  "high": 1.0
+ },
+ {
+  "name": "risk_decay",
+  "default": 0.9,
+  "low": 0.5,
+  "high": 0.99
+ },
+ {
+  "name": "warn_center",
+  "default": 2.5,
+  "low": 0.5,
+  "high": 3.5
+ },
+ {
+  "name": "warn_slope",
+  "default": 3.0,
+  "low": 0.5,
+  "high": 6.0
+ },
+ {
+  "name": "severity_scale",
+  "default": 0.05,
+  "low": 0.0,
+  "high": 0.5
+ },
+ {
+  "name": "risk_start",
+  "default": 1,
+  "low": 0,
+  "high": 4
+ },
+ {
+  "name": "pending_trust",
+  "default": 1.0,
+  "low": 0.3,
+  "high": 1.0
+ },
+ {
+  "name": "buffer_weeks",
+  "default": 2.0,
+  "low": 0.0,
+  "high": 4.0
+ },
+ {
+  "name": "floor_cap",
+  "default": 1.0,
+  "low": 0.0,
+  "high": 1.0
+ },
+ {
+  "name": "floor_start",
+  "default": 1,
+  "low": 0,
+  "high": 4
+ },
+ {
+  "name": "floor_duration",
+  "default": 4,
+  "low": 1,
+  "high": 8
+ }
+]
