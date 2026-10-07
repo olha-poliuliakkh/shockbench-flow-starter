@@ -45,6 +45,8 @@ PARAMS = {
     "milp_weeks": 16,  # window weeks whose z is binary; later weeks keep z continuous in [0, 1]
     "milp_time": 0.8,  # seconds the MILP may take before the week falls back to the LP
     "milp_gap": 0.002,  # relative optimality gap at which the MILP stops
+    "grid_model": 1.0,  # 1: the simulator's grid (segments up to share x G_bar, one load factor); 0: share x y_bar each
+    "short_price": 1.0,  # times v_k: a fuel segment burning below the grid's load factor (fuel kept back)
     "_fixed": [
         "fab_threshold",
         "fab_shed_tol",
@@ -158,6 +160,12 @@ class Agent:
             for fuel, share in p["shares"].items():
                 if fuel in self.k_id and (n, self.k_id.index(fuel)) in self.j_of:
                     self.grid_burn.append((g, self.j_of[(n, self.k_id.index(fuel))], float(share), float(p["voll"])))
+        self.grid_null, self.grid_voll = [], []  # per grid ordinal: the share needing no modelled fuel, VOLL
+        for n in lay["grids"]:
+            p = by_id[self.node_id[n]]["grid"]
+            self.grid_null.append(sum(float(x) for f, x in p["shares"].items() if f not in self.k_id))
+            self.grid_voll.append(float(p["voll"]))
+        self.ration_thr = {j: threshold for j, threshold, _m in self.ration}
         sinks = st["sinks"]
         pi = {(sinks["node"][i], sinks["k"][i]): sinks["pi"][i] for i in range(len(sinks["node"]))}
         self.demands = [
@@ -170,6 +178,7 @@ class Agent:
         self.u0 = np.array([u if u is not None else 0.0 for u in edges["u0"]], dtype=float)
         self.last_flows = np.zeros(S)
         self.milp_log = []  # per week: (milp status, a solution came back) or None
+        self.last_plan = None  # the last solved window: columns, offsets and objective (offline analysis only)
 
         # tanker cargo (commodities with an override): under tanker_control a lane dispatch only reaches the lane's
         # first strait, where it joins the queue (c, k); the LP then releases it on the override slots of (c, k),
@@ -240,24 +249,94 @@ class Agent:
             action["release_mode"] = mode
         return action
 
-    def _solve(self, o, t, H):
-        S, J = self.S, len(self.stock)
-        tau, c_e, u = o["graph_now.tau"], o["graph_now.c"], o["graph_now.u"]
-        proh, tariff = o["graph_now.prohibited"], o["graph_now.tariff"]
-        open_, war = o["graph_now.open"], o["graph_now.war_risk"]
-        kappa = {"tb": o["graph_now.kappa.tb"], "ct": o["graph_now.kappa.ct"]}
-        v = self.v
-
-        # routes this week: lead, cost, blocked weeks
-        lead = np.array([int(sum(tau[e] for e in es)) for es in self.route_edges])
-        cost = np.zeros(S)
-        blocked_from = np.full(S, H)  # first window week a route is prohibited (H: never)
-        pend = {}
+    def _window(self, o, t, H):
+        """What the plan expects in each window week (arrays with a leading axis of H): persistence of ``graph_now``,
+        with announced sanctions from their week, announced reopenings and the demand forecast. ``closed`` holds the
+        straits closed now and ``reopen`` the first window week each is open again (from the announcements)."""
+        rep = lambda x: np.repeat(np.asarray(x)[None], H, axis=0)  # noqa: E731
+        proh = rep(o["graph_now.prohibited"]).astype(bool)
         for e, k, w in zip(
             o["pending_prohibitions.edge"], o["pending_prohibitions.k"], o["pending_prohibitions.effective_week"]
         ):
-            if w >= t:
-                pend[(int(e), int(k))] = min(pend.get((int(e), int(k)), 10**9), int(w) - t)
+            if w >= t and int(w) - t < H:
+                proh[int(w) - t :, int(e), int(k)] = True
+        open_ = o["graph_now.open"]
+        reopen = {}  # chokepoint -> first window week it is open again
+        if "closure_end.chokepoint" in o:
+            ends = zip(o["closure_end.chokepoint"], o["closure_end.end_week"], o["closure_end.end_week.observed"])
+            for c, w, ok in ends:
+                if ok and int(c) in self.chk_row and int(w) > t:
+                    reopen[int(c)] = min(reopen.get(int(c), H), int(w) - t)
+        closed = {c for c, row in self.chk_row.items() if float(open_[row]) <= PARAMS["closed_below"]}
+        chk_cap = {}  # pool -> (H, chokepoint row) throughput
+        for pool in ("tb", "ct"):
+            cap = np.zeros((H, len(self.chk_row)))
+            for c, row in self.chk_row.items():
+                cap[:, row] = (
+                    0.0 if open_[row] <= PARAMS["closed_below"] else max(0.0, float(o[f"graph_now.kappa.{pool}"][row]))
+                )
+                if c in reopen:
+                    p = self.chk_params[c]
+                    nominal = float(p.get("mu", {}).get(pool, 0.0)) * float(p.get("k_c", 1.0))
+                    cap[reopen[c] :, row] = np.maximum(cap[reopen[c] :, row], PARAMS["reopen_trust"] * nominal)
+            chk_cap[pool] = cap
+        forecast = o["demand_forecast.qty"]
+        demand = np.stack([forecast[:, min(h, forecast.shape[1] - 1)] for h in range(H)])
+        return {
+            "c": rep(o["graph_now.c"]),
+            "tariff": rep(o["graph_now.tariff"]),
+            "proh": proh,
+            "war": rep(o["graph_now.war_risk"]),
+            "u": rep(o["graph_now.u"]),
+            "chk_cap": chk_cap,
+            "supply": rep(o["graph_now.supply.avail"]),
+            "fab_cap": rep(o["graph_now.fab.cap_eff"]),
+            "osat_thr": rep(o["graph_now.osat.thr_eff"]),
+            "y_bar": rep(o["graph_now.grid.y_bar"]),
+            "G_bar": rep(o["graph_now.grid.G_bar"]),
+            "demand": demand,
+            "closed": closed,
+            "reopen": reopen,
+        }
+
+    def _route_costs(self, c_e, tariff, war, queue_cost, P, NO):
+        """Per unit cost of every route, override slot and queue pair in one week: freight, tariffs, war risk."""
+        v = self.v
+        cost = np.zeros(self.S)
+        for s, (es, cs, k) in enumerate(zip(self.cap_edges, self.cap_chk, self.k_s)):
+            if self.tk_dest[s] >= 0:
+                cs = [self.edge_head[es[-1]]]
+            cost[s] = sum(c_e[e] + tariff[e, k] * v[k] for e in es)
+            for c in cs:
+                cls = int(war[self.chk_row[c]])
+                wr = self.chk_params[c].get("war_risk_cost", {}).get(self.k_id[k])
+                if wr:
+                    cost[s] += wr[min(cls, len(wr) - 1)]
+                cost[s] += queue_cost.get((c, k), 0.0)
+        ov_cost = np.zeros(NO)
+        for i, (p_from, e_out, path, _sp, _sj, passed) in enumerate(self.ov[:NO]):
+            k = self.pairs[p_from][1] if p_from >= 0 else 0
+            ov_cost[i] = sum(c_e[x] + tariff[x, k] * v[k] for x in path)
+            for c in passed:
+                cls = int(war[self.chk_row[c]])
+                wr = self.chk_params[c].get("war_risk_cost", {}).get(self.k_id[k])
+                if wr:
+                    ov_cost[i] += wr[min(cls, len(wr) - 1)]
+        q_hold = np.zeros(P)  # queue holding per unit-week at each pair
+        for i, (c, k) in enumerate(self.pairs[:P]):
+            qh = self.chk_params[c].get("queue_holding", {}).get(self.k_id[k])
+            if qh:
+                q_hold[i] = qh[min(int(war[self.chk_row[c]]), len(qh) - 1)]
+        return cost, ov_cost, q_hold
+
+    def _solve(self, o, t, H):
+        S, J = self.S, len(self.stock)
+        tau = o["graph_now.tau"]
+        win = self._window(o, t, H)
+        v = self.v
+        open_, war0 = o["graph_now.open"], o["graph_now.war_risk"]
+        closed, reopen = win["closed"], win["reopen"]
+
         # straits: the weeks a partly open one delays cargo, and the queue holding that costs
         delay, queue_cost = {}, {}  # chokepoint -> extra weeks; (chokepoint, k) -> USD per unit
         for c, row in self.chk_row.items():
@@ -268,60 +347,43 @@ class Agent:
                 for k, name in enumerate(self.k_id):
                     qh = self.chk_params[c].get("queue_holding", {}).get(name)
                     if qh:
-                        cls = int(war[row])
+                        cls = int(war0[row])
                         queue_cost[(c, k)] = qh[min(cls, len(qh) - 1)] * extra
-        # announced ends of closures: the strait reopens in the window from that week
-        reopen = {}  # chokepoint -> first window week it is open again
-        if "closure_end.chokepoint" in o:
-            ends = zip(o["closure_end.chokepoint"], o["closure_end.end_week"], o["closure_end.end_week.observed"])
-            for c, w, ok in ends:
-                if ok and int(c) in self.chk_row and int(w) > t:
-                    reopen[int(c)] = min(reopen.get(int(c), H), int(w) - t)
-        closed = {c for c, row in self.chk_row.items() if float(open_[row]) <= PARAMS["closed_below"]}
         use_pc = PARAMS["pipeline_closure"] >= 0.5
 
+        # routes: lead (this week's), blocked weeks; costs per window week (recomputed only where they change)
+        lead = np.array([int(sum(tau[e] for e in es)) for es in self.route_edges])
+        blocked_from = np.full(S, H)  # first window week a route is prohibited (H: never)
+        proh = win["proh"]
         for s, (es, cs, k) in enumerate(zip(self.cap_edges, self.cap_chk, self.k_s)):
             if self.tk_dest[s] >= 0:  # a tanker lane: the dispatch only runs to the first strait
                 lead[s] = int(sum(tau[e] for e in es))
                 cs = [self.edge_head[es[-1]]]
-            cost[s] = sum(c_e[e] + tariff[e, k] * v[k] for e in es)
             for c in cs:
-                cls = int(war[self.chk_row[c]])
-                wr = self.chk_params[c].get("war_risk_cost", {}).get(self.k_id[k])
-                if wr:
-                    cost[s] += wr[min(cls, len(wr) - 1)]
-                cost[s] += queue_cost.get((c, k), 0.0)
                 lead[s] += delay.get(c, 0)
-            if any(proh[e, k] for e in es):
-                blocked_from[s] = 0
-            else:
-                blocked_from[s] = min([H] + [pend[(e, k)] for e in es if (e, k) in pend])
+            hit = np.flatnonzero(proh[:, es, k].any(axis=1))
+            blocked_from[s] = hit[0] if hit.size else H
         if o["action_mask.observed"][0]:
             blocked_from = np.where(o["action_mask"] == 0, np.minimum(blocked_from, 0), blocked_from)
 
-        # override slots this week: lead, cost and the first blocked week of each release path
+        # override slots: lead and the first blocked week of each release path
         P, NO = (len(self.pairs), len(self.ov)) if self.tk_on else (0, 0)
-        ov_lead, ov_cost, ov_blocked = np.zeros(NO, dtype=int), np.zeros(NO), np.full(NO, H)
+        ov_lead, ov_blocked = np.zeros(NO, dtype=int), np.full(NO, H)
         for i, (p_from, e_out, path, _sp, _sj, passed) in enumerate(self.ov[:NO]):
             k = self.pairs[p_from][1] if p_from >= 0 else 0
             ov_lead[i] = int(sum(tau[x] for x in path))
-            ov_cost[i] = sum(c_e[x] + tariff[x, k] * v[k] for x in path)
-            for c in passed:
-                cls = int(war[self.chk_row[c]])
-                wr = self.chk_params[c].get("war_risk_cost", {}).get(self.k_id[k])
-                if wr:
-                    ov_cost[i] += wr[min(cls, len(wr) - 1)]
-            if p_from < 0 or any(proh[x, k] for x in path):
-                ov_blocked[i] = 0
-            else:
-                ov_blocked[i] = min([H] + [pend[(x, k)] for x in path if (x, k) in pend])
+            hit = np.flatnonzero(proh[:, path, k].any(axis=1))
+            ov_blocked[i] = 0 if p_from < 0 else (hit[0] if hit.size else H)
             if o["override_mask.observed"][0] and o["override_mask"][i] == 0:
                 ov_blocked[i] = min(ov_blocked[i], 0)
-        q_hold = np.zeros(P)  # queue holding per unit-week at each pair
-        for i, (c, k) in enumerate(self.pairs[:P]):
-            qh = self.chk_params[c].get("queue_holding", {}).get(self.k_id[k])
-            if qh:
-                q_hold[i] = qh[min(int(war[self.chk_row[c]]), len(qh) - 1)]
+        costs = []  # per window week: (route cost, override cost, queue holding)
+        for h in range(H):
+            same = h > 0 and all(np.array_equal(win[f][h], win[f][h - 1]) for f in ("c", "tariff", "war"))
+            costs.append(
+                costs[-1]
+                if same
+                else self._route_costs(win["c"][h], win["tariff"][h], win["war"][h], queue_cost, P, NO)
+            )
 
         # known arrivals into stock slots (and tanker queues) per window week
         arr = np.zeros((H, J))
@@ -402,7 +464,10 @@ class Agent:
         U_ = len(self.supply_j)
         R = len(self.ration)
         NG = len(o["graph_now.grid.y_bar"])
-        sizes = {"x": S, "I": J, "O": J, "lift": U_, "p": F, "q": M, "U": D, "shed": G, "buf": R, "w": NG, "z": NG}
+        new_grid = PARAMS["grid_model"] >= 0.5
+        sizes = {"x": S, "I": J, "O": J, "lift": U_, "p": F, "q": M, "U": D, "shed": 0 if new_grid else G, "buf": R}
+        sizes |= {"w": NG, "z": NG}
+        sizes |= {"gk": G, "short": G, "lam": NG, "sh": NG} if new_grid else {"gk": 0, "short": 0, "lam": 0, "sh": 0}
         sizes |= {"Q": P, "y": NO}
         off, n = {}, 0
         for name, size in sizes.items():
@@ -412,11 +477,15 @@ class Agent:
         def col(name, h, i):
             return off[name] + h * sizes[name] + i
 
+        def grid_sheds(h, grid):  # a grid's shed columns: one per grid (new model), one per fuel (old)
+            if new_grid:
+                return [(col("sh", h, grid), 1.0)]
+            return [(col("shed", h, g), 1.0) for g, e in enumerate(self.grid_burn) if e[0] == grid]
+
         lb, ub = np.zeros(n), np.full(n, np.inf)
         integer = []  # the binary columns (z of the first milp_weeks weeks)
         cost_vec = np.zeros(n)
         I0 = o["stock.qty"].astype(float)
-        forecast = o["demand_forecast.qty"]
         rows_eq, cols_eq, vals_eq, b_eq = [], [], [], []
         rows_ub, cols_ub, vals_ub, b_ub = [], [], [], []
         r_eq = [0]
@@ -450,14 +519,14 @@ class Agent:
                     qbal[h][p].append((col("Q", h - 1, p), -1.0))
                 else:
                     qrhs[0, p] += Q0[p]
-                cost_vec[cq] = q_hold[p]
+                cost_vec[cq] = costs[h][2][p]
                 if h == H - 1:
                     cost_vec[cq] -= PARAMS["terminal_frac"] * v[self.pairs[p][1]]
             for i, (p_from, e_out, path, stop_p, stop_j, _passed) in enumerate(self.ov[:NO]):
                 cy = col("y", h, i)
                 if h >= ov_blocked[i] or p_from < 0:
                     ub[cy] = 0.0
-                cost_vec[cy] = ov_cost[i]
+                cost_vec[cy] = costs[h][1][i]
                 qbal[h][p_from].append((cy, 1.0))
                 ha = h + ov_lead[i]
                 if stop_p >= 0:
@@ -484,7 +553,7 @@ class Agent:
                 cx = col("x", h, s)
                 if h >= blocked_from[s] or self.j_out[s] < 0:
                     ub[cx] = 0.0
-                cost_vec[cx] = cost[s]
+                cost_vec[cx] = costs[h][0][s]
                 balance[h][self.j_out[s]].append((cx, 1.0))
                 ha = h + lead[s]
                 if self.tk_dest[s] >= 0:
@@ -499,11 +568,11 @@ class Agent:
                         cost_vec[cx] -= self.value[self.j_in[s]]
             for i, j in enumerate(self.supply_j):
                 if j >= 0:
-                    ub[col("lift", h, i)] = max(0.0, float(o["graph_now.supply.avail"][i]))
+                    ub[col("lift", h, i)] = max(0.0, float(win["supply"][h, i]))
                     balance[h][j].append((col("lift", h, i), -1.0))
             for f, (j_in, j_out, tau_f) in enumerate(self.fabs):
                 cp = col("p", h, f)
-                ub[cp] = max(0.0, float(o["graph_now.fab.cap_eff"][f])) if j_in >= 0 else 0.0
+                ub[cp] = max(0.0, float(win["fab_cap"][h, f])) if j_in >= 0 else 0.0
                 if j_in >= 0:
                     balance[h][j_in].append((cp, 1.0))
                 if j_out >= 0:
@@ -525,22 +594,52 @@ class Agent:
             for osat in range(len(o["graph_now.osat.thr_eff"])):
                 le(
                     [(col("q", h, m), 1.0) for m, e in enumerate(self.osats) if e[3] == osat],
-                    max(0.0, float(o["graph_now.osat.thr_eff"][osat])),
+                    max(0.0, float(win["osat_thr"][h, osat])),
                 )
             for d, (j, pi) in enumerate(self.demands):
-                dem = max(0.0, float(forecast[d, min(h, forecast.shape[1] - 1)]))
+                dem = max(0.0, float(win["demand"][h, d]))
                 cu = col("U", h, d)
                 ub[cu] = dem
                 cost_vec[cu] = pi
                 if j >= 0:
                     rhs[h, j] -= dem
                     balance[h][j].append((cu, -1.0))
-            for g, (grid, j, share, voll) in enumerate(self.grid_burn):
+            # the simulator's grid (segments): fuel k yields up to share_k G_bar (rationed below psi ibar), the
+            # unmodelled share needs no fuel, and every segment runs at the grid's one load factor lam:
+            #   sum_k G_k + lam share_0 G_bar + shed - sum_f e_f p_f = y_bar,  G_k <= lam share_k G_bar,
+            #   G_k >= lam share_k G_bar - short_k (short priced at v_k: no fuel kept back while it is on hand)
+            for g, (grid, j, share, voll) in enumerate(self.grid_burn if new_grid else []):
+                cap = share * max(0.0, float(win["G_bar"][h, grid]))
+                cg, cs_, cl = col("gk", h, g), col("short", h, g), col("lam", h, grid)
+                balance[h][j].append((cg, 1.0))
+                le([(cg, 1.0), (cl, -cap)], 0.0)
+                le([(cl, cap), (cg, -1.0), (cs_, -1.0)], 0.0)
+                cost_vec[cs_] = v[self.stock[j][1]] * PARAMS["short_price"]
+                if j in self.ration_thr and cap > 0:  # (15): G_k <= share_k G_bar I^{t-1} / (psi ibar)
+                    r = cap / self.ration_thr[j]
+                    if h > 0:
+                        le([(cg, 1.0), (col("I", h - 1, j), -r)], 0.0)
+                    else:
+                        le([(cg, 1.0)], r * I0[j])
+            for grid in range(NG if new_grid else 0):
+                cl, csd = col("lam", h, grid), col("sh", h, grid)
+                y_bar = max(0.0, float(win["y_bar"][h, grid]))
+                ub[cl], ub[csd] = 1.0, y_bar
+                cost_vec[csd] = self.grid_voll[grid] * PARAMS["shed_weight"]
+                ent = [(col("gk", h, g), 1.0) for g, e in enumerate(self.grid_burn) if e[0] == grid]
+                ent += [(cl, self.grid_null[grid] * max(0.0, float(win["G_bar"][h, grid]))), (csd, 1.0)]
+                ent += [
+                    (col("p", h, f), -e_f)
+                    for f, (fg, e_f) in enumerate(zip(self.fab_grid, self.fab_e))
+                    if fg == grid and e_f > 0
+                ]
+                eq(ent, y_bar)
+            for g, (grid, j, share, voll) in enumerate([] if new_grid else self.grid_burn):
                 if PARAMS["fab_energy_weight"] > 0:  # the fabs' draw on this fuel, per lot started
                     for f, (fg, e_f) in enumerate(zip(self.fab_grid, self.fab_e)):
                         if fg == grid and e_f > 0:
                             balance[h][j].append((col("p", h, f), share * e_f * PARAMS["fab_energy_weight"]))
-                burn = share * max(0.0, float(o["graph_now.grid.y_bar"][grid]))
+                burn = share * max(0.0, float(win["y_bar"][h, grid]))
                 cs_ = col("shed", h, g)
                 ub[cs_] = burn
                 cost_vec[cs_] = voll * PARAMS["shed_weight"]
@@ -554,17 +653,13 @@ class Agent:
                     fabs = [f for f, fg in enumerate(self.fab_grid) if fg == grid and self.fab_e[f] > 0]
                     if not fabs:
                         continue
-                    y_bar = max(0.0, float(o["graph_now.grid.y_bar"][grid]))
-                    headroom = max(0.0, float(o["graph_now.grid.G_bar"][grid]) - y_bar)
+                    y_bar = max(0.0, float(win["y_bar"][h, grid]))
+                    headroom = max(0.0, float(win["G_bar"][h, grid]) - y_bar)
                     tol = max(PARAMS["fab_shed_tol"] * y_bar, 1e-6)
                     cw = col("w", h, grid)
                     cost_vec[cw] = PARAMS["fab_w_cost"]
                     ent = [(col("p", h, f), self.fab_e[f]) for f in fabs] + [(cw, -1.0)]
-                    ent += [
-                        (col("shed", h, g), headroom / tol)
-                        for g, (gr, _j, _s, _v) in enumerate(self.grid_burn)
-                        if gr == grid
-                    ]
+                    ent += [(c_, headroom / tol) for c_, _one in grid_sheds(h, grid)]
                     le(ent, headroom)
             # base load first: shed_g <= y_bar (1 - z), fab energy_g <= E_max z (z binary in the first weeks)
             for grid in range(NG):
@@ -574,10 +669,9 @@ class Agent:
                     ub[cz] = 0.0
                     continue
                 ub[cz] = 1.0
-                y_bar = max(0.0, float(o["graph_now.grid.y_bar"][grid]))
-                sheds = [(col("shed", h, g), 1.0) for g, (gr, _j, _s, _v) in enumerate(self.grid_burn) if gr == grid]
-                le(sheds + [(cz, y_bar)], y_bar)
-                e_max = sum(self.fab_e[f] * max(0.0, float(o["graph_now.fab.cap_eff"][f])) for f in fabs)
+                y_bar = max(0.0, float(win["y_bar"][h, grid]))
+                le(grid_sheds(h, grid) + [(cz, y_bar)], y_bar)
+                e_max = sum(self.fab_e[f] * max(0.0, float(win["fab_cap"][h, f])) for f in fabs)
                 le([(col("p", h, f), self.fab_e[f]) for f in fabs] + [(cz, -e_max)], 0.0)
                 if h < PARAMS["milp_weeks"]:
                     integer.append(cz)
@@ -597,17 +691,13 @@ class Agent:
             for e in self.used_edges:
                 ent = [(col("x", h, s), 1.0) for s in range(S) if e in self.cap_edges[s]]
                 ent += [(col("y", h, i), 1.0) for i in range(NO) if self.ov[i][1] == e]
-                cap_e = max(0.0, float(u[e]))
+                cap_e = max(0.0, float(win["u"][h, e]))
                 if PARAMS["recover_weeks"] > 0 and cap_e < self.u0[e]:  # a cut recovers toward nominal
                     cap_e += (self.u0[e] - cap_e) * (1.0 - np.exp(-h / PARAMS["recover_weeks"]))
                 le(ent, cap_e)
             for c, pool in self.chk_pairs:
                 row = self.chk_row[c]
-                cap = 0.0 if open_[row] <= PARAMS["closed_below"] else max(0.0, float(kappa[pool][row]))
-                if c in reopen and h >= reopen[c]:
-                    p = self.chk_params[c]
-                    nominal = float(p.get("mu", {}).get(pool, 0.0)) * float(p.get("k_c", 1.0))
-                    cap = max(cap, PARAMS["reopen_trust"] * nominal)
+                cap = float(win["chk_cap"][pool][h, row])
                 ent = [
                     (col("x", h, s), 1.0) for s in range(S) if c in self.cap_chk[s] and self.pool[self.k_s[s]] == pool
                 ]
@@ -663,6 +753,7 @@ class Agent:
             )
         if res.x is None or (getattr(res, "status", 0) != 0 and not integer):
             return None
+        self.last_plan = {"x": res.x, "off": off, "sizes": sizes, "H": H, "cost": cost_vec}  # for offline analysis
         flows = res.x[off["x"] : off["x"] + S]
         if not self.tk_on:
             return flows
