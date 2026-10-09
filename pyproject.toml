@@ -35,6 +35,7 @@ rl = ["shockbench-flow[rl] >= 0.1.2"]
 evolve = [
     "anthropic>=1.11.0",
     "cma>=4.5.0",
+    "optuna>=5.0.0",
 ]
 
 [project.scripts]

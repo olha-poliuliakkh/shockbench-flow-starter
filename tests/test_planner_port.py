@@ -1,4 +1,4 @@
-"""The planner vendored in agents/mine reaches the package's mpc_det optimum week by week.
+"""The planner vendored in agents/mine (and its copies in the other LP agents, extras off) reaches mpc_det's optimum.
 
 The agent receives the Dict observation; the package's planner the server's wire observation. Both build the window
 LP of the same week and must reach the same optimum (the plans may differ where the LP has several optimal plans).
@@ -10,15 +10,16 @@ import pytest
 from tests.conftest import ROOT
 
 
-AGENT = ROOT / "agents" / "mine"
+AGENTS = ("mine", "twopass", "twopass48", "belief48", "milp48", "milp48t", "twopass48_credit", "milp48_eco")
 
 
 class _Stop(Exception):
     pass
 
 
+@pytest.mark.parametrize("agent", AGENTS)
 @pytest.mark.parametrize(("task", "episode", "weeks"), [("small", 0, 5), ("tiny", 29, 8)])
-def test_same_optimum_as_the_package(task, episode, weeks):
+def test_same_optimum_as_the_package(task, episode, weeks, agent):
     import copy
     import sys
 
@@ -31,7 +32,7 @@ def test_same_optimum_as_the_package(task, episode, weeks):
     from shockbench_flow_agent.convert import agent_config, observation_dict
     from shockbench_flow_agent.shim import load_agent_class, unload_agent
 
-    load_agent_class(AGENT, "port_agent")
+    load_agent_class(ROOT / "agents" / agent, "port_agent")
     Planner = sys.modules["frame"].Planner
     gaps = []
 

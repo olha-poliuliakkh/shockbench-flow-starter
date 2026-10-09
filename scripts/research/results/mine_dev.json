@@ -1,0 +1,161 @@
+{
+ "agent": "mine",
+ "task": "small",
+ "regime": "standard",
+ "rss": 0.726568209892467,
+ "pooled": true,
+ "rss_all": 0.7348282011262198,
+ "interval": [
+  0.6621969976758213,
+  0.7842878675438493
+ ],
+ "episodes": 20,
+ "fallback_weeks": 0,
+ "quick": false,
+ "cost_usd": 2802000213928.5386,
+ "naive_cost_usd": 3485276460004.4536,
+ "clairvoyant_cost_usd": 2555431572412.081,
+ "cpu_weeks": 0,
+ "per_episode": [
+  {
+   "episode": 0,
+   "stratum": 3,
+   "J_policy_cents": 339960737472169,
+   "J_naive_cents": 393550527624043,
+   "J_clairvoyant_cents": 315235495938031
+  },
+  {
+   "episode": 1,
+   "stratum": 2,
+   "J_policy_cents": 277150736704538,
+   "J_naive_cents": 401699389947657,
+   "J_clairvoyant_cents": 260916271460390
+  },
+  {
+   "episode": 2,
+   "stratum": 2,
+   "J_policy_cents": 188336687340878,
+   "J_naive_cents": 274928091840043,
+   "J_clairvoyant_cents": 159676535148997
+  },
+  {
+   "episode": 3,
+   "stratum": 2,
+   "J_policy_cents": 360028200696835,
+   "J_naive_cents": 410625037716108,
+   "J_clairvoyant_cents": 341169487755080
+  },
+  {
+   "episode": 4,
+   "stratum": 2,
+   "J_policy_cents": 313326823437883,
+   "J_naive_cents": 378365001258547,
+   "J_clairvoyant_cents": 304341831378699
+  },
+  {
+   "episode": 5,
+   "stratum": 2,
+   "J_policy_cents": 349369444833584,
+   "J_naive_cents": 405325119408506,
+   "J_clairvoyant_cents": 295758049866552
+  },
+  {
+   "episode": 6,
+   "stratum": 1,
+   "J_policy_cents": 323636145076881,
+   "J_naive_cents": 341021422069727,
+   "J_clairvoyant_cents": 294173898404918
+  },
+  {
+   "episode": 7,
+   "stratum": 1,
+   "J_policy_cents": 305834425223273,
+   "J_naive_cents": 348086141365957,
+   "J_clairvoyant_cents": 294340513887418
+  },
+  {
+   "episode": 11,
+   "stratum": 1,
+   "J_policy_cents": 93971821270627,
+   "J_naive_cents": 205646461607661,
+   "J_clairvoyant_cents": 77907453643843
+  },
+  {
+   "episode": 12,
+   "stratum": 1,
+   "J_policy_cents": 212956413068373,
+   "J_naive_cents": 272222498798761,
+   "J_clairvoyant_cents": 176699178524008
+  },
+  {
+   "episode": 13,
+   "stratum": 1,
+   "J_policy_cents": 257536433750351,
+   "J_naive_cents": 315833913242775,
+   "J_clairvoyant_cents": 229922319165752
+  },
+  {
+   "episode": 26,
+   "stratum": 3,
+   "J_policy_cents": 221509924751222,
+   "J_naive_cents": 299563563539302,
+   "J_clairvoyant_cents": 192665535057495
+  },
+  {
+   "episode": 27,
+   "stratum": 3,
+   "J_policy_cents": 244969152444183,
+   "J_naive_cents": 323347499228059,
+   "J_clairvoyant_cents": 197641332949846
+  },
+  {
+   "episode": 30,
+   "stratum": 3,
+   "J_policy_cents": 227050167837871,
+   "J_naive_cents": 317805842733942,
+   "J_clairvoyant_cents": 220836672656815
+  },
+  {
+   "episode": 41,
+   "stratum": 4,
+   "J_policy_cents": 336787592443315,
+   "J_naive_cents": 374587747709391,
+   "J_clairvoyant_cents": 319679039905412
+  },
+  {
+   "episode": 46,
+   "stratum": 3,
+   "J_policy_cents": 267687683096486,
+   "J_naive_cents": 375598357370607,
+   "J_clairvoyant_cents": 221016628251251
+  },
+  {
+   "episode": 76,
+   "stratum": 4,
+   "J_policy_cents": 160892611543094,
+   "J_naive_cents": 274114876332757,
+   "J_clairvoyant_cents": 130358616713775
+  },
+  {
+   "episode": 80,
+   "stratum": 4,
+   "J_policy_cents": 453156675691075,
+   "J_naive_cents": 481868479481396,
+   "J_clairvoyant_cents": 451180153935999
+  },
+  {
+   "episode": 102,
+   "stratum": 4,
+   "J_policy_cents": 229568661271971,
+   "J_naive_cents": 304699019184428,
+   "J_clairvoyant_cents": 198766318155036
+  },
+  {
+   "episode": 106,
+   "stratum": 4,
+   "J_policy_cents": 440270089902468,
+   "J_naive_cents": 471663929549241,
+   "J_clairvoyant_cents": 428577812024845
+  }
+ ]
+}

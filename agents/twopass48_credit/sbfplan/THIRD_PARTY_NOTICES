@@ -1,0 +1,227 @@
+THIRD-PARTY NOTICES for shockbench-flow
+
+The shockbench-flow distribution (the packages shockbench_flow, shockbench_flow_gym and shockbench_flow_agent) is
+licensed under the MIT License (LICENSE). It bundles no third-party library: its dependencies (numpy, scipy, highspy,
+numba, networkx, joblib, fastjsonschema, loguru, fire, and the optional gymnasium, matplotlib, stable-baselines3 and
+torch) are installed separately under their own licences. It does contain the third-party material listed below.
+
+Part A lists code and tables copied or ported from other software, with the notices their licences require.
+Part B lists the public data sources behind the numbers in the packaged instance files
+(shockbench_flow/instance/data/*.json) and in the disruption parameters (shockbench_flow/disruption/params.py). No
+source dataset is redistributed: the package carries statistics derived from them (sums, shares, ratios, fitted
+parameters), each tagged with its source in the instance file's "provenance" field.
+
+==========================================================================================================================
+PART A. CODE AND TABLES
+==========================================================================================================================
+
+A1. NumPy: the ziggurat tables and the ported random-number routines
+--------------------------------------------------------------------------------------------------------------------------
+
+Where: shockbench_flow/omega/_ziggurat.py (the tables ki_double, wi_double, fi_double and the constants
+ziggurat_nor_r and ziggurat_nor_inv_r, copied verbatim from numpy/random/src/distributions/ziggurat_constants.h and
+distributions.c of NumPy 2.4.5) and shockbench_flow/omega/_kernels.py (bit-identical ports of NumPy 2.4.5's
+SeedSequence entropy mixing and generate_state from numpy/random/bit_generator.pyx, the PCG64DXSM seeding and output
+from numpy/random/src/pcg64/, and random_standard_normal from numpy/random/src/distributions/distributions.c).
+
+Copyright (c) 2005-2025, NumPy Developers.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+       notice, this list of conditions and the following disclaimer.
+
+    * Redistributions in binary form must reproduce the above
+       copyright notice, this list of conditions and the following
+       disclaimer in the documentation and/or other materials provided
+       with the distribution.
+
+    * Neither the name of the NumPy Developers nor the names of any
+       contributors may be used to endorse or promote products derived
+       from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+A2. numpy.random (Kevin Sheppard): the random module the ports above come from
+--------------------------------------------------------------------------------------------------------------------------
+
+NumPy's numpy/random is dual-licensed under the University of Illinois/NCSA Open Source License and the 3-Clause BSD
+License (numpy/random/LICENSE.md); the 3-Clause BSD notice follows.
+
+Copyright (c) 2019 Kevin Sheppard. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice,
+   this list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its contributors
+   may be used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+THE POSSIBILITY OF SUCH DAMAGE.
+
+A3. Julia: the ziggurat method NumPy's tables derive from
+--------------------------------------------------------------------------------------------------------------------------
+
+NumPy states that its ziggurat methods were derived from Julia (numpy/random/src/distributions/LICENSE.md).
+
+Copyright (c) 2009-2019: Jeff Bezanson, Stefan Karpinski, Viral B. Shah,
+and other contributors:
+
+https://github.com/JuliaLang/julia/contributors
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+A4. SeedSequence (Melissa E. O'Neill; NumPy Developers): the entropy mixing ported in omega/_kernels.py
+--------------------------------------------------------------------------------------------------------------------------
+
+The MIT License (MIT)
+
+Copyright (c) 2015 Melissa E. O'Neill
+Copyright (c) 2019 NumPy Developers
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+A5. PCG random number generation (Melissa O'Neill; Robert Kern): the PCG64DXSM routines ported in omega/_kernels.py
+--------------------------------------------------------------------------------------------------------------------------
+
+NumPy's numpy/random/src/pcg64/ is "Relicensed MIT in May 2019" (its file headers, which also carry an earlier Apache
+2.0 grant); the MIT notice follows (the authors' contact addresses are omitted here).
+
+PCG Random Number Generation for C.
+
+Copyright 2014 Melissa O'Neill
+Copyright 2015 Robert Kern
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the "Software"),
+to deal in the Software without restriction, including without limitation
+the rights to use, copy, modify, merge, publish, distribute, sublicense,
+and/or sell copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+==========================================================================================================================
+PART B. DATA SOURCES (derived statistics only; attribution as each source's terms ask)
+==========================================================================================================================
+
+B1. Global Energy Monitor, Global Gas Infrastructure Tracker (CC BY 4.0)
+    "Global Energy Monitor, Global Gas Infrastructure Tracker, September 2025 release" (LNG terminals) and "Global
+    Energy Monitor, Global Gas Infrastructure Tracker - Gas Pipelines - November 2025 release" (pipelines). Licence:
+    Creative Commons Attribution 4.0 International, https://creativecommons.org/licenses/by/4.0/. Changes made:
+    operating units filtered, summed per instance region, supply country or route, and converted to GWh per week
+    (the LNG terminal throughput caps and the pipeline edge capacities of the `small` and `full` instances).
+
+B2. CEPII BACI, HS22 V202601 (Etalab Open Licence 2.0 / Licence Ouverte 2.0)
+    "CEPII BACI HS22 V202601, updated 2026-01-30; Gaulier and Zignago 2010". Licence:
+    https://www.etalab.gouv.fr/wp-content/uploads/2018/11/open-licence.pdf. Used for: the energy-source shares of the
+    planned flows of the `small` and `full` instances (bilateral trade shares computed from the 2022-2024 flows).
+
+B3. UCDP/PRIO Armed Conflict Dataset, version 25.1 (CC BY 4.0)
+    Uppsala Conflict Data Program and Peace Research Institute Oslo, https://ucdp.uu.se/downloads/. Licence:
+    https://creativecommons.org/licenses/by/4.0/. Changes made: country-year conflict states pooled into the annual
+    none / minor / war transition matrix of the conflict layer (disruption/params.py).
+
+B4. U.S. Energy Information Administration (public domain; acknowledgement requested)
+    U.S. Energy Information Administration, World Oil Transit Chokepoints (3 March 2026) and Monthly Energy Review,
+    Table A2 (heat content of crude oil, 2025). Used for: chokepoint volumes and the crude energy content.
+
+B5. IMF PortWatch (derived statistics only)
+    "Sources: Kpler; UN Global Platform; IMF PortWatch (portwatch.imf.org)." Used for: the Suez 2021 clearance ratio
+    k_c and the transit statistics tagged DERIVED(PortWatch). The daily series are not redistributed.
+
+B6. International Monetary Fund, Primary Commodity Prices
+    IMF series PNGASJPUSDM (Asian LNG price, 2025) and the Brent crude price (2025). Used for: the commodity values of
+    LNG and crude.
+
+B7. Semiconductor Industry Association and Boston Consulting Group
+    SIA and BCG, "Emerging Resilience in the Semiconductor Supply Chain" (May 2024). A few capacity figures read from
+    the report's exhibits (fab capacity by region and technology, 2022) are used as facts, divided over the instance's
+    fabs. The report itself is not redistributed.
+
+B8. Conflict and sanctions event data (fitted parameters only)
+    - Threat and Imposition of Economic Sanctions (TIES) 4.0: Morgan, T. Clifton, Navin Bapat, and Yoshi Kobayashi.
+      2014. Conflict Management and Peace Science 31(5): 541-558. doi:10.1177/0738894213520379. Used for: the sanction and export-control
+      duration law and lead statistics.
+    - Correlates of War, Militarized Interstate Disputes (MID) 5.0: Palmer et al. 2022. Conflict Management
+      and Peace Science 39(4): 470-482. doi:10.1177/0738894221995743. Used for: dispute and use-of-force duration
+      priors. The COW data themselves are not redistributed.
+    - Federal Register (U.S. Government works, 17 U.S.C. 105): announcement-lead statistics of tariff and sanction
+      notices.
+
+B9. Other values
+    Every other non-synthetic number in the instance files names its published source (a paper, a report or a
+    national statistics office, for example Taiwan's MOEA Energy Administration) in its provenance entry. Values
+    tagged SYNTHETIC are the benchmark's own.

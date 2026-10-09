@@ -1,0 +1,182 @@
+[
+ {
+  "episode": 0,
+  "status": 1,
+  "message": "Time limit reached. (HiGHS Status 13: Time limit reached)",
+  "seconds": 120.1,
+  "binaries": 208,
+  "J_inc": 315630544355249,
+  "J_bound": 315235736527136
+ },
+ {
+  "episode": 1,
+  "status": 0,
+  "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+  "seconds": 6.9,
+  "binaries": 208,
+  "J_inc": 260916856023442,
+  "J_bound": 260916271460389
+ },
+ {
+  "episode": 2,
+  "status": 1,
+  "message": "Time limit reached. (HiGHS Status 13: Time limit reached)",
+  "seconds": 120.2,
+  "binaries": 208,
+  "J_inc": 160065499205299,
+  "J_bound": 159842366970186
+ },
+ {
+  "episode": 3,
+  "status": 1,
+  "message": "Time limit reached. (HiGHS Status 13: Time limit reached)",
+  "seconds": 120.1,
+  "binaries": 208,
+  "J_inc": 342808191306416,
+  "J_bound": 342737223321111
+ },
+ {
+  "episode": 4,
+  "status": 1,
+  "message": "Time limit reached. (HiGHS Status 13: Time limit reached)",
+  "seconds": 120.1,
+  "binaries": 208,
+  "J_inc": 306534578010283,
+  "J_bound": 306466376637575
+ },
+ {
+  "episode": 5,
+  "status": 1,
+  "message": "Time limit reached. (HiGHS Status 13: Time limit reached)",
+  "seconds": 120.2,
+  "binaries": 208,
+  "J_inc": 319253462566179,
+  "J_bound": 318072390750542
+ },
+ {
+  "episode": 6,
+  "status": 0,
+  "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+  "seconds": 46.2,
+  "binaries": 208,
+  "J_inc": 294815168557400,
+  "J_bound": 294809075511160
+ },
+ {
+  "episode": 7,
+  "status": 1,
+  "message": "Time limit reached. (HiGHS Status 13: Time limit reached)",
+  "seconds": 120.1,
+  "binaries": 208,
+  "J_inc": 298942394203351,
+  "J_bound": 298826697527757
+ },
+ {
+  "episode": 11,
+  "status": 0,
+  "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+  "seconds": 6.4,
+  "binaries": 208,
+  "J_inc": 77913225543975,
+  "J_bound": 77907453643843
+ },
+ {
+  "episode": 12,
+  "status": 1,
+  "message": "Time limit reached. (HiGHS Status 13: Time limit reached)",
+  "seconds": 120.1,
+  "binaries": 208,
+  "J_inc": 185834225300463,
+  "J_bound": 178974023390333
+ },
+ {
+  "episode": 13,
+  "status": 1,
+  "message": "Time limit reached. (HiGHS Status 13: Time limit reached)",
+  "seconds": 120.1,
+  "binaries": 208,
+  "J_inc": 231626856256195,
+  "J_bound": 231392321002246
+ },
+ {
+  "episode": 26,
+  "status": 1,
+  "message": "Time limit reached. (HiGHS Status 13: Time limit reached)",
+  "seconds": 120.1,
+  "binaries": 208,
+  "J_inc": 192894823852122,
+  "J_bound": 192666256831349
+ },
+ {
+  "episode": 27,
+  "status": 1,
+  "message": "Time limit reached. (HiGHS Status 13: Time limit reached)",
+  "seconds": 120.1,
+  "binaries": 208,
+  "J_inc": 198602538164473,
+  "J_bound": 197644064613156
+ },
+ {
+  "episode": 30,
+  "status": 0,
+  "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+  "seconds": 9.0,
+  "binaries": 208,
+  "J_inc": 220849597339976,
+  "J_bound": 220836693917416
+ },
+ {
+  "episode": 41,
+  "status": 1,
+  "message": "Time limit reached. (HiGHS Status 13: Time limit reached)",
+  "seconds": 120.1,
+  "binaries": 208,
+  "J_inc": 324268475252712,
+  "J_bound": 322002703448184
+ },
+ {
+  "episode": 46,
+  "status": 1,
+  "message": "Time limit reached. (HiGHS Status 13: Time limit reached)",
+  "seconds": 120.1,
+  "binaries": 208,
+  "J_inc": 221129005267017,
+  "J_bound": 221044343863805
+ },
+ {
+  "episode": 76,
+  "status": 1,
+  "message": "Time limit reached. (HiGHS Status 13: Time limit reached)",
+  "seconds": 120.1,
+  "binaries": 208,
+  "J_inc": 140137068689614,
+  "J_bound": 136181065713221
+ },
+ {
+  "episode": 80,
+  "status": 0,
+  "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+  "seconds": 4.4,
+  "binaries": 208,
+  "J_inc": 451180344295974,
+  "J_bound": 451180153935999
+ },
+ {
+  "episode": 102,
+  "status": 1,
+  "message": "Time limit reached. (HiGHS Status 13: Time limit reached)",
+  "seconds": 120.1,
+  "binaries": 208,
+  "J_inc": 199587828247405,
+  "J_bound": 198778878293721
+ },
+ {
+  "episode": 106,
+  "status": 0,
+  "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+  "seconds": 6.4,
+  "binaries": 208,
+  "J_inc": 428599035912083,
+  "J_bound": 428579686217827
+ }
+]

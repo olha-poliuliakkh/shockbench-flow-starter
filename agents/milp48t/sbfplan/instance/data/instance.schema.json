@@ -1,0 +1,408 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "urn:shockbench-flow:instance:1",
+  "title": "ShockBench-Flow instance file, schema_version 1",
+  "description": "The instance-file contract of design §2.3 (Q70, Q95). Closed: every object whose key set the format fixes refuses an unknown key (maps keyed by ids stay open). It states types, required keys, vocabularies and the single-value ranges the loader enforces; ids, cross-references, uniqueness, sums, finite numbers and rules across fields stay with the loader (instance/io.py). It declares no defaults, since the instance hash is over the file as parsed.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "instance_id", "kind", "T", "units", "regions", "region_class", "params", "commodities",
+    "nodes", "edges", "lanes", "routing_table", "compatibility", "use", "chokepoint_adjacency", "trade_adjacency",
+    "initial_state", "prohibitions_at_reset", "provenance"
+  ],
+  "properties": {
+    "schema_version": {"const": "1"},
+    "instance_id": {"type": "string"},
+    "kind": {"type": "string"},
+    "T": {"description": "episode length in weeks", "type": "integer", "minimum": 1},
+    "units": {"description": "one line per commodity, and cost", "type": "object", "additionalProperties": {"type": "string"}},
+    "regions": {"$ref": "#/definitions/ids"},
+    "region_class": {"description": "class per region (Q59)", "type": "object", "additionalProperties": {"type": "string"}},
+    "params": {"$ref": "#/definitions/params"},
+    "commodities": {"type": "array", "items": {"$ref": "#/definitions/commodity"}},
+    "nodes": {"type": "array", "items": {"$ref": "#/definitions/node"}},
+    "edges": {"type": "array", "items": {"$ref": "#/definitions/edge"}},
+    "lanes": {"type": "array", "items": {"$ref": "#/definitions/lane"}},
+    "routing_table": {
+      "description": "origin-destination region pair -> lanes (spec §4.7)",
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["origin", "dest", "lanes"],
+        "properties": {"origin": {"$ref": "#/definitions/id"}, "dest": {"$ref": "#/definitions/id"}, "lanes": {"$ref": "#/definitions/ids"}}
+      }
+    },
+    "compatibility": {
+      "description": "source -> terminal pairs",
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["source", "terminal"],
+        "properties": {"source": {"$ref": "#/definitions/id"}, "terminal": {"$ref": "#/definitions/id"}}
+      }
+    },
+    "use": {
+      "description": "material -> fab pairs",
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["material", "fab"],
+        "properties": {"material": {"$ref": "#/definitions/id"}, "fab": {"$ref": "#/definitions/id"}}
+      }
+    },
+    "chokepoint_adjacency": {"description": "chokepoint -> regions (Q58)", "type": "object", "additionalProperties": {"$ref": "#/definitions/ids"}},
+    "trade_adjacency": {
+      "description": "weights of the trade adjacency A (§4.2)",
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["a", "b", "w"],
+        "properties": {"a": {"$ref": "#/definitions/id"}, "b": {"$ref": "#/definitions/id"}, "w": {"$ref": "#/definitions/nonneg"}}
+      }
+    },
+    "initial_state": {"$ref": "#/definitions/initial_state"},
+    "prohibitions_at_reset": {
+      "description": "pairs (edge, commodity) of Z_0",
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["edge", "k"],
+        "properties": {"edge": {"$ref": "#/definitions/id"}, "k": {"$ref": "#/definitions/id"}}
+      }
+    },
+    "provenance": {
+      "description": "leaf path -> (tag, source, lo, hi); every leaf has one (V20)",
+      "type": "object",
+      "additionalProperties": {
+        "type": "object", "additionalProperties": false, "required": ["tag", "source"],
+        "properties": {
+          "tag": {"type": "string"}, "source": {"type": "string"},
+          "lo": {"type": ["number", "null"]}, "hi": {"type": ["number", "null"]}
+        }
+      }
+    }
+  },
+  "definitions": {
+    "id": {"description": "an id, or a reference to one", "type": "string"},
+    "ids": {"type": "array", "items": {"$ref": "#/definitions/id"}},
+    "nonneg": {"type": "number", "minimum": 0},
+    "week": {"description": "a whole number of weeks (a whole float such as 2.0 reads as 2)", "type": "integer"},
+    "triple": {
+      "description": "one value per war-risk class (none, red_sea, hormuz_2026) or conflict layer",
+      "type": "array", "minItems": 3, "maxItems": 3, "items": {"$ref": "#/definitions/nonneg"}
+    },
+    "per_pool": {
+      "type": "object", "additionalProperties": false, "required": ["tb", "ct"],
+      "properties": {"tb": {"$ref": "#/definitions/nonneg"}, "ct": {"$ref": "#/definitions/nonneg"}}
+    },
+    "alt_of": {
+      "description": "the lane or edge a duplicate replaces, tagged {\"lane\": id} or {\"edge\": id}, or null",
+      "type": ["object", "null"], "additionalProperties": false, "minProperties": 1, "maxProperties": 1,
+      "properties": {"lane": {"$ref": "#/definitions/id"}, "edge": {"$ref": "#/definitions/id"}}
+    },
+    "params": {
+      "description": "instance-wide parameters (§2.4, §3.3, §3.5)",
+      "type": "object", "additionalProperties": false,
+      "required": ["psi", "alpha_max", "tau_alpha", "upsilon", "fleet_share", "fleet_measure", "top_tariff", "forecast_shares"],
+      "properties": {
+        "psi": {"description": "rationing threshold of (15) (Q36)", "type": "number", "exclusiveMinimum": 0, "maximum": 1},
+        "alpha_max": {"description": "overproduction ceiling of (13)", "type": "number", "minimum": 1},
+        "tau_alpha": {"description": "time scale of (13)", "type": "number", "exclusiveMinimum": 0},
+        "upsilon": {"description": "(22)", "type": "number", "minimum": 0},
+        "fleet_share": {
+          "description": "share of the fleet per pool (7)",
+          "type": "object", "additionalProperties": false, "required": ["tb", "ct"],
+          "properties": {
+            "tb": {"type": "number", "minimum": 0, "maximum": 1},
+            "ct": {"type": "number", "minimum": 0, "maximum": 1}
+          }
+        },
+        "fleet_measure": {"$ref": "#/definitions/per_pool"},
+        "top_tariff": {"description": "(Q85)", "type": "number", "minimum": 0},
+        "forecast_shares": {
+          "description": "nine shares summing to 1 (48)",
+          "type": "array", "minItems": 9, "maxItems": 9, "items": {"$ref": "#/definitions/nonneg"}
+        }
+      }
+    },
+    "commodity": {
+      "type": "object", "additionalProperties": false, "required": ["id", "unit", "pool", "v", "override", "disposal_cost"],
+      "properties": {
+        "id": {"$ref": "#/definitions/id"},
+        "unit": {"type": "string"},
+        "pool": {"enum": ["tb", "ct"]},
+        "v": {"description": "customs value v_k, USD per unit (23)", "type": "number", "minimum": 0},
+        "override": {"description": "tanker cargo K^ov (Q34)", "type": "boolean"},
+        "disposal_cost": {"description": "c^disp_k, USD per unit (23)", "type": "number", "minimum": 0}
+      }
+    },
+    "stock_supply": {
+      "description": "a stock block of a source or material node (Q79)",
+      "type": "object", "additionalProperties": false, "required": ["storage", "supply_rate"],
+      "properties": {
+        "storage": {"$ref": "#/definitions/nonneg"},
+        "supply_rate": {"$ref": "#/definitions/nonneg"},
+        "holding_cost": {"$ref": "#/definitions/nonneg"},
+        "salvage": {"$ref": "#/definitions/nonneg"}
+      }
+    },
+    "stock_chokepoint": {
+      "description": "a queue slot at a chokepoint: uncapped (Q58 M4), salvage by the c^min rule (Q93)",
+      "type": "object", "additionalProperties": false, "required": ["salvage"],
+      "properties": {
+        "storage": {"type": "null"},
+        "supply_rate": {"$ref": "#/definitions/nonneg"},
+        "holding_cost": {"$ref": "#/definitions/nonneg"},
+        "salvage": {"$ref": "#/definitions/nonneg"}
+      }
+    },
+    "stock_held": {
+      "description": "a stock block of a terminal, grid, fab, OSAT or sink (§2.1, (8), (23))",
+      "type": "object", "additionalProperties": false, "required": ["storage", "holding_cost", "salvage"],
+      "properties": {
+        "storage": {"$ref": "#/definitions/nonneg"},
+        "supply_rate": {"$ref": "#/definitions/nonneg"},
+        "holding_cost": {"$ref": "#/definitions/nonneg"},
+        "salvage": {"$ref": "#/definitions/nonneg"}
+      }
+    },
+    "chokepoint": {
+      "type": "object", "additionalProperties": false, "required": ["mu", "k_c", "class", "queue_holding", "war_risk_cost"],
+      "properties": {
+        "mu": {"$ref": "#/definitions/per_pool"},
+        "k_c": {"description": "clearance ratio (9)", "type": "number", "minimum": 0},
+        "class": {"type": "string"},
+        "queue_holding": {"description": "h^Q by war-risk class (23)", "type": "object", "additionalProperties": {"$ref": "#/definitions/triple"}},
+        "war_risk_cost": {"description": "per-transit cost by war-risk class (11)", "type": "object", "additionalProperties": {"$ref": "#/definitions/triple"}}
+      }
+    },
+    "grid": {
+      "type": "object", "additionalProperties": false,
+      "required": ["base_load", "deliverable", "shares", "days_cover", "ibar", "rationed", "voll", "priority"],
+      "properties": {
+        "base_load": {"description": "(18)", "type": "number", "minimum": 0},
+        "deliverable": {"description": "(15)", "type": "number", "minimum": 0},
+        "shares": {"description": "fuel (or unmodelled) -> share (15)", "type": "object", "additionalProperties": {"$ref": "#/definitions/nonneg"}},
+        "days_cover": {"description": "(16)", "type": "object", "additionalProperties": {"$ref": "#/definitions/nonneg"}},
+        "ibar": {"description": "(16)", "type": "object", "additionalProperties": {"$ref": "#/definitions/nonneg"}},
+        "rationed": {"description": "the fuel whose segment (15) rations, or null (Q27)", "type": ["string", "null"]},
+        "voll": {"description": "(23)", "type": "number", "minimum": 0},
+        "priority": {"description": "energy priority (18) (Q57)", "enum": ["base_first", "proportional", "industrial_first"]}
+      }
+    },
+    "fab": {
+      "type": "object", "additionalProperties": false, "required": ["cap0", "e", "class", "input", "product", "tau", "w_scr"],
+      "properties": {
+        "cap0": {"description": "(12)", "type": "number", "minimum": 0},
+        "e": {"description": "energy per unit (12)", "type": "number", "minimum": 0},
+        "grid": {"type": ["string", "null"]},
+        "class": {"enum": ["leading", "mature", "memory"]},
+        "input": {"$ref": "#/definitions/id"},
+        "product": {"$ref": "#/definitions/id"},
+        "tau": {"description": "(12)", "type": "integer", "minimum": 1},
+        "w_scr": {"description": "(14)", "type": "integer", "minimum": 1}
+      }
+    },
+    "osat": {
+      "type": "object", "additionalProperties": false, "required": ["thr", "tau", "packages"],
+      "properties": {
+        "thr": {"description": "(19)", "type": "number", "minimum": 0},
+        "tau": {"description": "(19)", "type": "integer", "minimum": 1},
+        "packages": {"description": "raw chip -> packaged chip (19)", "type": "object", "additionalProperties": {"$ref": "#/definitions/id"}}
+      }
+    },
+    "terminal": {
+      "type": "object", "additionalProperties": false, "required": ["throughput"],
+      "properties": {"throughput": {"description": "(4)", "type": "number", "minimum": 0}}
+    },
+    "sink": {
+      "type": "object", "additionalProperties": false, "required": ["demand"],
+      "properties": {"demand": {"type": "object", "additionalProperties": {"$ref": "#/definitions/demand"}}}
+    },
+    "demand": {
+      "description": "one demand block of a sink (§2.1, (20)-(22))",
+      "type": "object", "additionalProperties": false, "required": ["dbar", "pi", "backlog", "phi", "sigma", "shock"],
+      "properties": {
+        "dbar": {"description": "(22)", "type": "number", "minimum": 0},
+        "pi": {"description": "(23)", "type": "number", "minimum": 0},
+        "backlog": {"type": "boolean"},
+        "phi": {"description": "(21)", "type": "number", "exclusiveMinimum": -1, "exclusiveMaximum": 1},
+        "sigma": {"description": "(21)", "type": "number", "minimum": 0},
+        "seasonal": {"description": "52 weekly values (21), or null", "type": ["array", "null"], "minItems": 52, "maxItems": 52, "items": {"$ref": "#/definitions/nonneg"}},
+        "shock": {"$ref": "#/definitions/triple"}
+      }
+    },
+    "node": {
+      "description": "one row per node with the attributes of §2.1: a block named by its type, and stock blocks by commodity",
+      "type": "object", "required": ["id", "type", "region"],
+      "properties": {
+        "id": {"$ref": "#/definitions/id"},
+        "type": {"enum": ["source", "terminal", "grid", "chokepoint", "material", "fab", "osat", "sink"]},
+        "region": {"$ref": "#/definitions/id"}
+      },
+      "allOf": [
+        {
+          "if": {"required": ["type"], "properties": {"type": {"enum": ["source", "material"]}}},
+          "then": {
+            "additionalProperties": false,
+            "properties": {"id": true, "type": true, "region": true, "stock": {"type": "object", "additionalProperties": {"$ref": "#/definitions/stock_supply"}}}
+          }
+        },
+        {
+          "if": {"required": ["type"], "properties": {"type": {"const": "chokepoint"}}},
+          "then": {
+            "additionalProperties": false, "required": ["chokepoint"],
+            "properties": {
+              "id": true, "type": true, "region": true,
+              "stock": {"type": "object", "additionalProperties": {"$ref": "#/definitions/stock_chokepoint"}},
+              "chokepoint": {"$ref": "#/definitions/chokepoint"}
+            }
+          }
+        },
+        {
+          "if": {"required": ["type"], "properties": {"type": {"const": "terminal"}}},
+          "then": {
+            "additionalProperties": false, "required": ["terminal"],
+            "properties": {
+              "id": true, "type": true, "region": true,
+              "stock": {"type": "object", "additionalProperties": {"$ref": "#/definitions/stock_held"}},
+              "terminal": {"$ref": "#/definitions/terminal"}
+            }
+          }
+        },
+        {
+          "if": {"required": ["type"], "properties": {"type": {"const": "grid"}}},
+          "then": {
+            "additionalProperties": false, "required": ["grid"],
+            "properties": {
+              "id": true, "type": true, "region": true,
+              "stock": {"type": "object", "additionalProperties": {"$ref": "#/definitions/stock_held"}},
+              "grid": {"$ref": "#/definitions/grid"}
+            }
+          }
+        },
+        {
+          "if": {"required": ["type"], "properties": {"type": {"const": "fab"}}},
+          "then": {
+            "additionalProperties": false, "required": ["fab"],
+            "properties": {
+              "id": true, "type": true, "region": true,
+              "stock": {"type": "object", "additionalProperties": {"$ref": "#/definitions/stock_held"}},
+              "fab": {"$ref": "#/definitions/fab"}
+            }
+          }
+        },
+        {
+          "if": {"required": ["type"], "properties": {"type": {"const": "osat"}}},
+          "then": {
+            "additionalProperties": false, "required": ["osat"],
+            "properties": {
+              "id": true, "type": true, "region": true,
+              "stock": {"type": "object", "additionalProperties": {"$ref": "#/definitions/stock_held"}},
+              "osat": {"$ref": "#/definitions/osat"}
+            }
+          }
+        },
+        {
+          "if": {"required": ["type"], "properties": {"type": {"const": "sink"}}},
+          "then": {
+            "additionalProperties": false, "required": ["sink"],
+            "properties": {
+              "id": true, "type": true, "region": true,
+              "stock": {"type": "object", "additionalProperties": {"$ref": "#/definitions/stock_held"}},
+              "sink": {"$ref": "#/definitions/sink"}
+            }
+          }
+        }
+      ]
+    },
+    "edge": {
+      "description": "an edge (§2.1): a coupling edge (mode grid) carries no commodity and has no capacity or pool (Q58 M5)",
+      "type": "object", "additionalProperties": false, "required": ["id", "tail", "head", "mode", "K", "tau", "c0"],
+      "properties": {
+        "id": {"$ref": "#/definitions/id"},
+        "tail": {"$ref": "#/definitions/id"},
+        "head": {"$ref": "#/definitions/id"},
+        "mode": {"enum": ["sea", "air", "pipeline", "grid"]},
+        "K": {"$ref": "#/definitions/ids"},
+        "tau": {"description": "lead time (2)", "type": "integer", "minimum": 0},
+        "c0": {"description": "freight (23)", "type": "number", "minimum": 0},
+        "u0": {"description": "capacity (4)", "type": ["number", "null"], "minimum": 0},
+        "alt_of": {"$ref": "#/definitions/alt_of"},
+        "pool": {"enum": ["tb", "ct", null]}
+      },
+      "if": {"required": ["mode"], "properties": {"mode": {"const": "grid"}}},
+      "then": {"properties": {"K": {"maxItems": 0}, "u0": {"type": "null"}, "pool": {"type": "null"}}},
+      "else": {"required": ["u0", "pool"], "properties": {"u0": {"type": "number"}, "pool": {"enum": ["tb", "ct"]}}}
+    },
+    "lane": {
+      "description": "a lane (Q4): its edges pass at least one chokepoint",
+      "type": "object", "additionalProperties": false, "required": ["id", "edges"],
+      "properties": {
+        "id": {"$ref": "#/definitions/id"},
+        "edges": {"type": "array", "minItems": 2, "items": {"$ref": "#/definitions/id"}},
+        "chokepoints": {"$ref": "#/definitions/ids"},
+        "alt_of": {"$ref": "#/definitions/alt_of"}
+      }
+    },
+    "stock_block": {
+      "description": "on-hand stock I^0 at reset, one entry per (node, commodity) holding some (§2.3)",
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["node", "k", "qty"],
+        "properties": {"node": {"$ref": "#/definitions/id"}, "k": {"$ref": "#/definitions/id"}, "qty": {"$ref": "#/definitions/nonneg"}}
+      }
+    },
+    "initial_state": {
+      "description": "the declared initial state (§2.3; Q58 M13); on small and full one stock block per γ rung: stock is that of rung, stock_by_rung the other rungs' by their decimal repr (M5-O37 (b)), the two keys together or neither",
+      "type": "object", "additionalProperties": false, "required": ["stock", "pipeline", "fab_wip", "osat_wip", "queue_lots"],
+      "dependencies": {"rung": ["stock_by_rung"], "stock_by_rung": ["rung"]},
+      "properties": {
+        "stock": {"$ref": "#/definitions/stock_block"},
+        "rung": {"type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1},
+        "stock_by_rung": {
+          "type": "object", "propertyNames": {"pattern": "^0\\.[0-9]+$"},
+          "additionalProperties": {"$ref": "#/definitions/stock_block"}
+        },
+        "pipeline": {
+          "type": "array",
+          "items": {
+            "type": "object", "additionalProperties": false, "required": ["edge", "k", "qty", "dispatch_week", "arrival_week"],
+            "properties": {
+              "edge": {"$ref": "#/definitions/id"},
+              "k": {"$ref": "#/definitions/id"},
+              "lane": {"type": ["string", "null"]},
+              "qty": {"$ref": "#/definitions/nonneg"},
+              "dispatch_week": {"type": "integer", "maximum": 0},
+              "arrival_week": {"type": "integer", "minimum": 1}
+            }
+          }
+        },
+        "fab_wip": {"type": "array", "items": {"$ref": "#/definitions/wip"}},
+        "osat_wip": {"type": "array", "items": {"$ref": "#/definitions/wip"}},
+        "queue_lots": {
+          "type": "array",
+          "items": {
+            "type": "object", "additionalProperties": false,
+            "required": ["chokepoint", "k", "qty", "lane", "next_edge", "dispatch_week", "entry_edge", "arrival_week"],
+            "properties": {
+              "chokepoint": {"$ref": "#/definitions/id"},
+              "k": {"$ref": "#/definitions/id"},
+              "qty": {"$ref": "#/definitions/nonneg"},
+              "lane": {"$ref": "#/definitions/id"},
+              "next_edge": {"$ref": "#/definitions/id"},
+              "dispatch_week": {"$ref": "#/definitions/week"},
+              "entry_edge": {"$ref": "#/definitions/id"},
+              "arrival_week": {"type": "integer", "maximum": 0}
+            }
+          }
+        }
+      }
+    },
+    "wip": {
+      "description": "an initial WIP lot maturing in week out_week (12), (19)",
+      "type": "object", "additionalProperties": false, "required": ["node", "k", "qty", "out_week"],
+      "properties": {
+        "node": {"$ref": "#/definitions/id"},
+        "k": {"$ref": "#/definitions/id"},
+        "qty": {"$ref": "#/definitions/nonneg"},
+        "out_week": {"type": "integer", "minimum": 1}
+      }
+    }
+  }
+}

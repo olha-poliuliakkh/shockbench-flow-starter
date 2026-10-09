@@ -40,6 +40,14 @@ agents/<name>/     # one submission folder per agent: agent.py and the files it 
                    #   mine: the LP planner (package's mpc_det, vendored as sbfplan/ by scripts/vendor_planner.py,
                    #   solved by SciPy) in a frozen frame.py, with four EVOLVE blocks in agent.py
                    #   evo_champion: the evolution loop's current champion (written by examples/08_evolve.py)
+                   #   twopass: mine plus a two-pass solve that enforces the grids' base-load-first rule in weeks 2..H
+                   #   twopass48: twopass on SciPy's bundled HiGHS, warm-started, adding a 48-week window each week
+                   #   belief48: twopass48 with a calibrated strait belief (belief.py; measured no gain, research doc 5.7)
+                   #   milp48: twopass48 plus the exact base-load-first window MILP on Small (research doc 5.11)
+                   #   milp48t: milp48 with the MILP's budget and options tuned (research doc 5.12)
+                   #   scen48_penalized: twopass48 with shed base load x1000 in weeks 2..H (measured -0.06, doc 5.14)
+                   #   twopass48_credit: twopass48 plus a terminal credit on Full when the window ends before T (doc 5.15)
+                   #   milp48_eco: milp48t plus the same credit on Full (doc 5.15)
 examples/          # 01_quickstart.py ... 07_dashboard.py, each self-contained; ppo_agent.py is the PPO submission's agent.py
                    #   08_evolve.py: the AlphaEvolve loop (docs/EVOLVE_DESIGN.md); 09_stress.py: stress tests on
                    #   stratified private episodes (levels, Full, paired, CPU and memory)
@@ -48,7 +56,9 @@ src/sbf_starter/   # the `sbf` CLI (cli.py), scoring.py, check.py (isolated time
                    #   codabench.py (token, upload, status), agents.py (names -> folders), play.py (closures)
 scripts/           # fields_docs.py: regenerates docs/fields/ from the installed shockbench-flow;
                    #   vendor_planner.py: copies the package's planner into an agent folder as sbfplan/
-docs/              # GUIDE.md, fields/ (every observation and action field), img/
+                   #   bound_hybrid_limit.py: the simulator-lookahead bound; research/: the offline experiments of
+                   #   docs/research/dataset_and_rss_mechanics.md (results/ holds the outputs it cites)
+docs/              # GUIDE.md, fields/ (every observation and action field), img/, research/ (findings and benchmarks)
 tests/             # uv run pytest -n 3
 outputs/           # run folders outputs/<example>/<date_time>/ and packed zips (gitignored)
 ```

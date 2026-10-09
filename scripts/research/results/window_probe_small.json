@@ -1,0 +1,413 @@
+[
+ {
+  "episode": 0,
+  "week": 5,
+  "H": 48,
+  "tail_vs_mid": {
+   "lot_starts": 0.0,
+   "wafers_into_fabs": 0.0,
+   "fuel_into_grids": 0.413,
+   "stock_value": 0.291,
+   "unserved": 1.25
+  },
+  "terminal_credit_over_value": {
+   "lng": 0.016,
+   "crude": 0.036,
+   "nucfuel": 0.015,
+   "wafer": 0.0,
+   "chip_le_raw": 0.0,
+   "chip_mat_raw": 0.001,
+   "chip_le": 0.0,
+   "chip_mat": 0.001
+  },
+  "violations_pass1": 102,
+  "violations_pass2": 4,
+  "pass2_on_bounded": 0,
+  "pass2_sizes": [
+   [
+    28,
+    0.0123,
+    0.0031
+   ],
+   [
+    29,
+    0.0191,
+    0.0098
+   ],
+   [
+    33,
+    0.0123,
+    0.0031
+   ],
+   [
+    34,
+    0.0123,
+    0.0031
+   ]
+  ]
+ },
+ {
+  "episode": 0,
+  "week": 15,
+  "H": 38,
+  "tail_vs_mid": {
+   "lot_starts": 0.0,
+   "wafers_into_fabs": 0.0,
+   "fuel_into_grids": 0.481,
+   "stock_value": 0.342,
+   "unserved": 1.191
+  },
+  "terminal_credit_over_value": {
+   "lng": 0.016,
+   "crude": 0.036,
+   "nucfuel": 0.015,
+   "wafer": 0.0,
+   "chip_le_raw": 0.0,
+   "chip_mat_raw": 0.001,
+   "chip_le": 0.0,
+   "chip_mat": 0.001
+  },
+  "violations_pass1": 77,
+  "violations_pass2": 4,
+  "pass2_on_bounded": 0,
+  "pass2_sizes": [
+   [
+    16,
+    0.012,
+    0.0027
+   ],
+   [
+    17,
+    0.0194,
+    0.0102
+   ],
+   [
+    23,
+    0.0123,
+    0.0031
+   ],
+   [
+    24,
+    0.0123,
+    0.0031
+   ]
+  ]
+ },
+ {
+  "episode": 0,
+  "week": 25,
+  "H": 28,
+  "tail_vs_mid": {
+   "lot_starts": null,
+   "wafers_into_fabs": 0.0,
+   "fuel_into_grids": 0.401,
+   "stock_value": 0.421,
+   "unserved": 1.11
+  },
+  "terminal_credit_over_value": {
+   "lng": 0.016,
+   "crude": 0.036,
+   "nucfuel": 0.015,
+   "wafer": 0.0,
+   "chip_le_raw": 0.0,
+   "chip_mat_raw": 0.001,
+   "chip_le": 0.0,
+   "chip_mat": 0.001
+  },
+  "violations_pass1": 42,
+  "violations_pass2": 0,
+  "pass2_on_bounded": 0,
+  "pass2_sizes": []
+ },
+ {
+  "episode": 3,
+  "week": 5,
+  "H": 48,
+  "tail_vs_mid": {
+   "lot_starts": 0.0,
+   "wafers_into_fabs": 0.0,
+   "fuel_into_grids": 0.418,
+   "stock_value": 0.293,
+   "unserved": 1.122
+  },
+  "terminal_credit_over_value": {
+   "lng": 0.016,
+   "crude": 0.036,
+   "nucfuel": 0.015,
+   "wafer": 0.0,
+   "chip_le_raw": 0.0,
+   "chip_mat_raw": 0.001,
+   "chip_le": 0.0,
+   "chip_mat": 0.001
+  },
+  "violations_pass1": 60,
+  "violations_pass2": 7,
+  "pass2_on_bounded": 0,
+  "pass2_sizes": [
+   [
+    4,
+    0.0349,
+    0.0625
+   ],
+   [
+    32,
+    0.0814,
+    0.0013
+   ],
+   [
+    33,
+    0.0802,
+    0.0001
+   ],
+   [
+    34,
+    0.0802,
+    0.0001
+   ],
+   [
+    35,
+    0.0782,
+    0.0157
+   ],
+   [
+    35,
+    0.0802,
+    0.0001
+   ],
+   [
+    36,
+    0.0703,
+    0.0079
+   ]
+  ]
+ },
+ {
+  "episode": 3,
+  "week": 15,
+  "H": 38,
+  "tail_vs_mid": {
+   "lot_starts": 0.0,
+   "wafers_into_fabs": 0.0,
+   "fuel_into_grids": 0.397,
+   "stock_value": 0.343,
+   "unserved": 1.096
+  },
+  "terminal_credit_over_value": {
+   "lng": 0.016,
+   "crude": 0.036,
+   "nucfuel": 0.015,
+   "wafer": 0.0,
+   "chip_le_raw": 0.0,
+   "chip_mat_raw": 0.001,
+   "chip_le": 0.0,
+   "chip_mat": 0.001
+  },
+  "violations_pass1": 46,
+  "violations_pass2": 3,
+  "pass2_on_bounded": 0,
+  "pass2_sizes": [
+   [
+    25,
+    0.0769,
+    0.0144
+   ],
+   [
+    25,
+    0.124,
+    0.0001
+   ],
+   [
+    26,
+    0.0703,
+    0.0079
+   ]
+  ]
+ },
+ {
+  "episode": 3,
+  "week": 25,
+  "H": 28,
+  "tail_vs_mid": {
+   "lot_starts": 0.0,
+   "wafers_into_fabs": 0.0,
+   "fuel_into_grids": 0.393,
+   "stock_value": 0.417,
+   "unserved": 1.035
+  },
+  "terminal_credit_over_value": {
+   "lng": 0.016,
+   "crude": 0.036,
+   "nucfuel": 0.015,
+   "wafer": 0.0,
+   "chip_le_raw": 0.0,
+   "chip_mat_raw": 0.001,
+   "chip_le": 0.0,
+   "chip_mat": 0.001
+  },
+  "violations_pass1": 26,
+  "violations_pass2": 3,
+  "pass2_on_bounded": 0,
+  "pass2_sizes": [
+   [
+    15,
+    0.0769,
+    0.0144
+   ],
+   [
+    15,
+    0.124,
+    0.0001
+   ],
+   [
+    16,
+    0.0703,
+    0.0079
+   ]
+  ]
+ },
+ {
+  "episode": 6,
+  "week": 5,
+  "H": 48,
+  "tail_vs_mid": {
+   "lot_starts": 0.0,
+   "wafers_into_fabs": 0.0,
+   "fuel_into_grids": 0.486,
+   "stock_value": 0.291,
+   "unserved": 1.252
+  },
+  "terminal_credit_over_value": {
+   "lng": 0.016,
+   "crude": 0.036,
+   "nucfuel": 0.015,
+   "wafer": 0.0,
+   "chip_le_raw": 0.0,
+   "chip_mat_raw": 0.001,
+   "chip_le": 0.0,
+   "chip_mat": 0.001
+  },
+  "violations_pass1": 66,
+  "violations_pass2": 1,
+  "pass2_on_bounded": 0,
+  "pass2_sizes": [
+   [
+    2,
+    0.0001,
+    0.019
+   ]
+  ]
+ },
+ {
+  "episode": 6,
+  "week": 15,
+  "H": 38,
+  "tail_vs_mid": {
+   "lot_starts": 0.0,
+   "wafers_into_fabs": 0.0,
+   "fuel_into_grids": 0.463,
+   "stock_value": 0.342,
+   "unserved": 1.184
+  },
+  "terminal_credit_over_value": {
+   "lng": 0.016,
+   "crude": 0.036,
+   "nucfuel": 0.015,
+   "wafer": 0.0,
+   "chip_le_raw": 0.0,
+   "chip_mat_raw": 0.001,
+   "chip_le": 0.0,
+   "chip_mat": 0.001
+  },
+  "violations_pass1": 47,
+  "violations_pass2": 0,
+  "pass2_on_bounded": 0,
+  "pass2_sizes": []
+ },
+ {
+  "episode": 6,
+  "week": 25,
+  "H": 28,
+  "tail_vs_mid": {
+   "lot_starts": 0.0,
+   "wafers_into_fabs": 0.0,
+   "fuel_into_grids": 0.483,
+   "stock_value": 0.416,
+   "unserved": 1.053
+  },
+  "terminal_credit_over_value": {
+   "lng": 0.016,
+   "crude": 0.036,
+   "nucfuel": 0.015,
+   "wafer": 0.0,
+   "chip_le_raw": 0.0,
+   "chip_mat_raw": 0.001,
+   "chip_le": 0.0,
+   "chip_mat": 0.001
+  },
+  "violations_pass1": 37,
+  "violations_pass2": 15,
+  "pass2_on_bounded": 0,
+  "pass2_sizes": [
+   [
+    3,
+    0.0044,
+    0.0373
+   ],
+   [
+    3,
+    0.1089,
+    0.0102
+   ],
+   [
+    4,
+    0.0016,
+    0.0556
+   ],
+   [
+    4,
+    0.0741,
+    0.0102
+   ],
+   [
+    5,
+    0.0082,
+    0.0623
+   ],
+   [
+    6,
+    0.0079,
+    0.0619
+   ],
+   [
+    7,
+    0.0079,
+    0.0619
+   ],
+   [
+    8,
+    0.0079,
+    0.0619
+   ],
+   [
+    9,
+    0.0079,
+    0.0619
+   ],
+   [
+    10,
+    0.0079,
+    0.0619
+   ],
+   [
+    11,
+    0.0079,
+    0.0619
+   ],
+   [
+    12,
+    0.0079,
+    0.0619
+   ]
+  ]
+ }
+]
