@@ -1,0 +1,37 @@
+{
+ "point": {
+  "horizon": 20,
+  "osat_raw_price": 2.0
+ },
+ "params": {
+  "rule_chips": 0.0,
+  "buffer_weight": 0.0,
+  "short_price": 10.0,
+  "milp_weeks": 4,
+  "milp_time": 0.8,
+  "safety_frac": 1.5,
+  "safety_price": 0.02,
+  "horizon": 20,
+  "osat_raw_price": 2.0
+ },
+ "delta": 0.004,
+ "sigma": 0.0006364760865499221,
+ "accepted": [
+  {
+   "round": 0,
+   "param": "horizon",
+   "value": 20,
+   "gain": 0.007795853623632554,
+   "lo": 0.002224463185755249,
+   "hi": 0.013423647596944867
+  },
+  {
+   "round": 0,
+   "param": "osat_raw_price",
+   "value": 2.0,
+   "gain": 0.006841930185851441,
+   "lo": 0.0032715405335945248,
+   "hi": 0.010899405754155
+  }
+ ]
+}
