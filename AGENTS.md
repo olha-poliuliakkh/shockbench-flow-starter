@@ -48,6 +48,10 @@ agents/<name>/     # one submission folder per agent: agent.py and the files it 
                    #   scen48_penalized: twopass48 with shed base load x1000 in weeks 2..H (measured -0.06, doc 5.14)
                    #   twopass48_credit: twopass48 plus a terminal credit on Full when the window ends before T (doc 5.15)
                    #   milp48_eco: milp48t plus the same credit on Full (doc 5.15)
+                   #   compact_hierarchical: mpc_nobuf's compact LP (z continuous, credit 0.7) with a pre-solve maritime
+                   #   reroute controller and crisis-scaled fuel safety floors (compact_hier/; knobs in params.json)
+                   #   (SBF_PARAM_<KEY>=... or SBF_PARAMS_FILE=params_baseline.json override; tuned by
+                   #   scripts/research/tune_compact_optuna.py)
 examples/          # 01_quickstart.py ... 07_dashboard.py, each self-contained; ppo_agent.py is the PPO submission's agent.py
                    #   08_evolve.py: the AlphaEvolve loop (docs/EVOLVE_DESIGN.md); 09_stress.py: stress tests on
                    #   stratified private episodes (levels, Full, paired, CPU and memory)
