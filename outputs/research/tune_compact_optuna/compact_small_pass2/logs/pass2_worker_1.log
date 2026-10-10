@@ -1,0 +1,13 @@
+small: 64 episodes of root 202610; building or reading their references ...
+[I 2026-10-10 08:20:15,353] Using an existing study with `study_name='compact_small_pass2'` instead of creating a new one.
+compact_hierarchical: overrides in force {'SBF_PARAMS_FILE': 'best_small_params.json'}
+[I 2026-10-10 08:20:15,394] Trial with params {'horizon_small': 28, 'terminal_frac_small': 0.6598818369405469, 'floor_taper_weeks': 7, 'safety_frac': 0.5938967521594779, 'safety_price': 0.4807268091041509, 'short_price': 1.0180485724340123, 'crisis_gap': 0.0, 'crisis_price_mult': 1.2966620043051529, 'reroute_max_wait': 5} already exists. Skipping enqueue.
+[I 2026-10-10 08:20:15,398] Trial with params {'horizon_small': 28, 'terminal_frac_small': 0.6598818369405469, 'floor_taper_weeks': 7, 'safety_frac': 0.5938967521594779, 'safety_price': 0.4807268091041509, 'short_price': 1.0180485724340123, 'crisis_gap': 0.0, 'crisis_price_mult': 1.2966620043051529, 'reroute_max_wait': 5} already exists. Skipping enqueue.
+trial 6: RSS 0.7861 on 64 episodes (L1 0.767 L2 0.802 L3 0.788 L4 0.883), 801.5 s
+trial 69: RSS 0.7898 on 64 episodes (L1 0.773 L2 0.801 L3 0.800 L4 0.877), 678.1 s
+trial 78: RSS 0.7927 on 64 episodes (L1 0.779 L2 0.807 L3 0.785 L4 0.880), 521.9 s
+best accepted trial 0: RSS 0.7953; written /workspace/shockbench-flow-starter/outputs/research/tune_compact_optuna/compact_small_pass2/best_small_params.json
+  near a bound of the search (widen before trusting): {'crisis_gap': {'value': 0.0, 'low': 0.0, 'high': 1.0}}
+confirm out of sample (another root, then dev):
+  SBF_PARAMS_FILE=/workspace/shockbench-flow-starter/outputs/research/tune_compact_optuna/compact_small_pass2/best_small_params.json uv run sbf evaluate compact_hierarchical --task=small --entropy=12345 --episodes=64
+  SBF_PARAMS_FILE=/workspace/shockbench-flow-starter/outputs/research/tune_compact_optuna/compact_small_pass2/best_small_params.json uv run sbf evaluate compact_hierarchical --task=small

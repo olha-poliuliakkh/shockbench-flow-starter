@@ -1,0 +1,5 @@
+small: 64 episodes of root 202610; building or reading their references ...
+[I 2026-10-10 08:14:06,674] Using an existing study with `study_name='compact_small_pass2'` instead of creating a new one.
+compact_hierarchical: overrides in force {'SBF_PARAMS_FILE': 'best_small_params.json'}
+[I 2026-10-10 08:14:06,690] Trial with params {'horizon_small': 28, 'terminal_frac_small': 0.6598818369405469, 'floor_taper_weeks': 7, 'safety_frac': 0.5938967521594779, 'safety_price': 0.4807268091041509, 'short_price': 1.0180485724340123, 'crisis_gap': 0.0, 'crisis_price_mult': 1.2966620043051529, 'reroute_max_wait': 5} already exists. Skipping enqueue.
+[I 2026-10-10 08:14:06,691] Trial with params {'horizon_small': 28, 'terminal_frac_small': 0.6598818369405469, 'floor_taper_weeks': 7, 'safety_frac': 0.5938967521594779, 'safety_price': 0.4807268091041509, 'short_price': 1.0180485724340123, 'crisis_gap': 0.0, 'crisis_price_mult': 1.2966620043051529, 'reroute_max_wait': 5} already exists. Skipping enqueue.

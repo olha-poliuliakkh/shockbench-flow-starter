@@ -1,0 +1,10 @@
+small: 64 episodes of root 202610; building or reading their references ...
+[I 2026-10-10 08:20:15,205] Using an existing study with `study_name='compact_small_pass2'` instead of creating a new one.
+compact_hierarchical: overrides in force {'SBF_PARAMS_FILE': 'best_small_params.json'}
+[I 2026-10-10 08:20:15,222] Trial with params {'horizon_small': 28, 'terminal_frac_small': 0.6598818369405469, 'floor_taper_weeks': 7, 'safety_frac': 0.5938967521594779, 'safety_price': 0.4807268091041509, 'short_price': 1.0180485724340123, 'crisis_gap': 0.0, 'crisis_price_mult': 1.2966620043051529, 'reroute_max_wait': 5} already exists. Skipping enqueue.
+[I 2026-10-10 08:20:15,223] Trial with params {'horizon_small': 28, 'terminal_frac_small': 0.6598818369405469, 'floor_taper_weeks': 7, 'safety_frac': 0.5938967521594779, 'safety_price': 0.4807268091041509, 'short_price': 1.0180485724340123, 'crisis_gap': 0.0, 'crisis_price_mult': 1.2966620043051529, 'reroute_max_wait': 5} already exists. Skipping enqueue.
+trial 4: RSS 0.7861 on 64 episodes (L1 0.767 L2 0.802 L3 0.788 L4 0.883), 801.4 s
+trial 53: RSS 0.7924 on 64 episodes (L1 0.777 L2 0.807 L3 0.788 L4 0.882), 613.4 s
+trial 68: RSS 0.7864 on 64 episodes (L1 0.767 L2 0.802 L3 0.794 L4 0.869), 747.8 s
+trial 79: RSS 0.7906 on 64 episodes (L1 0.773 L2 0.809 L3 0.785 L4 0.876), 669.0 s
+trial 81: RSS 0.7923 on 64 episodes (L1 0.777 L2 0.809 L3 0.786 L4 0.873), 601.7 s

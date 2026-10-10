@@ -1,0 +1,36 @@
+{
+  "trial": 0,
+  "rss": 0.7953264978936563,
+  "levels": {
+    "1": 0.7799769124100189,
+    "2": 0.8116796786482338,
+    "3": 0.7862668604426338,
+    "4": 0.8819592952331142
+  },
+  "knobs": {
+    "horizon_small": 28,
+    "terminal_frac_small": 0.6598818369405469,
+    "floor_taper_weeks": 7,
+    "safety_frac": 0.5938967521594779,
+    "safety_price": 0.4807268091041509,
+    "short_price": 1.0180485724340123,
+    "crisis_price_mult": 1.2966620043051529,
+    "reroute_max_wait": 5,
+    "crisis_frac": 0.5938967521594779
+  },
+  "space": "pass2",
+  "near_bounds": {
+    "crisis_gap": {
+      "value": 0.0,
+      "low": 0.0,
+      "high": 1.0
+    }
+  },
+  "task": "small",
+  "episodes": 64,
+  "entropy": 202610,
+  "trials_finished": 17,
+  "trials_accepted": 15,
+  "trials_rejected": 2,
+  "trials_pruned": 63
+}
