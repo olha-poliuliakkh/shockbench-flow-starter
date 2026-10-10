@@ -252,6 +252,7 @@ class Agent:
         big = len(slots["edge"]) > 200
         self.budget = SEARCH["cpu_budget_full"] if big else SEARCH["cpu_budget"]
         self.searched = self.applied = 0
+        self.branch_cost_s = 0.0  # CPU seconds the last base branch took: the estimate for this week's two branches
 
     def _branch_cost(self, o, t, action, marks, state):
         """Cost to the episode's end: ``action`` now, the head MPC for head_weeks weeks, the LP tail after."""
@@ -278,7 +279,10 @@ class Agent:
         o = observation
         t = int(o["week"][0])
         action = {k: np.array(v, copy=True) for k, v in self.mpc.act(o).items()}
-        if t >= self.T - 1 or not self.groups or time.process_time() - t0 > self.budget * 0.4:
+        if t >= self.T - 1 or not self.groups:
+            return action
+        spent = time.process_time() - t0
+        if spent + 2.0 * self.branch_cost_s > self.budget:  # two branches would not fit after this week's MILP
             return action
         try:
             marks = persistence_marks(o, self.inst, self.lay, self.static, self.w_scr)
@@ -298,6 +302,7 @@ class Agent:
             t1 = time.process_time()
             base = self._branch_cost(o, t, action, marks, state)
             branch = time.process_time() - t1
+            self.branch_cost_s = max(branch, 0.8 * self.branch_cost_s)  # a running upper estimate
             if time.process_time() - t0 + branch * 1.1 > self.budget:
                 return action
             alt = self._branch_cost(o, t, cand, marks, state)
