@@ -39,7 +39,7 @@ SEARCH = {
     "tail": {"fab_threshold": 0.0, "horizon": 8, "milp_time": 0.1},  # the tail: the same model as an 8-week LP
     "level": 1.5,  # the candidate multiplies the group's flows by this (capped at capacity)
     "min_gain": 0.001,  # keep a correction only if it saves this share of the base branch's cost
-    "cpu_budget": 1.7,  # seconds of CPU this week (Small); the search is skipped when it would not fit
+    "cpu_budget": 1.9,  # CPU seconds this week (Small; the server allows 2.0); no search when it would not fit
     "cpu_budget_full": 3.4,
     "eval_weeks": 24,  # weeks a branch is played after the correction (both branches share the cut; τ of return ≈ 6-12)
 }
