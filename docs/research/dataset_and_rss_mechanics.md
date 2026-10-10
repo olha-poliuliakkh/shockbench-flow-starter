@@ -807,6 +807,43 @@ the episodes (local, serial).
 - **A longer window gains (+0.010), as on the package planner (§5.6).** With the binaries relaxed, the CPU freed would pay for it.
 - **So her +0.039 over `milp48t` is not in the parts tested here, beyond the safety stocks' 0.012.** It is in the compact formulation itself: her own grid model, fuel segments and tanker control. Those were outside this ablation's five changes.
 
+### 5.17 `compact_hierarchical`: aligning production with the simulator (Fix A) and base load first (Fix B)
+
+**What was tried** (`compact_hier/compact_lp.py`, toggles in `params.json`; the chip-chain diagnostic of
+`scripts/research/chip_chain_diagnostic.py` motivated both):
+- **Fix A, OSAT side:** week-1 packaging fixed at the simulator's rule; raw chips held at OSATs priced at v_k.
+- **Fix A, fab side:** week-1 lot starts split as the simulator does, with base load first in week 1 (a second
+  solve); wafers held at fabs priced at v_wafer.
+- **Fix B:** base load first in every window week (two passes).
+
+**Score.** Small, root 202610 (the tuning set), 64 episodes, paired against the tuned agent (0.7953), serial, under
+the CPU budget (`outputs/compare_*.log`):
+
+| Variant | RSS | Paired gap (90 %) |
+| --- | ---: | --- |
+| Fix A, all parts | 0.7718 | −0.0235 (−0.0311 to −0.0162) |
+| without the wafer price | 0.7858 | −0.0096 (−0.0146 to −0.0048) |
+| without the week-1 second solve | 0.7812 | −0.0142 (−0.0205 to −0.0082) |
+| without the week-1 fab split (and its second solve) | 0.7845 | −0.0108 (−0.0168 to −0.0051) |
+| without the OSAT price | 0.7671 | −0.0283 (−0.0361 to −0.0206) |
+| OSAT parts only | 0.7953 | −0.0000 (−0.0040 to +0.0042) |
+| Fix B alone | 0.7487 | −0.0466 (−0.0575 to −0.0362) |
+| Fix B with the OSAT parts | 0.7524 | −0.0429 (−0.0545 to −0.0315) |
+| Fix B with all of Fix A | 0.7355 | −0.0598 (−0.0726 to −0.0471) |
+
+**Reading:**
+- **The OSAT side is neutral.** It cut packaged-chip disposal at OSATs by more than half (L1 0.81M → 0.31M per
+  episode) and made week-1 packaging exact, but the score did not move.
+- **Every change that makes the fab and energy model stricter loses.** In Fix A's diagnostic the plan expected less
+  fab output and the agent shipped fewer wafers: L1 wafers lifted 12.22M → 10.68M, lots started 10.17M → 8.83M, fab
+  lot-weeks lost for want of wafers 1.29M → 2.30M. Fix B's chain was not traced; the same mechanism is the likely
+  one.
+- **The relaxed base-load-first rule is load-bearing here.** Its optimism about fab energy, under a persistence
+  forecast, keeps wafers at the fabs for the weeks that energy turns out to be there. This agrees with §5.16, where
+  binaries and the relaxation scored the same. The chip gap of Gate 0 (89 % of 1 - RSS) is not closed by fidelity on
+  the energy side.
+- **Both fixes stay in the code behind their toggles, off by default.**
+
 ---
 
 ## 6. Roadmap

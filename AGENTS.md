@@ -51,7 +51,9 @@ agents/<name>/     # one submission folder per agent: agent.py and the files it 
                    #   compact_hierarchical: mpc_nobuf's compact LP (z continuous, credit 0.7) with a pre-solve maritime
                    #   reroute controller and crisis-scaled fuel safety floors (compact_hier/; knobs in params.json)
                    #   (SBF_PARAM_<KEY>=... or SBF_PARAMS_FILE=params_baseline.json override; tuned by
-                   #   scripts/research/tune_compact_optuna.py)
+                   #   scripts/research/tune_compact_optuna.py; Fix A/B toggles off by default, measured negative, doc 5.17)
+                   #   final_dispatch: built by scripts/build_dispatch_agent.py: compact_hierarchical on Small,
+                   #   twopass48_credit on Full, in one submission (rebuild after editing either source)
 examples/          # 01_quickstart.py ... 07_dashboard.py, each self-contained; ppo_agent.py is the PPO submission's agent.py
                    #   08_evolve.py: the AlphaEvolve loop (docs/EVOLVE_DESIGN.md); 09_stress.py: stress tests on
                    #   stratified private episodes (levels, Full, paired, CPU and memory)

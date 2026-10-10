@@ -268,8 +268,7 @@ def test_alignment_off_builds_the_lp_as_before(agent_class):
 
 def test_week1_packaging_and_lot_starts_follow_the_simulator(agent_class):
     _env, obs, config = _reset("small")
-    agent = agent_class(config)
-    assert agent.params["align_chip_production"] == 1.0
+    agent = agent_class(config, params=dict(agent_class(config).params) | {"align_chip_production": 1.0})
     plan = _plan(agent, obs)
     net, info = agent.net, plan["align"]
     # OSATs: week-1 packaging fixed at the rule; no raw chip left on hand unless the throughput binds
@@ -297,7 +296,7 @@ def test_week1_packaging_and_lot_starts_follow_the_simulator(agent_class):
 
 def test_the_raw_chip_price_packages_instead_of_holding(agent_class):
     _env, obs, config = _reset("small")
-    base = dict(agent_class(config).params)
+    base = dict(agent_class(config).params) | {"align_chip_production": 1.0}
     net = agent_class(config).net
     raw = [j for j, *_ in net.osats if j >= 0]
 
@@ -310,7 +309,7 @@ def test_the_raw_chip_price_packages_instead_of_holding(agent_class):
 
 def test_a_failed_aligned_solve_is_repeated_without_the_alignment(agent_class):
     _env, obs, config = _reset("small")
-    agent = agent_class(config)
+    agent = agent_class(config, params=dict(agent_class(config).params) | {"align_chip_production": 1.0})
     real = agent.lp._solve
 
     def failing(*args):
@@ -323,7 +322,7 @@ def test_a_failed_aligned_solve_is_repeated_without_the_alignment(agent_class):
 
 def test_the_second_solve_can_be_switched_off(agent_class):
     _env, obs, config = _reset("small")
-    base = dict(agent_class(config).params)
+    base = dict(agent_class(config).params) | {"align_chip_production": 1.0}
     plan = _plan(agent_class(config, params=base | {"align_fab_second_solve": 0.0}), obs)
     assert plan["align"]["aligned"] and "week1_base_first_bounds" not in plan["align"]
     assert plan["sizes"]["rho"] > 0  # the week-1 split stays
@@ -367,9 +366,11 @@ def test_two_pass_serves_base_load_first_where_it_bounds(agent_class, align):
     assert (plan["sizes"]["rho"] > 0) == (align == 1.0)
 
 
-def test_two_pass_is_off_by_default(agent_class):
+def test_fixes_a_and_b_are_off_by_default(agent_class):
+    """Both measured below the tuned configuration on Small root 202610 (config.py's comments)."""
     import json
 
     config = _config(agent_class)
-    assert config.DEFAULTS["two_pass_baseload"] == 0.0
-    assert json.loads((AGENT / "params.json").read_text())["two_pass_baseload"] == 0.0
+    shipped = json.loads((AGENT / "params.json").read_text())
+    for key in ("align_chip_production", "two_pass_baseload"):
+        assert config.DEFAULTS[key] == 0.0 and shipped[key] == 0.0, key

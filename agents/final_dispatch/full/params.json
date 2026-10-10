@@ -1,0 +1,13 @@
+{
+ "buffer_weeks": 2.648080163455189,
+ "floor_cap": 0.7153724161000798,
+ "floor_duration": 3,
+ "floor_start": 2,
+ "pending_trust": 0.6715816545999398,
+ "risk_decay": 0.7733606680802977,
+ "risk_start": 0,
+ "severity_scale": 0.019673609709126717,
+ "warn_center": 2.396221352539296,
+ "warn_slope": 3.502081486604726,
+ "warning_alpha": 0.5388939556843066
+}
