@@ -1,0 +1,6 @@
+naive rule's quantiles ready (0.1 s)
+A: outputs/v_B_osat  score 0.7524
+B: outputs/v_off  score 0.7953
+A - B: -0.0429
+  90% paired interval over the choice of episodes: -0.0545 to -0.0315
+  A scores above B on 0% of the resampled episode sets
