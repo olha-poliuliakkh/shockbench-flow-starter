@@ -1,0 +1,412 @@
+compact_hierarchical: overrides in force {'SBF_PARAMS_FILE': 'params.json'}
+64 episodes of small root 202610 (levels [1, 2, 3, 4]); run folder /workspace/shockbench-flow-starter/outputs/research/chip_chain_diagnostic/2026-10-10_11-20-07
+agents and naive played (71 s); solving the clairvoyant LPs ...
+# Step 1: chip-chain diagnostic
+
+- Params: `/workspace/shockbench-flow-starter/agents/compact_hierarchical/params.json`
+- Episodes: 64 of Small root 202610 (0..63), levels [1, 2, 3, 4]
+- Agent weeks over the 2 s budget: 0; weeks of the agent's own fallback: 0
+- Fabs: 0: chip_le_raw, 1: chip_mat_raw, 2: chip_le_raw, 3: chip_le_raw, 4: chip_le_raw, 5: chip_mat_raw; table 3 gives each fab's lot worth at a sink (pi, USD per lot).
+
+## Level 1: 35 episodes, RSS 0.7439
+
+### 1. Chip shortage by product (USD billions per episode; RSS points: share of 1 - RSS)
+
+| Chip | Agent | Naive | Clairvoyant | Gap (agent - clairvoyant) | RSS points | Agent's share of the attainable cut |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| chip_le | 761.74 | 993.37 | 521.92 | 239.82 | +0.2286 | 49% |
+| chip_mat | 83.52 | 98.73 | 63.86 | 19.66 | +0.0187 | 44% |
+
+### 2. Mass balance (millions of units per episode)
+
+| Quantity | Agent | Naive | Clairvoyant |
+| --- | ---: | ---: | ---: |
+| wafers lifted | 10.68 | 7.67 | 14.25 |
+| lots started | 8.83 | 5.35 | 14.84 |
+| chips packaged | 16.89 | 12.58 | 23.12 |
+| wafers disposed (above storage) | 0.64 | 0.00 | 0.00 |
+| raw chips disposed (above storage) | 0.15 | 0.85 | 0.10 |
+| packaged chips disposed (above storage) | 0.31 | 2.29 | 0.00 |
+| chip_le: packaged | 12.24 | 8.60 | 16.61 |
+| chip_le: demand / delivered / shortage unit-weeks (lost + backlog, pi's base) | 28.77 / 13.66 / 15.10 | 28.77 / 9.07 / 19.69 | 28.77 / 18.42 / 10.35 |
+| chip_mat: packaged | 4.65 | 3.98 | 6.51 |
+| chip_mat: demand / delivered / shortage unit-weeks (lost + backlog, pi's base) | 14.05 / 5.96 / 8.10 | 14.05 / 4.49 / 9.56 | 14.05 / 7.86 / 6.19 |
+
+Where packaged chips were disposed (millions per episode, the agent's eight largest nodes):
+
+| Node | Agent | Naive | Clairvoyant |
+| --- | ---: | ---: | ---: |
+| osat_my | 0.21 | 0.99 | 0.00 |
+| osat_kr | 0.06 | 0.72 | 0.00 |
+| osat_tw | 0.05 | 0.57 | 0.00 |
+
+### 3. Timing: how far behind the clairvoyant plan's running totals (millions of unit-weeks per episode)
+
+| Series | Agent | Naive |
+| --- | ---: | ---: |
+| lots started | 181.94 | 257.13 |
+| chips packaged | 112.13 | 164.76 |
+| chip_le delivered to sinks | 78.29 | 158.92 |
+| chip_mat delivered to sinks | 29.71 | 59.65 |
+
+### 4. Fabs (millions per episode; idle wafers can start a later week: wafer-weeks are delays)
+
+| Fab (pi of its chip) | Capacity (lot-weeks) | Started: agent / naive / clairvoyant | Agent capacity unused for lack of wafers | Agent wafer-weeks idle: grid shedding | Agent wafer-weeks idle: headroom | Weeks its grid shed: agent / clairvoyant |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 0 (50,480) | 7.15 | 2.19 / 1.39 / 2.55 | 3.69 | 1.13 | 0.14 | 16.2 / 18.5 |
+| 1 (10,400) | 6.09 | 1.19 / 0.96 / 1.72 | 4.23 | 0.57 | 0.10 | 16.2 / 18.5 |
+| 2 (50,480) | 15.86 | 3.82 / 1.39 / 6.13 | 7.53 | 3.77 | 0.74 | 19.7 / 25.0 |
+| 3 (50,480) | 7.48 | 0.52 / 0.45 / 1.96 | 4.32 | 2.60 | 0.03 | 40.0 / 42.2 |
+| 4 (50,480) | 1.28 | 0.17 / 0.14 / 0.25 | 0.47 | 0.64 | 0.00 | 34.9 / 33.2 |
+| 5 (10,400) | 9.37 | 0.93 / 1.02 / 2.23 | 3.75 | 4.68 | 0.01 | 34.9 / 33.2 |
+
+### 5. Lots against the clairvoyant plan, fab-week by fab-week (millions per episode; USD billions at the chip's penalty pi, an upper bound of a lot's worth)
+
+| Cause | Lots | Value |
+| --- | ---: | ---: |
+| agent started fewer: all | 8.38 | 325.43 |
+|   no wafers on hand | 2.30 | 92.79 |
+|   energy: its grid shed base load (base load first) | 5.71 | 215.54 |
+|   energy: headroom short, no shedding | 0.37 | 17.10 |
+| agent started more | 2.37 | 95.41 |
+
+### 6. The agent's first-week plan against the simulator (millions per episode)
+
+| Quantity | Value |
+| --- | ---: |
+| lots planned | 6.48 |
+| lots started | 8.83 |
+| started beyond the plan (the simulator starts every wafer it can) | 2.39 |
+| started below the plan: no wafers | 0.00 |
+| started below the plan: energy, grid shedding | 0.03 |
+| started below the plan: energy, headroom | 0.00 |
+| packaging planned | 16.89 |
+| packaged | 16.89 |
+| packaged beyond the plan | 0.00 |
+| packaged below the plan | 0.00 |
+
+### 7. OSATs (millions per episode)
+
+| Quantity | Value |
+| --- | ---: |
+| throughput available | 59.05 |
+| packaged: agent / clairvoyant | 16.89 / 23.12 |
+| OSAT-weeks short of raw chips (raw < throughput) | 156.0 of 156 |
+| packaged fewer than the plan: all (USD billions at pi) | 10.54 (397.47) |
+|   no raw chips on hand | 10.54 (397.47) |
+|   raw chips on hand (throughput or the pro-rata split) | 0.00 |
+| packaged more than the plan | 4.31 |
+
+### 8. Shortage while the chip was in stock elsewhere that week (USD billions per episode)
+
+| Chip | Agent: shortage cost | Agent: with the chip in stock upstream | Clairvoyant: shortage cost | Clairvoyant: with the chip in stock upstream |
+| --- | ---: | ---: | ---: | ---: |
+| chip_le | 761.74 | 557.97 | 521.92 | 466.99 |
+| chip_mat | 83.52 | 59.86 | 63.86 | 48.76 |
+
+## Level 2: 15 episodes, RSS 0.7979
+
+### 1. Chip shortage by product (USD billions per episode; RSS points: share of 1 - RSS)
+
+| Chip | Agent | Naive | Clairvoyant | Gap (agent - clairvoyant) | RSS points | Agent's share of the attainable cut |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| chip_le | 940.50 | 1,106.73 | 742.93 | 197.57 | +0.1764 | 46% |
+| chip_mat | 98.23 | 111.29 | 87.33 | 10.90 | +0.0097 | 55% |
+
+### 2. Mass balance (millions of units per episode)
+
+| Quantity | Agent | Naive | Clairvoyant |
+| --- | ---: | ---: | ---: |
+| wafers lifted | 6.13 | 4.32 | 8.20 |
+| lots started | 4.85 | 2.44 | 8.89 |
+| chips packaged | 12.41 | 9.10 | 16.87 |
+| wafers disposed (above storage) | 0.63 | 0.00 | 0.00 |
+| raw chips disposed (above storage) | 0.53 | 1.27 | 0.33 |
+| packaged chips disposed (above storage) | 0.56 | 2.15 | 0.01 |
+| chip_le: packaged | 9.05 | 6.38 | 12.51 |
+| chip_le: demand / delivered / shortage unit-weeks (lost + backlog, pi's base) | 28.72 / 10.08 / 18.65 | 28.72 / 6.78 / 21.94 | 28.72 / 14.00 / 14.73 |
+| chip_mat: packaged | 3.36 | 2.72 | 4.36 |
+| chip_mat: demand / delivered / shortage unit-weeks (lost + backlog, pi's base) | 13.99 / 4.47 / 9.52 | 13.99 / 3.21 / 10.78 | 13.99 / 5.52 / 8.46 |
+
+Where packaged chips were disposed (millions per episode, the agent's eight largest nodes):
+
+| Node | Agent | Naive | Clairvoyant |
+| --- | ---: | ---: | ---: |
+| osat_my | 0.36 | 1.52 | 0.00 |
+| osat_kr | 0.14 | 0.20 | 0.00 |
+| osat_tw | 0.06 | 0.43 | 0.01 |
+
+### 3. Timing: how far behind the clairvoyant plan's running totals (millions of unit-weeks per episode)
+
+| Series | Agent | Naive |
+| --- | ---: | ---: |
+| lots started | 115.45 | 158.55 |
+| chips packaged | 57.62 | 97.96 |
+| chip_le delivered to sinks | 55.29 | 122.92 |
+| chip_mat delivered to sinks | 17.12 | 42.39 |
+
+### 4. Fabs (millions per episode; idle wafers can start a later week: wafer-weeks are delays)
+
+| Fab (pi of its chip) | Capacity (lot-weeks) | Started: agent / naive / clairvoyant | Agent capacity unused for lack of wafers | Agent wafer-weeks idle: grid shedding | Agent wafer-weeks idle: headroom | Weeks its grid shed: agent / clairvoyant |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 0 (50,480) | 7.19 | 1.13 / 0.30 / 1.70 | 4.58 | 1.36 | 0.13 | 21.7 / 23.5 |
+| 1 (10,400) | 6.12 | 0.62 / 0.27 / 1.08 | 4.86 | 0.56 | 0.08 | 21.7 / 23.5 |
+| 2 (50,480) | 15.65 | 2.35 / 0.73 / 4.45 | 7.79 | 4.98 | 0.51 | 24.5 / 30.5 |
+| 3 (50,480) | 7.39 | 0.23 / 0.37 / 0.61 | 4.58 | 2.57 | 0.01 | 47.3 / 46.3 |
+| 4 (50,480) | 1.28 | 0.05 / 0.09 / 0.13 | 0.62 | 0.61 | 0.00 | 38.9 / 40.0 |
+| 5 (10,400) | 9.37 | 0.46 / 0.69 / 0.91 | 4.88 | 4.02 | 0.00 | 38.9 / 40.0 |
+
+### 5. Lots against the clairvoyant plan, fab-week by fab-week (millions per episode; USD billions at the chip's penalty pi, an upper bound of a lot's worth)
+
+| Cause | Lots | Value |
+| --- | ---: | ---: |
+| agent started fewer: all | 6.31 | 265.46 |
+|   no wafers on hand | 1.88 | 78.37 |
+|   energy: its grid shed base load (base load first) | 4.24 | 179.00 |
+|   energy: headroom short, no shedding | 0.19 | 8.09 |
+| agent started more | 2.27 | 97.95 |
+
+### 6. The agent's first-week plan against the simulator (millions per episode)
+
+| Quantity | Value |
+| --- | ---: |
+| lots planned | 2.45 |
+| lots started | 4.85 |
+| started beyond the plan (the simulator starts every wafer it can) | 2.40 |
+| started below the plan: no wafers | 0.00 |
+| started below the plan: energy, grid shedding | 0.00 |
+| started below the plan: energy, headroom | 0.00 |
+| packaging planned | 12.41 |
+| packaged | 12.41 |
+| packaged beyond the plan | 0.00 |
+| packaged below the plan | 0.00 |
+
+### 7. OSATs (millions per episode)
+
+| Quantity | Value |
+| --- | ---: |
+| throughput available | 58.97 |
+| packaged: agent / clairvoyant | 12.41 / 16.87 |
+| OSAT-weeks short of raw chips (raw < throughput) | 155.3 of 156 |
+| packaged fewer than the plan: all (USD billions at pi) | 9.33 (364.47) |
+|   no raw chips on hand | 9.33 (364.47) |
+|   raw chips on hand (throughput or the pro-rata split) | 0.00 |
+| packaged more than the plan | 4.88 |
+
+### 8. Shortage while the chip was in stock elsewhere that week (USD billions per episode)
+
+| Chip | Agent: shortage cost | Agent: with the chip in stock upstream | Clairvoyant: shortage cost | Clairvoyant: with the chip in stock upstream |
+| --- | ---: | ---: | ---: | ---: |
+| chip_le | 940.50 | 673.99 | 742.93 | 649.47 |
+| chip_mat | 98.23 | 76.70 | 87.33 | 62.62 |
+
+## Level 3: 9 episodes, RSS 0.7807
+
+### 1. Chip shortage by product (USD billions per episode; RSS points: share of 1 - RSS)
+
+| Chip | Agent | Naive | Clairvoyant | Gap (agent - clairvoyant) | RSS points | Agent's share of the attainable cut |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| chip_le | 1,015.55 | 1,147.20 | 868.76 | 146.78 | +0.1630 | 47% |
+| chip_mat | 98.92 | 111.28 | 92.69 | 6.22 | +0.0069 | 67% |
+
+### 2. Mass balance (millions of units per episode)
+
+| Quantity | Agent | Naive | Clairvoyant |
+| --- | ---: | ---: | ---: |
+| wafers lifted | 4.83 | 4.90 | 4.99 |
+| lots started | 3.80 | 2.72 | 6.24 |
+| chips packaged | 11.21 | 8.28 | 14.01 |
+| wafers disposed (above storage) | 0.07 | 0.00 | 0.00 |
+| raw chips disposed (above storage) | 0.66 | 1.85 | 0.31 |
+| packaged chips disposed (above storage) | 0.75 | 2.09 | 0.00 |
+| chip_le: packaged | 7.79 | 5.72 | 9.97 |
+| chip_le: demand / delivered / shortage unit-weeks (lost + backlog, pi's base) | 28.93 / 8.79 / 20.13 | 28.93 / 6.18 / 22.74 | 28.93 / 11.70 / 17.22 |
+| chip_mat: packaged | 3.41 | 2.57 | 4.04 |
+| chip_mat: demand / delivered / shortage unit-weeks (lost + backlog, pi's base) | 13.98 / 4.40 / 9.58 | 13.98 / 3.20 / 10.78 | 13.98 / 5.00 / 8.98 |
+
+Where packaged chips were disposed (millions per episode, the agent's eight largest nodes):
+
+| Node | Agent | Naive | Clairvoyant |
+| --- | ---: | ---: | ---: |
+| osat_my | 0.41 | 0.54 | 0.00 |
+| osat_tw | 0.22 | 0.77 | 0.00 |
+| osat_kr | 0.12 | 0.78 | 0.00 |
+
+### 3. Timing: how far behind the clairvoyant plan's running totals (millions of unit-weeks per episode)
+
+| Series | Agent | Naive |
+| --- | ---: | ---: |
+| lots started | 60.31 | 65.81 |
+| chips packaged | 9.67 | 45.70 |
+| chip_le delivered to sinks | 41.18 | 90.50 |
+| chip_mat delivered to sinks | 1.62 | 25.35 |
+
+### 4. Fabs (millions per episode; idle wafers can start a later week: wafer-weeks are delays)
+
+| Fab (pi of its chip) | Capacity (lot-weeks) | Started: agent / naive / clairvoyant | Agent capacity unused for lack of wafers | Agent wafer-weeks idle: grid shedding | Agent wafer-weeks idle: headroom | Weeks its grid shed: agent / clairvoyant |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 0 (50,480) | 7.19 | 0.66 / 0.21 / 0.45 | 5.08 | 1.37 | 0.08 | 31.0 / 40.1 |
+| 1 (10,400) | 6.12 | 0.55 / 0.15 / 0.72 | 4.49 | 1.04 | 0.05 | 31.0 / 40.1 |
+| 2 (50,480) | 15.86 | 1.74 / 0.95 / 3.29 | 9.01 | 4.77 | 0.35 | 30.3 / 34.8 |
+| 3 (50,480) | 7.43 | 0.22 / 0.38 / 0.79 | 3.85 | 3.35 | 0.02 | 46.9 / 47.1 |
+| 4 (50,480) | 1.28 | 0.13 / 0.12 / 0.17 | 0.67 | 0.47 | 0.00 | 32.1 / 30.8 |
+| 5 (10,400) | 9.37 | 0.50 / 0.90 / 0.83 | 5.96 | 2.90 | 0.00 | 32.1 / 30.8 |
+
+### 5. Lots against the clairvoyant plan, fab-week by fab-week (millions per episode; USD billions at the chip's penalty pi, an upper bound of a lot's worth)
+
+| Cause | Lots | Value |
+| --- | ---: | ---: |
+| agent started fewer: all | 4.80 | 197.61 |
+|   no wafers on hand | 1.16 | 43.44 |
+|   energy: its grid shed base load (base load first) | 3.53 | 149.30 |
+|   energy: headroom short, no shedding | 0.10 | 4.86 |
+| agent started more | 2.36 | 94.13 |
+
+### 6. The agent's first-week plan against the simulator (millions per episode)
+
+| Quantity | Value |
+| --- | ---: |
+| lots planned | 1.38 |
+| lots started | 3.80 |
+| started beyond the plan (the simulator starts every wafer it can) | 2.44 |
+| started below the plan: no wafers | 0.00 |
+| started below the plan: energy, grid shedding | 0.00 |
+| started below the plan: energy, headroom | 0.02 |
+| packaging planned | 11.21 |
+| packaged | 11.21 |
+| packaged beyond the plan | 0.00 |
+| packaged below the plan | 0.00 |
+
+### 7. OSATs (millions per episode)
+
+| Quantity | Value |
+| --- | ---: |
+| throughput available | 59.13 |
+| packaged: agent / clairvoyant | 11.21 / 14.01 |
+| OSAT-weeks short of raw chips (raw < throughput) | 155.4 of 156 |
+| packaged fewer than the plan: all (USD billions at pi) | 8.79 (339.39) |
+|   no raw chips on hand | 8.79 (339.39) |
+|   raw chips on hand (throughput or the pro-rata split) | 0.00 |
+| packaged more than the plan | 5.99 |
+
+### 8. Shortage while the chip was in stock elsewhere that week (USD billions per episode)
+
+| Chip | Agent: shortage cost | Agent: with the chip in stock upstream | Clairvoyant: shortage cost | Clairvoyant: with the chip in stock upstream |
+| --- | ---: | ---: | ---: | ---: |
+| chip_le | 1,015.55 | 763.04 | 868.76 | 806.28 |
+| chip_mat | 98.92 | 78.01 | 92.69 | 69.45 |
+
+## Level 4: 5 episodes, RSS 0.8800
+
+### 1. Chip shortage by product (USD billions per episode; RSS points: share of 1 - RSS)
+
+| Chip | Agent | Naive | Clairvoyant | Gap (agent - clairvoyant) | RSS points | Agent's share of the attainable cut |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| chip_le | 1,057.93 | 1,187.21 | 1,000.47 | 57.46 | +0.0659 | 69% |
+| chip_mat | 112.78 | 119.05 | 111.11 | 1.67 | +0.0019 | 79% |
+
+### 2. Mass balance (millions of units per episode)
+
+| Quantity | Agent | Naive | Clairvoyant |
+| --- | ---: | ---: | ---: |
+| wafers lifted | 3.60 | 2.53 | 2.00 |
+| lots started | 2.90 | 1.73 | 3.16 |
+| chips packaged | 9.47 | 6.79 | 10.05 |
+| wafers disposed (above storage) | 0.31 | 0.00 | 0.00 |
+| raw chips disposed (above storage) | 1.04 | 1.77 | 0.76 |
+| packaged chips disposed (above storage) | 0.87 | 1.87 | 0.02 |
+| chip_le: packaged | 7.21 | 4.91 | 7.77 |
+| chip_le: demand / delivered / shortage unit-weeks (lost + backlog, pi's base) | 28.89 / 7.92 / 20.97 | 28.89 / 5.36 / 23.54 | 28.89 / 9.06 / 19.83 |
+| chip_mat: packaged | 2.26 | 1.88 | 2.27 |
+| chip_mat: demand / delivered / shortage unit-weeks (lost + backlog, pi's base) | 14.22 / 3.29 / 10.93 | 14.22 / 2.68 / 11.53 | 14.22 / 3.45 / 10.77 |
+
+Where packaged chips were disposed (millions per episode, the agent's eight largest nodes):
+
+| Node | Agent | Naive | Clairvoyant |
+| --- | ---: | ---: | ---: |
+| osat_kr | 0.41 | 1.12 | 0.02 |
+| osat_my | 0.40 | 0.28 | 0.00 |
+| osat_tw | 0.06 | 0.47 | 0.00 |
+
+### 3. Timing: how far behind the clairvoyant plan's running totals (millions of unit-weeks per episode)
+
+| Series | Agent | Naive |
+| --- | ---: | ---: |
+| lots started | -11.94 | 0.58 |
+| chips packaged | -41.08 | -1.50 |
+| chip_le delivered to sinks | -5.27 | 46.04 |
+| chip_mat delivered to sinks | 3.00 | 13.58 |
+
+### 4. Fabs (millions per episode; idle wafers can start a later week: wafer-weeks are delays)
+
+| Fab (pi of its chip) | Capacity (lot-weeks) | Started: agent / naive / clairvoyant | Agent capacity unused for lack of wafers | Agent wafer-weeks idle: grid shedding | Agent wafer-weeks idle: headroom | Weeks its grid shed: agent / clairvoyant |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 0 (50,480) | 7.19 | 0.93 / 0.17 / 1.37 | 3.85 | 2.35 | 0.07 | 33.6 / 41.6 |
+| 1 (10,400) | 6.12 | 0.25 / 0.17 / 0.19 | 5.24 | 0.61 | 0.03 | 33.6 / 41.6 |
+| 2 (50,480) | 15.86 | 1.33 / 0.57 / 1.11 | 10.61 | 3.62 | 0.30 | 25.0 / 28.4 |
+| 3 (50,480) | 7.48 | 0.10 / 0.36 / 0.20 | 4.57 | 2.80 | 0.01 | 45.8 / 45.6 |
+| 4 (50,480) | 1.28 | 0.07 / 0.05 / 0.08 | 0.58 | 0.64 | 0.00 | 37.2 / 31.2 |
+| 5 (10,400) | 9.37 | 0.23 / 0.41 / 0.22 | 4.86 | 4.28 | 0.00 | 37.2 / 31.2 |
+
+### 5. Lots against the clairvoyant plan, fab-week by fab-week (millions per episode; USD billions at the chip's penalty pi, an upper bound of a lot's worth)
+
+| Cause | Lots | Value |
+| --- | ---: | ---: |
+| agent started fewer: all | 2.52 | 113.96 |
+|   no wafers on hand | 0.77 | 31.32 |
+|   energy: its grid shed base load (base load first) | 1.73 | 81.54 |
+|   energy: headroom short, no shedding | 0.02 | 1.10 |
+| agent started more | 2.26 | 98.03 |
+
+### 6. The agent's first-week plan against the simulator (millions per episode)
+
+| Quantity | Value |
+| --- | ---: |
+| lots planned | 0.63 |
+| lots started | 2.90 |
+| started beyond the plan (the simulator starts every wafer it can) | 2.27 |
+| started below the plan: no wafers | 0.00 |
+| started below the plan: energy, grid shedding | 0.00 |
+| started below the plan: energy, headroom | 0.00 |
+| packaging planned | 9.47 |
+| packaged | 9.47 |
+| packaged beyond the plan | 0.00 |
+| packaged below the plan | 0.00 |
+
+### 7. OSATs (millions per episode)
+
+| Quantity | Value |
+| --- | ---: |
+| throughput available | 59.05 |
+| packaged: agent / clairvoyant | 9.47 / 10.05 |
+| OSAT-weeks short of raw chips (raw < throughput) | 155.8 of 156 |
+| packaged fewer than the plan: all (USD billions at pi) | 6.02 (252.66) |
+|   no raw chips on hand | 6.02 (252.66) |
+|   raw chips on hand (throughput or the pro-rata split) | 0.00 |
+| packaged more than the plan | 5.44 |
+
+### 8. Shortage while the chip was in stock elsewhere that week (USD billions per episode)
+
+| Chip | Agent: shortage cost | Agent: with the chip in stock upstream | Clairvoyant: shortage cost | Clairvoyant: with the chip in stock upstream |
+| --- | ---: | ---: | ---: | ---: |
+| chip_le | 1,057.93 | 870.69 | 1,000.47 | 832.11 |
+| chip_mat | 112.78 | 76.07 | 111.11 | 50.16 |
+
+## Reading
+
+- **Table 1**: which chip carries the gap. **Table 2**: whether the agent makes fewer chips (lots, packaging) or
+  makes them and fails to deliver them (shortage with packaging near the plan's). **Table 3**: whether it is late
+  (equal totals with a large lag: the same chips, later).
+- **Tables 4 and 5, no wafers** dominant: wafer supply and positioning (wafer floors at fabs, the base-stock
+  rule, lift timing). **Grid shedding** dominant, with the agent's grids shedding in weeks the plan's do not:
+  base load first in execution (a no-shed reserve at fab grids, the two-pass fix). **Headroom**: fab-grid
+  generation.
+- **Table 6, beyond the plan** large: the LP plans to hold wafers or raw chips the simulator starts anyway
+  (planning-rule prices on held wafers and raw chips). **Below the plan** large: the LP's production model is
+  optimistic.
+- **Table 7, no raw chips** dominant: fab output or raw-chip routing to OSATs. **Raw chips on hand**: OSAT
+  throughput or the pro-rata split.
+- **Table 8, in stock upstream** larger for the agent than for the plan: distribution (chip routing, lead times,
+  sink stocks). **Not on hand**: production, or chips too long in transit.
+
+written /workspace/shockbench-flow-starter/outputs/research/chip_chain_diagnostic/2026-10-10_11-20-07/summary.md (paste this file back), fabs.csv, results.json

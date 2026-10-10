@@ -8,3 +8,10 @@ trial 53: RSS 0.7924 on 64 episodes (L1 0.777 L2 0.807 L3 0.788 L4 0.882), 613.4
 trial 68: RSS 0.7864 on 64 episodes (L1 0.767 L2 0.802 L3 0.794 L4 0.869), 747.8 s
 trial 79: RSS 0.7906 on 64 episodes (L1 0.773 L2 0.809 L3 0.785 L4 0.876), 669.0 s
 trial 81: RSS 0.7923 on 64 episodes (L1 0.777 L2 0.809 L3 0.786 L4 0.873), 601.7 s
+trial 82: RSS 0.7927 on 64 episodes (L1 0.776 L2 0.811 L3 0.781 L4 0.888), 543.3 s
+trial 83: RSS 0.7932 on 64 episodes (L1 0.777 L2 0.810 L3 0.785 L4 0.879), 445.8 s
+best accepted trial 0: RSS 0.7953; written /workspace/shockbench-flow-starter/outputs/research/tune_compact_optuna/compact_small_pass2/best_small_params.json
+  near a bound of the search (widen before trusting): {'crisis_gap': {'value': 0.0, 'low': 0.0, 'high': 1.0}}
+confirm out of sample (another root, then dev):
+  SBF_PARAMS_FILE=/workspace/shockbench-flow-starter/outputs/research/tune_compact_optuna/compact_small_pass2/best_small_params.json uv run sbf evaluate compact_hierarchical --task=small --entropy=12345 --episodes=64
+  SBF_PARAMS_FILE=/workspace/shockbench-flow-starter/outputs/research/tune_compact_optuna/compact_small_pass2/best_small_params.json uv run sbf evaluate compact_hierarchical --task=small

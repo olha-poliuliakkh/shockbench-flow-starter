@@ -29,8 +29,8 @@
   "task": "small",
   "episodes": 64,
   "entropy": 202610,
-  "trials_finished": 17,
-  "trials_accepted": 15,
+  "trials_finished": 19,
+  "trials_accepted": 17,
   "trials_rejected": 2,
   "trials_pruned": 63
 }

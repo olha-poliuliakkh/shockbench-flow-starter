@@ -1,0 +1,73 @@
+naive rule's quantiles ready (0.1 s)
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical: overrides in force {'SBF_PARAM_RULE_CHIPS': 1}
+compact_hierarchical on small, 64 episodes, information regime standard
+Score: 0.7201  (0 = the naive rule, 1 = the clairvoyant plan; higher is better)
+  90% interval over the choice of episodes: 0.6962 to 0.7445
+  each harm level weighted as on the leaderboard
+  by harm level (1 calmest .. 4 most harmful; weights 50%, 30%, 15%, 5%): 1: 0.6919, 2: 0.7450, 3: 0.7350, 4: 0.8226
+Mean cost per episode: your agent $2,792,279,958,063, naive rule $3,533,862,301,103, clairvoyant plan $2,502,928,519,519 (lower is better)
+Weeks the naive rule played for your agent: 0 of 3328
+  of which over the CPU budget of 2 s per week: 0
