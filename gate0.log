@@ -1,0 +1,136 @@
+compact_hierarchical: overrides in force {'SBF_PARAMS_FILE': 'best_small_params.json'}
+64 episodes of small root 202610 (levels [1, 2, 3, 4]); run folder /workspace/shockbench-flow-starter/outputs/research/gate0_cost_breakdown/2026-10-10_07-35-10
+agents and naive played (168 s); solving the clairvoyant LPs ...
+# Gate 0, D1: cost breakdown of the tuned agent
+
+- Params: `outputs/research/tune_compact_optuna/compact_small/best_small_params.json`
+- Search knobs: horizon_small 28, terminal_frac_small 0.6599, floor_taper_weeks 7, safety_frac 0.5939, safety_price 0.4807, short_price 1.018, crisis_frac 0.32, crisis_price_mult 1.297, reroute_max_wait 5
+- Episodes: 64 of Small root 202610 (0..63), levels [1, 2, 3, 4]
+- Reference checks: naive J equal to the cached reference on 64/64 episodes, clairvoyant J on 64/64
+- Agent weeks over the 2 s budget: 0; weeks of the agent's own fallback: 0
+
+## Level 1: 35 episodes, RSS 0.7800 (1 - RSS = 0.2200)
+
+Mean USD billions per episode. RSS points: the component's share of 1 - RSS (they sum to 1 - RSS).
+
+| Component | Agent | Naive | Clairvoyant | Gap (agent - clairvoyant) | RSS points |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| freight | 2.73 | 3.15 | 1.35 | 1.38 | +0.0013 |
+| war_risk | 0.05 | 0.04 | 0.04 | 0.02 | +0.0000 |
+| tariff | 7.27 | 7.32 | 6.92 | 0.35 | +0.0003 |
+| holding | 8.34 | 8.19 | 6.16 | 2.18 | +0.0021 |
+| queue_holding | 0.31 | 1.45 | 0.19 | 0.13 | +0.0001 |
+| shortage | 803.24 | 1,092.10 | 585.78 | 217.46 | +0.2073 |
+| disposal | 1.95 | 4.37 | 0.15 | 1.80 | +0.0017 |
+| shed | 1,644.68 | 2,170.79 | 1,635.78 | 8.90 | +0.0085 |
+| end stock (J - components) | -2.26 | -3.03 | -0.82 | -1.43 | -0.0014 |
+| **J** | 2,466.32 | 3,284.39 | 2,235.55 | 230.77 | +0.2200 |
+
+| Group | Gap (agent - clairvoyant) | RSS points |
+| --- | ---: | ---: |
+| loss: shortage + shed | 226.36 | +0.2158 |
+| friction: freight, war risk, tariff, holding, queue, disposal | 5.84 | +0.0056 |
+| end stock | -1.43 | -0.0014 |
+
+Onsets per episode: 3.57 merged (o 0.74, u 1.69, supply 0.17, G_bar 0.94, R 0.03, R_osat 0.03, alpha_bar 0.00, prohibited 1.63). Gap booked by week class (shock: onset + 3 weeks; pre: 4 weeks before an onset):
+
+| Week class | Weeks | Share of weeks | Loss gap | Friction gap | RSS points (loss + friction) |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| calm | 1042 | 57% | 123.94 | 3.48 | +0.1215 |
+| pre | 333 | 18% | 36.40 | 0.91 | +0.0356 |
+| shock | 445 | 24% | 66.02 | 1.45 | +0.0643 |
+
+## Level 2: 15 episodes, RSS 0.8117 (1 - RSS = 0.1883)
+
+Mean USD billions per episode. RSS points: the component's share of 1 - RSS (they sum to 1 - RSS).
+
+| Component | Agent | Naive | Clairvoyant | Gap (agent - clairvoyant) | RSS points |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| freight | 2.18 | 2.39 | 1.11 | 1.07 | +0.0010 |
+| war_risk | 0.08 | 0.06 | 0.05 | 0.03 | +0.0000 |
+| tariff | 6.34 | 6.43 | 7.73 | -1.39 | -0.0012 |
+| holding | 7.94 | 7.86 | 6.47 | 1.47 | +0.0013 |
+| queue_holding | 0.70 | 3.58 | 0.34 | 0.36 | +0.0003 |
+| shortage | 1,019.91 | 1,218.02 | 830.26 | 189.65 | +0.1693 |
+| disposal | 3.03 | 4.92 | 0.45 | 2.59 | +0.0023 |
+| shed | 1,897.53 | 2,604.39 | 1,879.21 | 18.32 | +0.0164 |
+| end stock (J - components) | -1.87 | -2.47 | -0.76 | -1.11 | -0.0010 |
+| **J** | 2,935.83 | 3,845.19 | 2,724.85 | 210.98 | +0.1883 |
+
+| Group | Gap (agent - clairvoyant) | RSS points |
+| --- | ---: | ---: |
+| loss: shortage + shed | 207.97 | +0.1856 |
+| friction: freight, war risk, tariff, holding, queue, disposal | 4.12 | +0.0037 |
+| end stock | -1.11 | -0.0010 |
+
+Onsets per episode: 4.47 merged (o 1.00, u 2.47, supply 0.13, G_bar 0.87, R 0.07, R_osat 0.00, alpha_bar 0.00, prohibited 1.80). Gap booked by week class (shock: onset + 3 weeks; pre: 4 weeks before an onset):
+
+| Week class | Weeks | Share of weeks | Loss gap | Friction gap | RSS points (loss + friction) |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| calm | 347 | 44% | 123.92 | 1.08 | +0.1116 |
+| pre | 186 | 24% | 46.85 | 0.78 | +0.0425 |
+| shock | 247 | 32% | 37.19 | 2.26 | +0.0352 |
+
+## Level 3: 9 episodes, RSS 0.7863 (1 - RSS = 0.2137)
+
+Mean USD billions per episode. RSS points: the component's share of 1 - RSS (they sum to 1 - RSS).
+
+| Component | Agent | Naive | Clairvoyant | Gap (agent - clairvoyant) | RSS points |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| freight | 1.96 | 2.20 | 1.03 | 0.94 | +0.0010 |
+| war_risk | 0.08 | 0.07 | 0.07 | 0.01 | +0.0000 |
+| tariff | 7.40 | 7.61 | 3.71 | 3.69 | +0.0041 |
+| holding | 7.90 | 7.77 | 6.66 | 1.23 | +0.0014 |
+| queue_holding | 0.80 | 2.79 | 0.49 | 0.31 | +0.0003 |
+| shortage | 1,103.21 | 1,258.49 | 961.46 | 141.75 | +0.1574 |
+| disposal | 3.86 | 5.93 | 0.51 | 3.36 | +0.0037 |
+| shed | 1,811.28 | 2,360.29 | 1,769.12 | 42.16 | +0.0468 |
+| end stock (J - components) | -1.67 | -2.23 | -0.71 | -0.97 | -0.0011 |
+| **J** | 2,934.81 | 3,642.92 | 2,742.32 | 192.49 | +0.2137 |
+
+| Group | Gap (agent - clairvoyant) | RSS points |
+| --- | ---: | ---: |
+| loss: shortage + shed | 183.91 | +0.2042 |
+| friction: freight, war risk, tariff, holding, queue, disposal | 9.54 | +0.0106 |
+| end stock | -0.97 | -0.0011 |
+
+Onsets per episode: 4.11 merged (o 1.78, u 1.56, supply 0.11, G_bar 1.22, R 0.00, R_osat 0.00, alpha_bar 0.00, prohibited 1.33). Gap booked by week class (shock: onset + 3 weeks; pre: 4 weeks before an onset):
+
+| Week class | Weeks | Share of weeks | Loss gap | Friction gap | RSS points (loss + friction) |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| calm | 237 | 51% | 92.15 | 3.65 | +0.1064 |
+| pre | 94 | 20% | 42.31 | 1.99 | +0.0492 |
+| shock | 137 | 29% | 49.46 | 3.90 | +0.0592 |
+
+## Level 4: 5 episodes, RSS 0.8820 (1 - RSS = 0.1180)
+
+Mean USD billions per episode. RSS points: the component's share of 1 - RSS (they sum to 1 - RSS).
+
+| Component | Agent | Naive | Clairvoyant | Gap (agent - clairvoyant) | RSS points |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| freight | 1.79 | 1.95 | 0.94 | 0.85 | +0.0010 |
+| war_risk | 0.06 | 0.04 | 0.03 | 0.03 | +0.0000 |
+| tariff | 8.54 | 5.44 | 2.91 | 5.64 | +0.0065 |
+| holding | 7.84 | 7.60 | 7.05 | 0.79 | +0.0009 |
+| queue_holding | 1.48 | 2.53 | 0.73 | 0.75 | +0.0009 |
+| shortage | 1,161.93 | 1,306.26 | 1,111.57 | 50.36 | +0.0577 |
+| disposal | 4.28 | 5.46 | 0.93 | 3.35 | +0.0038 |
+| shed | 2,196.55 | 2,822.74 | 2,154.54 | 42.01 | +0.0482 |
+| end stock (J - components) | -1.65 | -2.14 | -0.81 | -0.84 | -0.0010 |
+| **J** | 3,380.83 | 4,149.88 | 3,277.90 | 102.93 | +0.1180 |
+
+| Group | Gap (agent - clairvoyant) | RSS points |
+| --- | ---: | ---: |
+| loss: shortage + shed | 92.37 | +0.1059 |
+| friction: freight, war risk, tariff, holding, queue, disposal | 11.40 | +0.0131 |
+| end stock | -0.84 | -0.0010 |
+
+Onsets per episode: 5.00 merged (o 1.80, u 2.40, supply 0.00, G_bar 1.20, R 0.00, R_osat 0.00, alpha_bar 0.00, prohibited 1.20). Gap booked by week class (shock: onset + 3 weeks; pre: 4 weeks before an onset):
+
+| Week class | Weeks | Share of weeks | Loss gap | Friction gap | RSS points (loss + friction) |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| calm | 120 | 46% | 15.85 | 5.30 | +0.0243 |
+| pre | 48 | 18% | 33.98 | 2.56 | +0.0419 |
+| shock | 92 | 35% | 42.54 | 3.54 | +0.0528 |
+
+written /workspace/shockbench-flow-starter/outputs/research/gate0_cost_breakdown/2026-10-10_07-35-10/summary.md (paste this file back), episodes.csv, results.json
