@@ -231,3 +231,99 @@ def test_floor_taper_lets_the_plan_drain_the_stores(agent_class):
     assert plan is not None and plan["sizes"]["safe"] > 0
     a = plan["off"]["safe"]
     assert np.allclose(plan["x"][a : a + plan["sizes"]["safe"]], 0.0)
+
+
+# ----- production aligned with the simulator (align_chip_production) -------------------------------------------------
+def _plan(agent, obs):
+    agent.act(copy.deepcopy(obs))
+    assert agent.log[-1]["plan"], agent.log[-1]
+    return agent.lp.last_plan
+
+
+def _block(plan, name, h, n):
+    a = plan["off"][name] + h * plan["sizes"][name]
+    return plan["x"][a : a + n]
+
+
+def test_package_is_the_simulators_rule(agent_class):
+    from shockbench_flow.dynamics.production import package as simulator_package
+
+    package = sys.modules["compact_hier.compact_lp"].package
+    rng = np.random.default_rng(0)
+    for _ in range(50):
+        raw, thr = list(rng.uniform(0, 10, size=rng.integers(1, 4))), float(rng.uniform(0, 20))
+        assert np.allclose(package(raw, thr), simulator_package(raw, thr))
+
+
+def test_alignment_off_builds_the_lp_as_before(agent_class):
+    _env, obs, config = _reset("small")
+    base = dict(agent_class(config).params)
+    off = _plan(agent_class(config, params=base | {"align_chip_production": 0.0}), obs)
+    inert = base | {"align_chip_production": 1.0, "align_osat_week1": 0.0, "align_fab_week1": 0.0}
+    inert |= {"osat_hold_price": 0.0, "wafer_hold_price": 0.0, "align_fab_second_solve": 0.0}
+    same = _plan(agent_class(config, params=inert), obs)
+    assert off["sizes"]["rho"] == 0 and off["align"] == {"aligned": False}
+    assert off["objective"] == pytest.approx(same["objective"], rel=1e-12) and np.allclose(off["x"], same["x"])
+
+
+def test_week1_packaging_and_lot_starts_follow_the_simulator(agent_class):
+    _env, obs, config = _reset("small")
+    agent = agent_class(config)
+    assert agent.params["align_chip_production"] == 1.0
+    plan = _plan(agent, obs)
+    net, info = agent.net, plan["align"]
+    # OSATs: week-1 packaging fixed at the rule; no raw chip left on hand unless the throughput binds
+    q0 = _block(plan, "q", 0, len(net.osats))
+    I0 = _block(plan, "I", 0, net.J)
+    assert info["osat_week1"] and set(info["osat_week1"]) == {m for m, e in enumerate(net.osats) if e[0] >= 0}
+    for m, q in info["osat_week1"].items():
+        assert q0[m] == pytest.approx(q)
+    thr = obs["graph_now.osat.thr_eff"]
+    for osat, ms in enumerate(net.osat_ms):
+        if sum(q0[m] for m in ms) < thr[osat] * (1 - 1e-9):
+            assert all(I0[net.osats[m][0]] <= 1e-6 * max(1.0, q0[m]) for m in ms)
+    # fabs: every fab of a grid starts the same share of p-hat; a grid that sheds powers no fab
+    p0, rho = _block(plan, "p", 0, len(net.fabs)), _block(plan, "rho", 0, net.NG)
+    for f, phat in info["fab_week1_phat"].items():
+        g = net.fab_grid[f]
+        expected = rho[g] * phat if g >= 0 and net.fab_e[f] > 0 else phat
+        assert p0[f] == pytest.approx(expected, rel=1e-6, abs=1e-6)
+    sh0 = _block(plan, "sh", 0, net.NG)
+    for g, fabs in enumerate(net.grid_fabs):
+        energy = sum(e * p0[f] for f, e in fabs)
+        tol = 1e-6 * max(1.0, float(obs["graph_now.grid.y_bar"][g]))
+        assert not (sh0[g] > tol and energy > tol) or not info.get("week1_second_solve", True)
+
+
+def test_the_raw_chip_price_packages_instead_of_holding(agent_class):
+    _env, obs, config = _reset("small")
+    base = dict(agent_class(config).params)
+    net = agent_class(config).net
+    raw = [j for j, *_ in net.osats if j >= 0]
+
+    def held(params):
+        plan = _plan(agent_class(config, params=params), obs)
+        return sum(_block(plan, "I", h, net.J)[raw].sum() for h in range(1, plan["H"]))
+
+    assert held(base) <= held(base | {"align_chip_production": 0.0}) + 1e-6
+
+
+def test_a_failed_aligned_solve_is_repeated_without_the_alignment(agent_class):
+    _env, obs, config = _reset("small")
+    agent = agent_class(config)
+    real = agent.lp._solve
+
+    def failing(*args):
+        return None if args[-1] is not None else real(*args)
+
+    agent.lp._solve = failing
+    agent.act(copy.deepcopy(obs))
+    assert agent.log[-1]["plan"] and agent.log[-1]["align"]["retried_without_alignment"]
+
+
+def test_the_second_solve_can_be_switched_off(agent_class):
+    _env, obs, config = _reset("small")
+    base = dict(agent_class(config).params)
+    plan = _plan(agent_class(config, params=base | {"align_fab_second_solve": 0.0}), obs)
+    assert plan["align"]["aligned"] and "week1_base_first_bounds" not in plan["align"]
+    assert plan["sizes"]["rho"] > 0  # the week-1 split stays

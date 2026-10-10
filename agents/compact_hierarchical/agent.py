@@ -94,6 +94,7 @@ class Agent:
                 "blocked_straits": self.maritime.last.get("blocked_straits", []),
                 "barred_slots": self.maritime.last.get("barred_slots", 0),
                 "crisis_stores": len(self.safety.last.get("crisis_stores", [])),
+                "align": dict(self.lp.last_align),
             }
         )
         return action

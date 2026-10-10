@@ -47,6 +47,13 @@ DEFAULTS = {
     "lot_value": 0.8,  # a lot started is worth this share of its chip's penalty pi (rule_chips 1)
     "tau_grid": 6.0,  # weeks: a cut G_bar recovers toward the grid's deliverable (0: persists)
     "tau_fab": 12.0,  # weeks: a fab's cut capacity recovers toward cap0 (0: persists)
+    # ---- production aligned with the simulator (compact_lp.py; 0 builds the LP exactly as before)
+    "align_chip_production": 1.0,  # 1: the parts below in force; 0: none of them
+    "align_osat_week1": 1.0,  # 1: week-1 packaging fixed at the simulator's rule (raw chips on hand, throughput)
+    "align_fab_week1": 1.0,  # 1: week-1 lot starts split as the simulator does (every fab of a grid the same share)
+    "align_fab_second_solve": 1.0,  # 1: base load first in week 1 by a second solve when the plan breaks it
+    "osat_hold_price": 1.0,  # x v_k per unit-week of raw chips held (or disposed) at OSATs: package, then ship
+    "wafer_hold_price": 1.0,  # x v_wafer per unit-week of wafers held (or disposed) at fabs in weeks with headroom
     # ---- the maritime controller (maritime.py)
     "reroute": 1.0,  # 1: bound dispatches into closed straits before the solve; 0: off (mpc_nobuf's LP alone)
     "reroute_open_below": 0.05,  # a strait this open or less counts as closed for routing

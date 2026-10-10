@@ -17,8 +17,22 @@ What this module adds to ``mpc_nobuf``:
   before the episode; a window holding the last week credits salvage only.
 - Floors that fade at the episode's end (``floor_taper_weeks`` N > 0): in absolute week w the floor is scaled by
   min(1, (T - w) / N), so it reaches 0 in week T and the plan drains the stores instead of refilling them.
+- Production aligned with the simulator (``align_chip_production``; off builds the LP exactly as before):
+  - OSATs, week 1: packaging fixed at the simulator's rule, min(raw chips on hand after the week's known arrivals,
+    throughput), pro rata (no route reaches an OSAT's raw chips in the week it ships, so this is exact);
+  - OSATs, every week: raw chips held or disposed there priced at ``osat_hold_price`` x v_k, so the plan packages
+    them as the simulator does and ships the output instead of letting it overflow;
+  - fabs, week 1: every fab on a grid starts the same share rho of p-hat = min(capacity, wafers on hand), the
+    simulator's split; when the plan both sheds a grid's base load and powers its fabs, a second solve
+    (``align_fab_second_solve``) bounds that week's shed (if the fabs' energy would have covered it) or its fabs
+    (otherwise): base load first;
+  - fabs, weeks with headroom (G_bar > y_bar at the fab's grid): wafers held or disposed there priced at
+    ``wafer_hold_price`` x v_wafer, so the plan starts the wafers it has, as the simulator does.
+  A solve that fails with the alignment is repeated once without it.
 - Incidence lists from ``network.Network`` keep the build linear in the LP's size; the solve has a time limit.
 """
+
+import time
 
 import numpy as np
 import scipy.sparse as sp
@@ -34,6 +48,14 @@ def floor_taper(t: int, H: int, T: int, N: int) -> np.ndarray:
     return np.clip(left / N, 0.0, 1.0)
 
 
+def package(raw, thr: float) -> list[float]:
+    """The simulator's OSAT rule (19): every raw chip on hand up to the throughput, pro rata across the products."""
+    tot = float(sum(raw))
+    if tot <= thr:
+        return [float(r) for r in raw]
+    return [thr * float(r) / tot for r in raw]
+
+
 class CompactLP:
     def __init__(self, net, params: dict):
         self.net = net
@@ -41,6 +63,20 @@ class CompactLP:
         self.rule_x = None  # this week's base-stock flows of wafers and chips (S,), kept when the LP fails
         self.status = None  # the last solve's status (diagnostics)
         self.last_plan = None  # the last solved window: solution, column offsets and sizes (offline analysis only)
+        self.last_align = {}  # what the production alignment did this week (diagnostics)
+
+    def align_switches(self) -> dict | None:
+        """The production alignment's parts in force (None when ``align_chip_production`` is off)."""
+        P_, net = self.p, self.net
+        if float(P_["align_chip_production"]) < 0.5:
+            return None
+        return {
+            "osat_week1": float(P_["align_osat_week1"]) >= 0.5 and not net.rule_on,
+            "fab_week1": float(P_["align_fab_week1"]) >= 0.5,
+            "fab_second_solve": float(P_["align_fab_week1"]) >= 0.5 and float(P_["align_fab_second_solve"]) >= 0.5,
+            "osat_price": 0.0 if net.rule_on else max(0.0, float(P_["osat_hold_price"])),
+            "wafer_price": max(0.0, float(P_["wafer_hold_price"])),
+        }
 
     # ------------------------------------------------------------------------------------------ route costs
 
@@ -170,7 +206,23 @@ class CompactLP:
     # ---------------------------------------------------------------------------------------------- the solve
 
     def solve(self, o, t, H, win, bounds, floors, time_limit):
-        """The week's plan: (flows (S,), (override_qty, release_mode) or None), or None without an optimum in time."""
+        """The week's plan: (flows (S,), (override_qty, release_mode) or None), or None without an optimum in time.
+
+        With the production alignment on, a failed solve is repeated once without it.
+        """
+        start = time.process_time()
+        align = self.align_switches()
+        out = self._solve(o, t, H, win, bounds, floors, time_limit, align)
+        if out is None and align is not None:
+            left = float(time_limit) - (time.process_time() - start)
+            if left > 0.05:
+                out = self._solve(o, t, H, win, bounds, floors, left, None)
+                self.last_align = {"retried_without_alignment": True, "solved": out is not None}
+        return out
+
+    def _solve(self, o, t, H, win, bounds, floors, time_limit, align):
+        """One build and solve (two with the week-1 base-load-first pass); ``align``: ``align_switches()`` or None."""
+        start = time.process_time()
         net, P_ = self.net, self.p
         S, J, P, NO, NG = net.S, net.J, net.P, net.NO, net.NG
         tau = o["graph_now.tau"]
@@ -315,6 +367,8 @@ class CompactLP:
         R, U_ = len(net.ration), len(net.supply_j)
         sizes = {"x": S, "I": J, "O": J, "lift": U_, "p": F, "q": M, "U": D, "buf": R, "z": NG}
         sizes |= {"gk": G, "short": G, "lam": NG, "sh": NG, "Q": P, "y": NO, "safe": len(floors)}
+        fab_w1 = align is not None and align["fab_week1"]
+        sizes |= {"rho": NG if fab_w1 else 0}  # week 1: the share of p-hat every fab of the grid starts
         off, n = {}, 0
         for name, size in sizes.items():
             off[name] = n
@@ -352,6 +406,37 @@ class CompactLP:
         pair_credit = np.array([tf * v[net.pairs[p][1]] * (strand if p in bounds.stranded else 1.0) for p in range(P)])
         base_first = float(P_["base_first"]) >= 0.5
         taper = floor_taper(t, H, net.T, int(P_["floor_taper_weeks"]))
+        hold_extra, disp_extra = np.zeros((H, J)), np.zeros((H, J))  # the alignment's prices on stock and disposal
+        q0, phat = {}, {}  # week 1: packaging fixed per OSAT pair, p-hat per fab
+        info = {"aligned": align is not None}
+        if align is not None:
+            if align["osat_week1"]:
+                for osat in range(net.n_osat):
+                    ms = [m for m in net.osat_ms[osat] if net.osats[m][0] >= 0]
+                    raw = [max(0.0, float(I0[net.osats[m][0]] + arr[0, net.osats[m][0]])) for m in ms]
+                    for m, q in zip(ms, package(raw, max(0.0, float(win["osat_thr"][0, osat])))):
+                        q0[m] = q
+            if align["osat_price"] > 0:
+                for j_raw, _j_pk, _tau, _osat in net.osats:
+                    if j_raw >= 0:
+                        price = align["osat_price"] * v[net.stock[j_raw][1]]
+                        hold_extra[:, j_raw] += price
+                        disp_extra[:, j_raw] += price
+            for f, (j_in, _j_out, _tau) in enumerate(net.fabs):
+                if j_in < 0:
+                    continue
+                if fab_w1:
+                    W = max(0.0, float(I0[j_in] + arr[0, j_in]))
+                    phat[f] = min(max(0.0, float(win["fab_cap"][0, f])), W)
+                if align["wafer_price"] > 0:
+                    g = net.fab_grid[f]
+                    for h in range(H):
+                        headroom = float(win["G_bar"][h, g] - win["y_bar"][h, g]) if g >= 0 else 1.0
+                        if headroom > 0 and float(win["fab_cap"][h, f]) > 0:
+                            price = align["wafer_price"] * v[net.stock[j_in][1]]
+                            hold_extra[h, j_in] += price
+                            disp_extra[h, j_in] += price
+            info |= {"osat_week1": dict(q0), "fab_week1_phat": dict(phat)}
         for h in range(H):
             for p in range(P):
                 cq = col("Q", h, p)
@@ -390,8 +475,8 @@ class CompactLP:
                     rhs[0, j] += I0[j]
                 balance[h][j].append((co, 1.0))
                 ub[ci] = net.storage[j]
-                cost_vec[ci] = net.holding[j]
-                cost_vec[co] = net.disposal[net.stock[j][1]]
+                cost_vec[ci] = net.holding[j] + hold_extra[h, j]
+                cost_vec[co] = net.disposal[net.stock[j][1]] + disp_extra[h, j]
             for s in range(S):
                 cx = col("x", h, s)
                 if h >= blocked_from[s] or net.j_out[s] < 0 or net.rule_slot[s] or h < bounds.x_until[s]:
@@ -417,6 +502,12 @@ class CompactLP:
             for f, (j_in, j_out, tau_f) in enumerate(net.fabs):
                 cp = col("p", h, f)
                 ub[cp] = max(0.0, float(win["fab_cap"][h, f])) if j_in >= 0 else 0.0
+                if h == 0 and f in phat:  # the simulator's week: p = rho_g p-hat (no grid or no energy use: p-hat)
+                    g = net.fab_grid[f]
+                    if g >= 0 and net.fab_e[f] > 0:
+                        eq([(cp, 1.0), (col("rho", 0, g), -phat[f])], 0.0)
+                    else:
+                        lb[cp] = ub[cp] = phat[f]
                 if j_in >= 0:
                     balance[h][j_in].append((cp, 1.0))
                 if net.rule_on:  # the chips' way to the sinks is the rule's: a lot is worth its share of pi
@@ -431,6 +522,8 @@ class CompactLP:
                 if j_raw < 0 or net.rule_on:
                     ub[cq] = 0.0
                     continue
+                if h == 0 and m in q0:  # the simulator packages every raw chip on hand, up to the throughput
+                    lb[cq] = ub[cq] = q0[m]
                 balance[h][j_raw].append((cq, 1.0))
                 if j_pk >= 0:
                     if h + tau_o < H:
@@ -466,6 +559,8 @@ class CompactLP:
                     else:
                         le([(cg, 1.0)], r * I0[j])
             for grid in range(NG):
+                if fab_w1:
+                    ub[col("rho", h, grid)] = 1.0 if h == 0 and net.grid_fabs[grid] else 0.0
                 cl, csd, cz = col("lam", h, grid), col("sh", h, grid), col("z", h, grid)
                 y_bar = max(0.0, float(win["y_bar"][h, grid]))
                 G_bar = max(0.0, float(win["G_bar"][h, grid]))
@@ -520,20 +615,46 @@ class CompactLP:
         A_eq = sp.csr_matrix((vals_eq, (rows_eq, cols_eq)), shape=(len(b_eq), n))
         A_ub = sp.csr_matrix((vals_ub, (rows_ub, cols_ub)), shape=(len(b_ub), n))
         ub = np.maximum(ub, lb)
-        res = linprog(
-            cost_vec,
-            A_ub=A_ub,
-            b_ub=np.array(b_ub),
-            A_eq=A_eq,
-            b_eq=np.array(b_eq),
-            bounds=np.c_[lb, ub],
-            method="highs",
-            options={"time_limit": max(0.05, float(time_limit))},
-        )
+        b_ub_, b_eq_ = np.array(b_ub), np.array(b_eq)
+
+        def run(upper):
+            left = float(time_limit) - (time.process_time() - start)
+            return linprog(
+                cost_vec,
+                A_ub=A_ub,
+                b_ub=b_ub_,
+                A_eq=A_eq,
+                b_eq=b_eq_,
+                bounds=np.c_[lb, upper],
+                method="highs",
+                options={"time_limit": max(0.05, left)},
+            )
+
+        res = run(ub)
         self.status = int(res.status)
         if res.x is None or res.status != 0:
+            self.last_align = info
             return None
+        if fab_w1 and align["fab_second_solve"]:  # base load first in week 1: a grid that sheds powers no fab
+            ub2, changed = ub.copy(), 0
+            for grid in range(NG):
+                if not net.grid_fabs[grid]:
+                    continue
+                shed = float(res.x[col("sh", 0, grid)])
+                fab_energy = sum(e_f * float(res.x[col("p", 0, f)]) for f, e_f in net.grid_fabs[grid])
+                tol = 1e-6 * max(1.0, float(win["y_bar"][0, grid]))
+                if shed > tol and fab_energy > tol:
+                    ub2[col("sh" if fab_energy >= shed else "rho", 0, grid)] = 0.0
+                    changed += 1
+            info |= {"week1_base_first_bounds": changed}
+            if changed:
+                res2 = run(ub2)
+                info["week1_second_solve"] = bool(res2.x is not None and res2.status == 0)
+                if info["week1_second_solve"]:
+                    res = res2
+        self.last_align = info
         self.last_plan = {"x": res.x, "cost": cost_vec, "off": off, "sizes": sizes, "H": H, "objective": float(res.fun)}
+        self.last_plan["align"] = dict(info)
         flows = res.x[off["x"] : off["x"] + S].copy()
         if self.rule_x is not None:
             flows = np.where(net.rule_slot, self.rule_x, flows)
