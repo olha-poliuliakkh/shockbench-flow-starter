@@ -1,0 +1,490 @@
+{
+ "command": "uv run python -m shockbench_flow.instance.flagship --warm-fq small full",
+ "format": "shockbench-flow warm-start F_Q v2",
+ "generator_id": "f45a7919f4164a94d454afefc0113d82c64fcbb3e896f23690204884b4137ea5",
+ "hawkes_baselines": [
+  [
+   "TW",
+   0.004384615384615384,
+   0.0018791208791208794
+  ],
+  [
+   "KR",
+   0.004384615384615384,
+   0.0018791208791208794
+  ],
+  [
+   "JP",
+   0.004384615384615384,
+   0.0018791208791208794
+  ],
+  [
+   "CN",
+   0.004384615384615384,
+   0.001454722303558311
+  ],
+  [
+   "US",
+   0.004384615384615384,
+   0.0018791208791208794
+  ],
+  [
+   "EU",
+   0.004384615384615384,
+   0.0018791208791208794
+  ],
+  [
+   "GULF",
+   0.004384615384615384,
+   0.001454722303558311
+  ],
+  [
+   "RU",
+   0.004384615384615384,
+   0.0018791208791208794
+  ],
+  [
+   "AU",
+   0.004384615384615384,
+   0.0018791208791208794
+  ],
+  [
+   "SEA",
+   0.004384615384615384,
+   0.001454722303558311
+  ],
+  [
+   "IN",
+   0.004384615384615384,
+   0.0018791208791208794
+  ],
+  [
+   "UA",
+   0.004384615384615384,
+   0.0018791208791208794
+  ],
+  [
+   "KZ",
+   0.004384615384615384,
+   0.0018791208791208794
+  ],
+  [
+   "ROW",
+   0.004384615384615384,
+   0.0018791208791208794
+  ]
+ ],
+ "kind": "full",
+ "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+ "point_mass_hash": "8ed78075a13816d71e649620eb2e5af6d3de33010f88c640582be390231730f6",
+ "quantiles": [
+  {
+   "chokepoint": "chk_hormuz",
+   "k": "lng",
+   "node": "term_tw",
+   "pool": "tb",
+   "q": 568839.6031897281
+  },
+  {
+   "chokepoint": "chk_malacca",
+   "k": "lng",
+   "node": "term_tw",
+   "pool": "tb",
+   "q": 520247.7208096211
+  },
+  {
+   "chokepoint": "chk_panama",
+   "k": "crude",
+   "node": "term_tw",
+   "pool": "tb",
+   "q": 7729.6465384615385
+  },
+  {
+   "chokepoint": "chk_hormuz",
+   "k": "lng",
+   "node": "term_kr",
+   "pool": "tb",
+   "q": 568839.6031897281
+  },
+  {
+   "chokepoint": "chk_malacca",
+   "k": "lng",
+   "node": "term_kr",
+   "pool": "tb",
+   "q": 520247.7208096211
+  },
+  {
+   "chokepoint": "chk_taiwan",
+   "k": "lng",
+   "node": "term_kr",
+   "pool": "tb",
+   "q": 321739.21119523037
+  },
+  {
+   "chokepoint": "chk_hormuz",
+   "k": "crude",
+   "node": "term_kr",
+   "pool": "tb",
+   "q": 568839.6031897281
+  },
+  {
+   "chokepoint": "chk_malacca",
+   "k": "crude",
+   "node": "term_kr",
+   "pool": "tb",
+   "q": 520247.7208096211
+  },
+  {
+   "chokepoint": "chk_taiwan",
+   "k": "crude",
+   "node": "term_kr",
+   "pool": "tb",
+   "q": 321739.21119523037
+  },
+  {
+   "chokepoint": "chk_hormuz",
+   "k": "crude",
+   "node": "term_jp",
+   "pool": "tb",
+   "q": 568839.6031897281
+  },
+  {
+   "chokepoint": "chk_malacca",
+   "k": "crude",
+   "node": "term_jp",
+   "pool": "tb",
+   "q": 520247.7208096211
+  },
+  {
+   "chokepoint": "chk_taiwan",
+   "k": "crude",
+   "node": "term_jp",
+   "pool": "tb",
+   "q": 321739.21119523037
+  },
+  {
+   "chokepoint": "chk_hormuz",
+   "k": "crude",
+   "node": "term_cn",
+   "pool": "tb",
+   "q": 568839.6031897281
+  },
+  {
+   "chokepoint": "chk_malacca",
+   "k": "crude",
+   "node": "term_cn",
+   "pool": "tb",
+   "q": 520247.7208096211
+  },
+  {
+   "chokepoint": "chk_taiwan",
+   "k": "crude",
+   "node": "term_cn",
+   "pool": "tb",
+   "q": 321739.21119523037
+  },
+  {
+   "chokepoint": "chk_panama",
+   "k": "crude",
+   "node": "term_sea",
+   "pool": "tb",
+   "q": 7729.6465384615385
+  },
+  {
+   "chokepoint": "chk_hormuz",
+   "k": "lng",
+   "node": "term_in",
+   "pool": "tb",
+   "q": 568839.6031897281
+  },
+  {
+   "chokepoint": "chk_hormuz",
+   "k": "crude",
+   "node": "term_in",
+   "pool": "tb",
+   "q": 568839.6031897281
+  },
+  {
+   "chokepoint": "chk_hormuz",
+   "k": "wafer",
+   "node": "fab_tw_leading_1",
+   "pool": "ct",
+   "q": 9047199.050151214
+  },
+  {
+   "chokepoint": "chk_malacca",
+   "k": "wafer",
+   "node": "fab_tw_leading_1",
+   "pool": "ct",
+   "q": 53471114.89850812
+  },
+  {
+   "chokepoint": "chk_hormuz",
+   "k": "wafer",
+   "node": "fab_kr_memory_1",
+   "pool": "ct",
+   "q": 9047199.050151214
+  },
+  {
+   "chokepoint": "chk_malacca",
+   "k": "wafer",
+   "node": "fab_kr_memory_1",
+   "pool": "ct",
+   "q": 53471114.89850812
+  },
+  {
+   "chokepoint": "chk_taiwan",
+   "k": "wafer",
+   "node": "fab_kr_memory_1",
+   "pool": "ct",
+   "q": 72872282.75003932
+  },
+  {
+   "chokepoint": "chk_turkish",
+   "k": "wafer",
+   "node": "fab_eu_leading_1",
+   "pool": "ct",
+   "q": 357954.47516137536
+  },
+  {
+   "chokepoint": "chk_hormuz",
+   "k": "wafer",
+   "node": "fab_eu_leading_1",
+   "pool": "ct",
+   "q": 9047199.050151214
+  },
+  {
+   "chokepoint": "chk_suez",
+   "k": "wafer",
+   "node": "fab_eu_leading_1",
+   "pool": "ct",
+   "q": 32833085.24934956
+  },
+  {
+   "chokepoint": "chk_cape",
+   "k": "wafer",
+   "node": "fab_eu_leading_1",
+   "pool": "ct",
+   "q": 15489.810000000016
+  },
+  {
+   "chokepoint": "chk_taiwan",
+   "k": "wafer",
+   "node": "fab_row_leading_1",
+   "pool": "ct",
+   "q": 72872282.75003932
+  },
+  {
+   "chokepoint": "chk_malacca",
+   "k": "wafer",
+   "node": "fab_row_leading_1",
+   "pool": "ct",
+   "q": 53471114.89850812
+  },
+  {
+   "chokepoint": "chk_suez",
+   "k": "wafer",
+   "node": "fab_row_leading_1",
+   "pool": "ct",
+   "q": 32833085.24934956
+  },
+  {
+   "chokepoint": "chk_turkish",
+   "k": "wafer",
+   "node": "fab_eu_mature_1",
+   "pool": "ct",
+   "q": 248846.41173173848
+  },
+  {
+   "chokepoint": "chk_taiwan",
+   "k": "wafer",
+   "node": "fab_sea_mature_1",
+   "pool": "ct",
+   "q": 65943488.14043587
+  },
+  {
+   "chokepoint": "chk_hormuz",
+   "k": "wafer",
+   "node": "fab_sea_mature_1",
+   "pool": "ct",
+   "q": 7900521.0179645745
+  },
+  {
+   "chokepoint": "chk_malacca",
+   "k": "wafer",
+   "node": "fab_sea_mature_1",
+   "pool": "ct",
+   "q": 45916701.19955163
+  },
+  {
+   "chokepoint": "chk_suez",
+   "k": "wafer",
+   "node": "fab_tw_mature_2",
+   "pool": "ct",
+   "q": 30611708.103449862
+  },
+  {
+   "chokepoint": "chk_malacca",
+   "k": "wafer",
+   "node": "fab_tw_mature_2",
+   "pool": "ct",
+   "q": 45916701.19955163
+  },
+  {
+   "chokepoint": "chk_turkish",
+   "k": "wafer",
+   "node": "fab_us_mature_2",
+   "pool": "ct",
+   "q": 248846.41173173848
+  },
+  {
+   "chokepoint": "chk_taiwan",
+   "k": "chip_le_raw",
+   "node": "osat_my",
+   "pool": "ct",
+   "q": 64062069.975850664
+  },
+  {
+   "chokepoint": "chk_suez",
+   "k": "chip_le_raw",
+   "node": "osat_my",
+   "pool": "ct",
+   "q": 29900821.62536743
+  },
+  {
+   "chokepoint": "chk_malacca",
+   "k": "chip_le_raw",
+   "node": "osat_my",
+   "pool": "ct",
+   "q": 44534084.33060565
+  },
+  {
+   "chokepoint": "chk_taiwan",
+   "k": "chip_mat_raw",
+   "node": "osat_my",
+   "pool": "ct",
+   "q": 64127608.82003463
+  },
+  {
+   "chokepoint": "chk_suez",
+   "k": "chip_mat_raw",
+   "node": "osat_my",
+   "pool": "ct",
+   "q": 29920538.98473801
+  },
+  {
+   "chokepoint": "chk_malacca",
+   "k": "chip_mat_raw",
+   "node": "osat_my",
+   "pool": "ct",
+   "q": 44618759.94965074
+  },
+  {
+   "chokepoint": "chk_taiwan",
+   "k": "chip_le_raw",
+   "node": "osat_vn",
+   "pool": "ct",
+   "q": 64062069.975850664
+  },
+  {
+   "chokepoint": "chk_taiwan",
+   "k": "chip_le_raw",
+   "node": "osat_ph",
+   "pool": "ct",
+   "q": 64062069.975850664
+  },
+  {
+   "chokepoint": "chk_suez",
+   "k": "chip_mat_raw",
+   "node": "osat_sg",
+   "pool": "ct",
+   "q": 29920538.98473801
+  },
+  {
+   "chokepoint": "chk_malacca",
+   "k": "chip_mat_raw",
+   "node": "osat_sg",
+   "pool": "ct",
+   "q": 44618759.94965074
+  },
+  {
+   "chokepoint": "chk_malacca",
+   "k": "chip_mat",
+   "node": "sink_eu",
+   "pool": "ct",
+   "q": 44618759.94965074
+  },
+  {
+   "chokepoint": "chk_suez",
+   "k": "chip_mat",
+   "node": "sink_eu",
+   "pool": "ct",
+   "q": 29920538.98473801
+  },
+  {
+   "chokepoint": "chk_taiwan",
+   "k": "chip_mat",
+   "node": "sink_eu",
+   "pool": "ct",
+   "q": 64127608.82003463
+  },
+  {
+   "chokepoint": "chk_taiwan",
+   "k": "chip_mat",
+   "node": "sink_cn",
+   "pool": "ct",
+   "q": 64127608.82003463
+  },
+  {
+   "chokepoint": "chk_taiwan",
+   "k": "chip_mat",
+   "node": "sink_jp",
+   "pool": "ct",
+   "q": 64127608.82003463
+  },
+  {
+   "chokepoint": "chk_taiwan",
+   "k": "chip_mat",
+   "node": "sink_kr",
+   "pool": "ct",
+   "q": 64127608.82003463
+  },
+  {
+   "chokepoint": "chk_taiwan",
+   "k": "chip_mat",
+   "node": "sink_sea",
+   "pool": "ct",
+   "q": 64127608.82003463
+  },
+  {
+   "chokepoint": "chk_malacca",
+   "k": "chip_mat",
+   "node": "sink_in",
+   "pool": "ct",
+   "q": 44618759.94965074
+  },
+  {
+   "chokepoint": "chk_taiwan",
+   "k": "chip_mat",
+   "node": "sink_row",
+   "pool": "ct",
+   "q": 64127608.82003463
+  },
+  {
+   "chokepoint": "chk_malacca",
+   "k": "chip_mat",
+   "node": "sink_row",
+   "pool": "ct",
+   "q": 44618759.94965074
+  },
+  {
+   "chokepoint": "chk_suez",
+   "k": "chip_mat",
+   "node": "sink_row",
+   "pool": "ct",
+   "q": 29920538.98473801
+  }
+ ],
+ "replications": 1000,
+ "rung": 0.79
+}

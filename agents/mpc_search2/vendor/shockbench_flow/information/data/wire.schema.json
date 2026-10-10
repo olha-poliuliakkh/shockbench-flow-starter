@@ -1,0 +1,2114 @@
+{
+ "$defs": {
+  "Action": {
+   "additionalProperties": false,
+   "properties": {
+    "flows": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/FlowsField"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "hold": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/HoldField"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "overrides": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/FlowsField"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "week": {
+     "title": "Week",
+     "type": "integer"
+    }
+   },
+   "required": [
+    "week"
+   ],
+   "title": "Action",
+   "type": "object"
+  },
+  "ActionSlots": {
+   "additionalProperties": false,
+   "properties": {
+    "edge": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "Edge",
+     "type": "array"
+    },
+    "k": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "K",
+     "type": "array"
+    },
+    "lane": {
+     "items": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "title": "Lane",
+     "type": "array"
+    }
+   },
+   "required": [
+    "edge",
+    "k",
+    "lane"
+   ],
+   "title": "ActionSlots",
+   "type": "object"
+  },
+  "AltEdge": {
+   "additionalProperties": false,
+   "properties": {
+    "edge": {
+     "title": "Edge",
+     "type": "integer"
+    }
+   },
+   "required": [
+    "edge"
+   ],
+   "title": "AltEdge",
+   "type": "object"
+  },
+  "AltLane": {
+   "additionalProperties": false,
+   "properties": {
+    "lane": {
+     "title": "Lane",
+     "type": "integer"
+    }
+   },
+   "required": [
+    "lane"
+   ],
+   "title": "AltLane",
+   "type": "object"
+  },
+  "Clip": {
+   "additionalProperties": false,
+   "properties": {
+    "executed": {
+     "items": {
+      "type": "number"
+     },
+     "title": "Executed",
+     "type": "array"
+    },
+    "requested": {
+     "items": {
+      "type": "number"
+     },
+     "title": "Requested",
+     "type": "array"
+    },
+    "slot": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "Slot",
+     "type": "array"
+    }
+   },
+   "required": [
+    "slot",
+    "requested",
+    "executed"
+   ],
+   "title": "Clip",
+   "type": "object"
+  },
+  "ClosureEnd": {
+   "additionalProperties": false,
+   "properties": {
+    "chokepoint": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "Chokepoint",
+     "type": "array"
+    },
+    "end_week": {
+     "items": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "title": "End Week",
+     "type": "array"
+    }
+   },
+   "required": [
+    "chokepoint",
+    "end_week"
+   ],
+   "title": "ClosureEnd",
+   "type": "object"
+  },
+  "CostComponents": {
+   "additionalProperties": false,
+   "properties": {
+    "disposal": {
+     "title": "Disposal",
+     "type": "number"
+    },
+    "freight": {
+     "title": "Freight",
+     "type": "number"
+    },
+    "holding": {
+     "title": "Holding",
+     "type": "number"
+    },
+    "queue_holding": {
+     "title": "Queue Holding",
+     "type": "number"
+    },
+    "shed": {
+     "title": "Shed",
+     "type": "number"
+    },
+    "shortage": {
+     "title": "Shortage",
+     "type": "number"
+    },
+    "tariff": {
+     "title": "Tariff",
+     "type": "number"
+    },
+    "war_risk": {
+     "title": "War Risk",
+     "type": "number"
+    }
+   },
+   "required": [
+    "freight",
+    "war_risk",
+    "tariff",
+    "holding",
+    "queue_holding",
+    "shortage",
+    "disposal",
+    "shed"
+   ],
+   "title": "CostComponents",
+   "type": "object"
+  },
+  "DemandForecast": {
+   "additionalProperties": false,
+   "properties": {
+    "h": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "H",
+     "type": "array"
+    },
+    "k": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "K",
+     "type": "array"
+    },
+    "node": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "Node",
+     "type": "array"
+    },
+    "qty": {
+     "items": {
+      "type": "number"
+     },
+     "title": "Qty",
+     "type": "array"
+    }
+   },
+   "required": [
+    "node",
+    "k",
+    "h",
+    "qty"
+   ],
+   "title": "DemandForecast",
+   "type": "object"
+  },
+  "EdgeK": {
+   "additionalProperties": false,
+   "properties": {
+    "edge": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "Edge",
+     "type": "array"
+    },
+    "k": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "K",
+     "type": "array"
+    }
+   },
+   "required": [
+    "edge",
+    "k"
+   ],
+   "title": "EdgeK",
+   "type": "object"
+  },
+  "FabNow": {
+   "additionalProperties": false,
+   "properties": {
+    "R": {
+     "items": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "title": "R",
+     "type": "array"
+    },
+    "alpha_bar": {
+     "items": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "title": "Alpha Bar",
+     "type": "array"
+    },
+    "cap_eff": {
+     "items": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "title": "Cap Eff",
+     "type": "array"
+    },
+    "node": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "Node",
+     "type": "array"
+    }
+   },
+   "required": [
+    "node",
+    "R",
+    "alpha_bar",
+    "cap_eff"
+   ],
+   "title": "FabNow",
+   "type": "object"
+  },
+  "FlowsField": {
+   "additionalProperties": false,
+   "properties": {
+    "qty": {
+     "items": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "title": "Qty",
+     "type": "array"
+    },
+    "slot": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "Slot",
+     "type": "array"
+    }
+   },
+   "required": [
+    "slot",
+    "qty"
+   ],
+   "title": "FlowsField",
+   "type": "object"
+  },
+  "GraphNow": {
+   "additionalProperties": false,
+   "properties": {
+    "c": {
+     "items": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "title": "C",
+     "type": "array"
+    },
+    "fab": {
+     "$ref": "#/$defs/FabNow"
+    },
+    "grid": {
+     "$ref": "#/$defs/GridNow"
+    },
+    "kappa": {
+     "$ref": "#/$defs/Kappa"
+    },
+    "open": {
+     "items": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "title": "Open",
+     "type": "array"
+    },
+    "osat": {
+     "$ref": "#/$defs/OsatNow"
+    },
+    "prohibited": {
+     "$ref": "#/$defs/EdgeK"
+    },
+    "supply": {
+     "$ref": "#/$defs/Supply"
+    },
+    "tariff": {
+     "$ref": "#/$defs/Tariff"
+    },
+    "tau": {
+     "items": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "title": "Tau",
+     "type": "array"
+    },
+    "u": {
+     "items": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "title": "U",
+     "type": "array"
+    },
+    "war_risk": {
+     "items": {
+      "anyOf": [
+       {
+        "enum": [
+         "none",
+         "red_sea",
+         "hormuz_2026"
+        ],
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "title": "War Risk",
+     "type": "array"
+    }
+   },
+   "required": [
+    "u",
+    "c",
+    "tau",
+    "prohibited",
+    "tariff",
+    "open",
+    "kappa",
+    "war_risk",
+    "supply",
+    "fab",
+    "grid",
+    "osat"
+   ],
+   "title": "GraphNow",
+   "type": "object"
+  },
+  "GridNow": {
+   "additionalProperties": false,
+   "properties": {
+    "G_bar": {
+     "items": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "title": "G Bar",
+     "type": "array"
+    },
+    "node": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "Node",
+     "type": "array"
+    },
+    "y_bar": {
+     "items": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "title": "Y Bar",
+     "type": "array"
+    }
+   },
+   "required": [
+    "node",
+    "G_bar",
+    "y_bar"
+   ],
+   "title": "GridNow",
+   "type": "object"
+  },
+  "HoldField": {
+   "additionalProperties": false,
+   "properties": {
+    "chokepoint": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "Chokepoint",
+     "type": "array"
+    },
+    "k": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "K",
+     "type": "array"
+    }
+   },
+   "required": [
+    "chokepoint",
+    "k"
+   ],
+   "title": "HoldField",
+   "type": "object"
+  },
+  "Kappa": {
+   "additionalProperties": false,
+   "properties": {
+    "ct": {
+     "items": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "title": "Ct",
+     "type": "array"
+    },
+    "tb": {
+     "items": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "title": "Tb",
+     "type": "array"
+    }
+   },
+   "required": [
+    "tb",
+    "ct"
+   ],
+   "title": "Kappa",
+   "type": "object"
+  },
+  "LastWeek": {
+   "additionalProperties": false,
+   "properties": {
+    "clip": {
+     "$ref": "#/$defs/Clip"
+    },
+    "cost_components": {
+     "$ref": "#/$defs/CostComponents"
+    },
+    "shed": {
+     "$ref": "#/$defs/Shed"
+    },
+    "sinks": {
+     "$ref": "#/$defs/SinksWeek"
+    }
+   },
+   "required": [
+    "clip",
+    "cost_components",
+    "sinks",
+    "shed"
+   ],
+   "title": "LastWeek",
+   "type": "object"
+  },
+  "Messages": {
+   "additionalProperties": false,
+   "properties": {
+    "announced_week": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "Announced Week",
+     "type": "array"
+    },
+    "channel": {
+     "items": {
+      "enum": [
+       "tariff_formal",
+       "tariff_informal",
+       "tariff_final",
+       "sanction_legal",
+       "ties_threat",
+       "mid_threat"
+      ],
+      "type": "string"
+     },
+     "title": "Channel",
+     "type": "array"
+    },
+    "k": {
+     "items": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "title": "K",
+     "type": "array"
+    },
+    "kind": {
+     "items": {
+      "enum": [
+       "proposal",
+       "final_notice",
+       "threat",
+       "publication",
+       "withdrawal"
+      ],
+      "type": "string"
+     },
+     "title": "Kind",
+     "type": "array"
+    },
+    "msg_id": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "Msg Id",
+     "type": "array"
+    },
+    "region": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "Region",
+     "type": "array"
+    },
+    "stated_effective_week": {
+     "items": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "title": "Stated Effective Week",
+     "type": "array"
+    },
+    "target": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "Target",
+     "type": "array"
+    },
+    "target_kind": {
+     "items": {
+      "enum": [
+       "chokepoint",
+       "edge",
+       "node",
+       "region"
+      ],
+      "type": "string"
+     },
+     "title": "Target Kind",
+     "type": "array"
+    }
+   },
+   "required": [
+    "msg_id",
+    "channel",
+    "kind",
+    "region",
+    "target_kind",
+    "target",
+    "k",
+    "announced_week",
+    "stated_effective_week"
+   ],
+   "title": "Messages",
+   "type": "object"
+  },
+  "NodeKQty": {
+   "additionalProperties": false,
+   "properties": {
+    "k": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "K",
+     "type": "array"
+    },
+    "node": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "Node",
+     "type": "array"
+    },
+    "qty": {
+     "items": {
+      "type": "number"
+     },
+     "title": "Qty",
+     "type": "array"
+    }
+   },
+   "required": [
+    "node",
+    "k",
+    "qty"
+   ],
+   "title": "NodeKQty",
+   "type": "object"
+  },
+  "Obs": {
+   "additionalProperties": false,
+   "properties": {
+    "backlog": {
+     "$ref": "#/$defs/NodeKQty"
+    },
+    "closure_end": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/ClosureEnd"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "demand_forecast": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/DemandForecast"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "graph_now": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/GraphNow"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "last_week": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/LastWeek"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "messages": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/Messages"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "pending_prohibitions": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/PendingProhibitions"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "pipeline": {
+     "$ref": "#/$defs/Pipeline"
+    },
+    "queue_lots": {
+     "$ref": "#/$defs/QueueLots"
+    },
+    "slot_mask": {
+     "anyOf": [
+      {
+       "items": {
+        "type": "boolean"
+       },
+       "type": "array"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Slot Mask"
+    },
+    "stock": {
+     "$ref": "#/$defs/NodeKQty"
+    },
+    "warning": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/WarningScores"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "week": {
+     "title": "Week",
+     "type": "integer"
+    },
+    "wip": {
+     "$ref": "#/$defs/Wip"
+    }
+   },
+   "required": [
+    "week",
+    "stock",
+    "backlog",
+    "pipeline",
+    "queue_lots",
+    "wip",
+    "graph_now",
+    "slot_mask",
+    "last_week",
+    "demand_forecast",
+    "warning",
+    "messages",
+    "pending_prohibitions",
+    "closure_end"
+   ],
+   "title": "Obs",
+   "type": "object"
+  },
+  "OmegaArray": {
+   "additionalProperties": false,
+   "properties": {
+    "data": {
+     "title": "Data"
+    },
+    "dtype": {
+     "title": "Dtype",
+     "type": "string"
+    },
+    "shape": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "Shape",
+     "type": "array"
+    }
+   },
+   "required": [
+    "dtype",
+    "shape",
+    "data"
+   ],
+   "title": "OmegaArray",
+   "type": "object"
+  },
+  "OsatNow": {
+   "additionalProperties": false,
+   "properties": {
+    "R": {
+     "items": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "title": "R",
+     "type": "array"
+    },
+    "node": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "Node",
+     "type": "array"
+    },
+    "thr_eff": {
+     "items": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "title": "Thr Eff",
+     "type": "array"
+    }
+   },
+   "required": [
+    "node",
+    "R",
+    "thr_eff"
+   ],
+   "title": "OsatNow",
+   "type": "object"
+  },
+  "OverrideSlots": {
+   "additionalProperties": false,
+   "properties": {
+    "chokepoint": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "Chokepoint",
+     "type": "array"
+    },
+    "k": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "K",
+     "type": "array"
+    },
+    "lane": {
+     "items": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "title": "Lane",
+     "type": "array"
+    },
+    "out_edge": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "Out Edge",
+     "type": "array"
+    }
+   },
+   "required": [
+    "chokepoint",
+    "k",
+    "out_edge",
+    "lane"
+   ],
+   "title": "OverrideSlots",
+   "type": "object"
+  },
+  "PendingProhibitions": {
+   "additionalProperties": false,
+   "properties": {
+    "edge": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "Edge",
+     "type": "array"
+    },
+    "effective_week": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "Effective Week",
+     "type": "array"
+    },
+    "k": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "K",
+     "type": "array"
+    }
+   },
+   "required": [
+    "edge",
+    "k",
+    "effective_week"
+   ],
+   "title": "PendingProhibitions",
+   "type": "object"
+  },
+  "Pipeline": {
+   "additionalProperties": false,
+   "properties": {
+    "arrival_week": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "Arrival Week",
+     "type": "array"
+    },
+    "edge": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "Edge",
+     "type": "array"
+    },
+    "k": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "K",
+     "type": "array"
+    },
+    "lane": {
+     "items": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "title": "Lane",
+     "type": "array"
+    },
+    "qty": {
+     "items": {
+      "type": "number"
+     },
+     "title": "Qty",
+     "type": "array"
+    }
+   },
+   "required": [
+    "edge",
+    "k",
+    "lane",
+    "qty",
+    "arrival_week"
+   ],
+   "title": "Pipeline",
+   "type": "object"
+  },
+  "QueueLots": {
+   "additionalProperties": false,
+   "properties": {
+    "arrival_week": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "Arrival Week",
+     "type": "array"
+    },
+    "chokepoint": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "Chokepoint",
+     "type": "array"
+    },
+    "dispatch_week": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "Dispatch Week",
+     "type": "array"
+    },
+    "entry_edge": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "Entry Edge",
+     "type": "array"
+    },
+    "k": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "K",
+     "type": "array"
+    },
+    "lane": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "Lane",
+     "type": "array"
+    },
+    "lot_id": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "Lot Id",
+     "type": "array"
+    },
+    "next_edge": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "Next Edge",
+     "type": "array"
+    },
+    "qty": {
+     "items": {
+      "type": "number"
+     },
+     "title": "Qty",
+     "type": "array"
+    }
+   },
+   "required": [
+    "lot_id",
+    "chokepoint",
+    "k",
+    "qty",
+    "lane",
+    "next_edge",
+    "arrival_week",
+    "dispatch_week",
+    "entry_edge"
+   ],
+   "title": "QueueLots",
+   "type": "object"
+  },
+  "Reply": {
+   "additionalProperties": false,
+   "properties": {
+    "action": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/Action"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "episode": {
+     "title": "Episode",
+     "type": "string"
+    },
+    "nonce": {
+     "title": "Nonce",
+     "type": "string"
+    }
+   },
+   "required": [
+    "episode",
+    "nonce",
+    "action"
+   ],
+   "title": "Reply",
+   "type": "object"
+  },
+  "Request": {
+   "additionalProperties": false,
+   "properties": {
+    "episode": {
+     "title": "Episode",
+     "type": "string"
+    },
+    "nonce": {
+     "title": "Nonce",
+     "type": "string"
+    },
+    "obs": {
+     "$ref": "#/$defs/Obs"
+    },
+    "remaining_bank": {
+     "title": "Remaining Bank",
+     "type": "number"
+    },
+    "type": {
+     "const": "step",
+     "title": "Type",
+     "type": "string"
+    },
+    "week": {
+     "title": "Week",
+     "type": "integer"
+    }
+   },
+   "required": [
+    "type",
+    "episode",
+    "week",
+    "nonce",
+    "obs",
+    "remaining_bank"
+   ],
+   "title": "Request",
+   "type": "object"
+  },
+  "Reset": {
+   "additionalProperties": false,
+   "properties": {
+    "episode": {
+     "title": "Episode",
+     "type": "string"
+    },
+    "nonce": {
+     "title": "Nonce",
+     "type": "string"
+    },
+    "obs": {
+     "$ref": "#/$defs/Obs"
+    },
+    "omega": {
+     "additionalProperties": {
+      "$ref": "#/$defs/OmegaArray"
+     },
+     "title": "Omega",
+     "type": "object"
+    },
+    "policy_seed": {
+     "title": "Policy Seed",
+     "type": "integer"
+    },
+    "remaining_bank": {
+     "title": "Remaining Bank",
+     "type": "number"
+    },
+    "schema_version": {
+     "title": "Schema Version",
+     "type": "string"
+    },
+    "static": {
+     "$ref": "#/$defs/Static"
+    },
+    "type": {
+     "const": "reset",
+     "title": "Type",
+     "type": "string"
+    }
+   },
+   "required": [
+    "type",
+    "episode",
+    "nonce",
+    "schema_version",
+    "policy_seed",
+    "static",
+    "obs",
+    "remaining_bank"
+   ],
+   "title": "Reset",
+   "type": "object"
+  },
+  "Shed": {
+   "additionalProperties": false,
+   "properties": {
+    "node": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "Node",
+     "type": "array"
+    },
+    "qty": {
+     "items": {
+      "type": "number"
+     },
+     "title": "Qty",
+     "type": "array"
+    }
+   },
+   "required": [
+    "node",
+    "qty"
+   ],
+   "title": "Shed",
+   "type": "object"
+  },
+  "Sinks": {
+   "additionalProperties": false,
+   "properties": {
+    "backlog": {
+     "items": {
+      "type": "boolean"
+     },
+     "title": "Backlog",
+     "type": "array"
+    },
+    "k": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "K",
+     "type": "array"
+    },
+    "node": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "Node",
+     "type": "array"
+    },
+    "pi": {
+     "items": {
+      "type": "number"
+     },
+     "title": "Pi",
+     "type": "array"
+    }
+   },
+   "required": [
+    "node",
+    "k",
+    "backlog",
+    "pi"
+   ],
+   "title": "Sinks",
+   "type": "object"
+  },
+  "SinksWeek": {
+   "additionalProperties": false,
+   "properties": {
+    "demand": {
+     "items": {
+      "type": "number"
+     },
+     "title": "Demand",
+     "type": "array"
+    },
+    "k": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "K",
+     "type": "array"
+    },
+    "lost": {
+     "items": {
+      "type": "number"
+     },
+     "title": "Lost",
+     "type": "array"
+    },
+    "node": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "Node",
+     "type": "array"
+    },
+    "served": {
+     "items": {
+      "type": "number"
+     },
+     "title": "Served",
+     "type": "array"
+    }
+   },
+   "required": [
+    "node",
+    "k",
+    "demand",
+    "served",
+    "lost"
+   ],
+   "title": "SinksWeek",
+   "type": "object"
+  },
+  "Static": {
+   "additionalProperties": false,
+   "properties": {
+    "T": {
+     "title": "T",
+     "type": "integer"
+    },
+    "action_slots": {
+     "$ref": "#/$defs/ActionSlots"
+    },
+    "commodities": {
+     "$ref": "#/$defs/StaticCommodities"
+    },
+    "dyads": {
+     "$ref": "#/$defs/StaticDyads"
+    },
+    "edges": {
+     "$ref": "#/$defs/StaticEdges"
+    },
+    "instance": {
+     "additionalProperties": true,
+     "title": "Instance",
+     "type": "object"
+    },
+    "instance_hash": {
+     "title": "Instance Hash",
+     "type": "string"
+    },
+    "instance_id": {
+     "title": "Instance Id",
+     "type": "string"
+    },
+    "lanes": {
+     "$ref": "#/$defs/StaticLanes"
+    },
+    "nodes": {
+     "$ref": "#/$defs/StaticNodes"
+    },
+    "override_slots": {
+     "$ref": "#/$defs/OverrideSlots"
+    },
+    "regime": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/StaticRegime"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "regions": {
+     "items": {
+      "type": "string"
+     },
+     "title": "Regions",
+     "type": "array"
+    },
+    "sinks": {
+     "$ref": "#/$defs/Sinks"
+    },
+    "units": {
+     "additionalProperties": {
+      "type": "string"
+     },
+     "title": "Units",
+     "type": "object"
+    }
+   },
+   "required": [
+    "instance",
+    "instance_id",
+    "instance_hash",
+    "T",
+    "units",
+    "regions",
+    "nodes",
+    "commodities",
+    "edges",
+    "lanes",
+    "action_slots",
+    "override_slots",
+    "sinks",
+    "dyads",
+    "regime"
+   ],
+   "title": "Static",
+   "type": "object"
+  },
+  "StaticCommodities": {
+   "additionalProperties": false,
+   "properties": {
+    "id": {
+     "items": {
+      "type": "string"
+     },
+     "title": "Id",
+     "type": "array"
+    },
+    "override": {
+     "items": {
+      "type": "boolean"
+     },
+     "title": "Override",
+     "type": "array"
+    },
+    "pool": {
+     "items": {
+      "enum": [
+       "tb",
+       "ct"
+      ],
+      "type": "string"
+     },
+     "title": "Pool",
+     "type": "array"
+    },
+    "v": {
+     "items": {
+      "type": "number"
+     },
+     "title": "V",
+     "type": "array"
+    }
+   },
+   "required": [
+    "id",
+    "v",
+    "pool",
+    "override"
+   ],
+   "title": "StaticCommodities",
+   "type": "object"
+  },
+  "StaticDyads": {
+   "additionalProperties": false,
+   "properties": {
+    "a": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "A",
+     "type": "array"
+    },
+    "b": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "B",
+     "type": "array"
+    }
+   },
+   "required": [
+    "a",
+    "b"
+   ],
+   "title": "StaticDyads",
+   "type": "object"
+  },
+  "StaticEdges": {
+   "additionalProperties": false,
+   "properties": {
+    "K": {
+     "items": {
+      "items": {
+       "type": "integer"
+      },
+      "type": "array"
+     },
+     "title": "K",
+     "type": "array"
+    },
+    "alt_of": {
+     "items": {
+      "anyOf": [
+       {
+        "$ref": "#/$defs/AltLane"
+       },
+       {
+        "$ref": "#/$defs/AltEdge"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "title": "Alt Of",
+     "type": "array"
+    },
+    "c0": {
+     "items": {
+      "type": "number"
+     },
+     "title": "C0",
+     "type": "array"
+    },
+    "head": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "Head",
+     "type": "array"
+    },
+    "id": {
+     "items": {
+      "type": "string"
+     },
+     "title": "Id",
+     "type": "array"
+    },
+    "mode": {
+     "items": {
+      "enum": [
+       "sea",
+       "air",
+       "pipeline",
+       "grid"
+      ],
+      "type": "string"
+     },
+     "title": "Mode",
+     "type": "array"
+    },
+    "pool": {
+     "items": {
+      "anyOf": [
+       {
+        "enum": [
+         "tb",
+         "ct"
+        ],
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "title": "Pool",
+     "type": "array"
+    },
+    "tail": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "Tail",
+     "type": "array"
+    },
+    "tau0": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "Tau0",
+     "type": "array"
+    },
+    "u0": {
+     "items": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "title": "U0",
+     "type": "array"
+    }
+   },
+   "required": [
+    "id",
+    "tail",
+    "head",
+    "mode",
+    "tau0",
+    "c0",
+    "u0",
+    "K",
+    "alt_of",
+    "pool"
+   ],
+   "title": "StaticEdges",
+   "type": "object"
+  },
+  "StaticLanes": {
+   "additionalProperties": false,
+   "properties": {
+    "alt_of": {
+     "items": {
+      "anyOf": [
+       {
+        "$ref": "#/$defs/AltLane"
+       },
+       {
+        "$ref": "#/$defs/AltEdge"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "title": "Alt Of",
+     "type": "array"
+    },
+    "chokepoints": {
+     "items": {
+      "items": {
+       "type": "integer"
+      },
+      "type": "array"
+     },
+     "title": "Chokepoints",
+     "type": "array"
+    },
+    "edges": {
+     "items": {
+      "items": {
+       "type": "integer"
+      },
+      "type": "array"
+     },
+     "title": "Edges",
+     "type": "array"
+    },
+    "id": {
+     "items": {
+      "type": "string"
+     },
+     "title": "Id",
+     "type": "array"
+    }
+   },
+   "required": [
+    "id",
+    "edges",
+    "chokepoints",
+    "alt_of"
+   ],
+   "title": "StaticLanes",
+   "type": "object"
+  },
+  "StaticNodes": {
+   "additionalProperties": false,
+   "properties": {
+    "id": {
+     "items": {
+      "type": "string"
+     },
+     "title": "Id",
+     "type": "array"
+    },
+    "region": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "Region",
+     "type": "array"
+    },
+    "type": {
+     "items": {
+      "enum": [
+       "source",
+       "terminal",
+       "grid",
+       "chokepoint",
+       "material",
+       "fab",
+       "osat",
+       "sink"
+      ],
+      "type": "string"
+     },
+     "title": "Type",
+     "type": "array"
+    }
+   },
+   "required": [
+    "id",
+    "type",
+    "region"
+   ],
+   "title": "StaticNodes",
+   "type": "object"
+  },
+  "StaticRegime": {
+   "additionalProperties": false,
+   "properties": {
+    "L": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "L"
+    },
+    "a": {
+     "additionalProperties": {
+      "type": "number"
+     },
+     "propertyNames": {
+      "enum": [
+       "region",
+       "dyad",
+       "chokepoint"
+      ]
+     },
+     "title": "A",
+     "type": "object"
+    },
+    "blackout": {
+     "anyOf": [
+      {
+       "enum": [
+        "3w",
+        "11w",
+        "to_end"
+       ],
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Blackout"
+    },
+    "chi": {
+     "title": "Chi",
+     "type": "boolean"
+    },
+    "h_cov": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "H Cov"
+    },
+    "name": {
+     "title": "Name",
+     "type": "string"
+    },
+    "phi": {
+     "additionalProperties": {
+      "type": "number"
+     },
+     "propertyNames": {
+      "enum": [
+       "tariff_formal",
+       "tariff_informal",
+       "tariff_final",
+       "sanction_legal",
+       "ties_threat",
+       "mid_threat"
+      ]
+     },
+     "title": "Phi",
+     "type": "object"
+    },
+    "skill": {
+     "additionalProperties": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "propertyNames": {
+      "enum": [
+       "region",
+       "dyad",
+       "chokepoint"
+      ]
+     },
+     "title": "Skill",
+     "type": "object"
+    }
+   },
+   "required": [
+    "name",
+    "L",
+    "a",
+    "phi",
+    "chi",
+    "h_cov",
+    "skill",
+    "blackout"
+   ],
+   "title": "StaticRegime",
+   "type": "object"
+  },
+  "Supply": {
+   "additionalProperties": false,
+   "properties": {
+    "avail": {
+     "items": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "title": "Avail",
+     "type": "array"
+    },
+    "k": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "K",
+     "type": "array"
+    },
+    "node": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "Node",
+     "type": "array"
+    }
+   },
+   "required": [
+    "node",
+    "k",
+    "avail"
+   ],
+   "title": "Supply",
+   "type": "object"
+  },
+  "Tariff": {
+   "additionalProperties": false,
+   "properties": {
+    "edge": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "Edge",
+     "type": "array"
+    },
+    "k": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "K",
+     "type": "array"
+    },
+    "rate": {
+     "items": {
+      "type": "number"
+     },
+     "title": "Rate",
+     "type": "array"
+    }
+   },
+   "required": [
+    "edge",
+    "k",
+    "rate"
+   ],
+   "title": "Tariff",
+   "type": "object"
+  },
+  "WarningScores": {
+   "additionalProperties": false,
+   "properties": {
+    "score": {
+     "items": {
+      "type": "number"
+     },
+     "title": "Score",
+     "type": "array"
+    },
+    "unit": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "Unit",
+     "type": "array"
+    },
+    "unit_kind": {
+     "items": {
+      "enum": [
+       "region",
+       "dyad",
+       "chokepoint"
+      ],
+      "type": "string"
+     },
+     "title": "Unit Kind",
+     "type": "array"
+    }
+   },
+   "required": [
+    "unit_kind",
+    "unit",
+    "score"
+   ],
+   "title": "WarningScores",
+   "type": "object"
+  },
+  "Wip": {
+   "additionalProperties": false,
+   "properties": {
+    "k": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "K",
+     "type": "array"
+    },
+    "node": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "Node",
+     "type": "array"
+    },
+    "out_week": {
+     "items": {
+      "type": "integer"
+     },
+     "title": "Out Week",
+     "type": "array"
+    },
+    "qty": {
+     "items": {
+      "type": "number"
+     },
+     "title": "Qty",
+     "type": "array"
+    }
+   },
+   "required": [
+    "node",
+    "k",
+    "qty",
+    "out_week"
+   ],
+   "title": "Wip",
+   "type": "object"
+  }
+ },
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "anyOf": [
+  {
+   "$ref": "#/$defs/Reset"
+  },
+  {
+   "$ref": "#/$defs/Request"
+  },
+  {
+   "$ref": "#/$defs/Reply"
+  }
+ ],
+ "description": "Line-JSON messages of design 9.2, one object per line; generated from shockbench_flow.information.wire (tests/_wire_models.py). Floats of runner messages are JSON floats; the lists of a column table have one length.",
+ "title": "ShockBench-Flow wire, schema_version 1"
+}

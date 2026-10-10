@@ -1,0 +1,3212 @@
+{
+ "T": 26,
+ "chokepoint_adjacency": {
+  "chk": [
+   "GULF"
+  ]
+ },
+ "commodities": [
+  {
+   "disposal_cost": 4125.27726,
+   "id": "lng",
+   "override": true,
+   "pool": "tb",
+   "unit": "GWh fuel",
+   "v": 41252.7726
+  },
+  {
+   "disposal_cost": 300.0,
+   "id": "wafer",
+   "override": false,
+   "pool": "ct",
+   "unit": "wafer-eq 300 mm",
+   "v": 3000.0
+  },
+  {
+   "disposal_cost": 2000.0,
+   "id": "chip_le_raw",
+   "override": false,
+   "pool": "ct",
+   "unit": "wafer-eq 300 mm",
+   "v": 20000.0
+  },
+  {
+   "disposal_cost": 2000.0,
+   "id": "chip_le",
+   "override": false,
+   "pool": "ct",
+   "unit": "wafer-eq 300 mm",
+   "v": 20000.0
+  }
+ ],
+ "compatibility": [],
+ "edges": [
+  {
+   "K": [
+    "lng"
+   ],
+   "alt_of": null,
+   "c0": 1000.0,
+   "head": "chk",
+   "id": "E0",
+   "mode": "sea",
+   "pool": "tb",
+   "tail": "src_gulf",
+   "tau": 1,
+   "u0": 30.0
+  },
+  {
+   "K": [
+    "lng"
+   ],
+   "alt_of": null,
+   "c0": 1000.0,
+   "head": "grid_tw",
+   "id": "E1",
+   "mode": "sea",
+   "pool": "tb",
+   "tail": "chk",
+   "tau": 2,
+   "u0": 20.0
+  },
+  {
+   "K": [
+    "lng"
+   ],
+   "alt_of": null,
+   "c0": 1500.0,
+   "head": "grid_eu",
+   "id": "E2",
+   "mode": "sea",
+   "pool": "tb",
+   "tail": "chk",
+   "tau": 3,
+   "u0": 16.0
+  },
+  {
+   "K": [
+    "lng"
+   ],
+   "alt_of": {
+    "lane": "L1"
+   },
+   "c0": 3500.0,
+   "head": "grid_eu",
+   "id": "E3",
+   "mode": "sea",
+   "pool": "tb",
+   "tail": "src_gulf",
+   "tau": 6,
+   "u0": 7.2
+  },
+  {
+   "K": [
+    "lng"
+   ],
+   "alt_of": {
+    "edge": "E2"
+   },
+   "c0": 2100.0,
+   "head": "grid_eu",
+   "id": "E4",
+   "mode": "sea",
+   "pool": "tb",
+   "tail": "chk",
+   "tau": 5,
+   "u0": 7.2
+  },
+  {
+   "K": [
+    "lng"
+   ],
+   "alt_of": null,
+   "c0": 2500.0,
+   "head": "grid_tw",
+   "id": "E5",
+   "mode": "sea",
+   "pool": "tb",
+   "tail": "src_usau",
+   "tau": 3,
+   "u0": 12.0
+  },
+  {
+   "K": [
+    "lng"
+   ],
+   "alt_of": null,
+   "c0": 3000.0,
+   "head": "grid_eu",
+   "id": "E6",
+   "mode": "sea",
+   "pool": "tb",
+   "tail": "src_usau",
+   "tau": 2,
+   "u0": 12.0
+  },
+  {
+   "K": [
+    "lng"
+   ],
+   "alt_of": null,
+   "c0": 500.0,
+   "head": "grid_eu",
+   "id": "E7",
+   "mode": "pipeline",
+   "pool": "tb",
+   "tail": "src_ru",
+   "tau": 1,
+   "u0": 12.0
+  },
+  {
+   "K": [
+    "lng"
+   ],
+   "alt_of": null,
+   "c0": 1200.0,
+   "head": "chk",
+   "id": "E8",
+   "mode": "sea",
+   "pool": "tb",
+   "tail": "src_ru",
+   "tau": 1,
+   "u0": 8.0
+  },
+  {
+   "K": [
+    "wafer"
+   ],
+   "alt_of": null,
+   "c0": 2.0,
+   "head": "fab_tw",
+   "id": "E9",
+   "mode": "sea",
+   "pool": "ct",
+   "tail": "mat_jp",
+   "tau": 1,
+   "u0": 1200.0
+  },
+  {
+   "K": [
+    "wafer"
+   ],
+   "alt_of": {
+    "edge": "E9"
+   },
+   "c0": 8.0,
+   "head": "fab_tw",
+   "id": "E10",
+   "mode": "air",
+   "pool": "ct",
+   "tail": "mat_jp",
+   "tau": 1,
+   "u0": 300.0
+  },
+  {
+   "K": [
+    "wafer"
+   ],
+   "alt_of": null,
+   "c0": 2.0,
+   "head": "fab_cn",
+   "id": "E11",
+   "mode": "sea",
+   "pool": "ct",
+   "tail": "mat_jp",
+   "tau": 1,
+   "u0": 1200.0
+  },
+  {
+   "K": [
+    "wafer"
+   ],
+   "alt_of": {
+    "edge": "E11"
+   },
+   "c0": 8.0,
+   "head": "fab_cn",
+   "id": "E12",
+   "mode": "air",
+   "pool": "ct",
+   "tail": "mat_jp",
+   "tau": 1,
+   "u0": 300.0
+  },
+  {
+   "K": [
+    "wafer"
+   ],
+   "alt_of": null,
+   "c0": 3.0,
+   "head": "fab_us",
+   "id": "E13",
+   "mode": "sea",
+   "pool": "ct",
+   "tail": "mat_jp",
+   "tau": 3,
+   "u0": 600.0
+  },
+  {
+   "K": [
+    "wafer"
+   ],
+   "alt_of": {
+    "edge": "E13"
+   },
+   "c0": 12.0,
+   "head": "fab_us",
+   "id": "E14",
+   "mode": "air",
+   "pool": "ct",
+   "tail": "mat_jp",
+   "tau": 1,
+   "u0": 150.0
+  },
+  {
+   "K": [],
+   "alt_of": null,
+   "c0": 0.0,
+   "head": "fab_tw",
+   "id": "E15",
+   "mode": "grid",
+   "pool": null,
+   "tail": "grid_tw",
+   "tau": 0,
+   "u0": null
+  },
+  {
+   "K": [],
+   "alt_of": null,
+   "c0": 0.0,
+   "head": "fab_us",
+   "id": "E16",
+   "mode": "grid",
+   "pool": null,
+   "tail": "grid_eu",
+   "tau": 0,
+   "u0": null
+  },
+  {
+   "K": [
+    "chip_le_raw"
+   ],
+   "alt_of": null,
+   "c0": 2.0,
+   "head": "osat_sea",
+   "id": "E17",
+   "mode": "sea",
+   "pool": "ct",
+   "tail": "fab_tw",
+   "tau": 1,
+   "u0": 1200.0
+  },
+  {
+   "K": [
+    "chip_le_raw"
+   ],
+   "alt_of": {
+    "edge": "E17"
+   },
+   "c0": 8.0,
+   "head": "osat_sea",
+   "id": "E18",
+   "mode": "air",
+   "pool": "ct",
+   "tail": "fab_tw",
+   "tau": 1,
+   "u0": 300.0
+  },
+  {
+   "K": [
+    "chip_le_raw"
+   ],
+   "alt_of": null,
+   "c0": 2.0,
+   "head": "osat_sea",
+   "id": "E19",
+   "mode": "sea",
+   "pool": "ct",
+   "tail": "fab_cn",
+   "tau": 1,
+   "u0": 1200.0
+  },
+  {
+   "K": [
+    "chip_le_raw"
+   ],
+   "alt_of": null,
+   "c0": 3.0,
+   "head": "osat_sea",
+   "id": "E20",
+   "mode": "sea",
+   "pool": "ct",
+   "tail": "fab_us",
+   "tau": 4,
+   "u0": 600.0
+  },
+  {
+   "K": [
+    "chip_le_raw"
+   ],
+   "alt_of": {
+    "edge": "E20"
+   },
+   "c0": 12.0,
+   "head": "osat_sea",
+   "id": "E21",
+   "mode": "air",
+   "pool": "ct",
+   "tail": "fab_us",
+   "tau": 1,
+   "u0": 150.0
+  },
+  {
+   "K": [
+    "chip_le"
+   ],
+   "alt_of": null,
+   "c0": 1.0,
+   "head": "chk",
+   "id": "E22",
+   "mode": "sea",
+   "pool": "ct",
+   "tail": "osat_sea",
+   "tau": 1,
+   "u0": 3000.0
+  },
+  {
+   "K": [
+    "chip_le"
+   ],
+   "alt_of": null,
+   "c0": 2.0,
+   "head": "sink_us",
+   "id": "E23",
+   "mode": "sea",
+   "pool": "ct",
+   "tail": "chk",
+   "tau": 3,
+   "u0": 3000.0
+  },
+  {
+   "K": [
+    "chip_le"
+   ],
+   "alt_of": {
+    "lane": "L3"
+   },
+   "c0": 12.0,
+   "head": "sink_us",
+   "id": "E24",
+   "mode": "air",
+   "pool": "ct",
+   "tail": "osat_sea",
+   "tau": 1,
+   "u0": 750.0
+  }
+ ],
+ "initial_state": {
+  "fab_wip": [
+   {
+    "k": "chip_le_raw",
+    "node": "fab_tw",
+    "out_week": 1,
+    "qty": 900.0
+   },
+   {
+    "k": "chip_le_raw",
+    "node": "fab_tw",
+    "out_week": 2,
+    "qty": 900.0
+   },
+   {
+    "k": "chip_le_raw",
+    "node": "fab_tw",
+    "out_week": 3,
+    "qty": 900.0
+   },
+   {
+    "k": "chip_le_raw",
+    "node": "fab_tw",
+    "out_week": 4,
+    "qty": 900.0
+   },
+   {
+    "k": "chip_le_raw",
+    "node": "fab_tw",
+    "out_week": 5,
+    "qty": 900.0
+   },
+   {
+    "k": "chip_le_raw",
+    "node": "fab_tw",
+    "out_week": 6,
+    "qty": 900.0
+   },
+   {
+    "k": "chip_le_raw",
+    "node": "fab_tw",
+    "out_week": 7,
+    "qty": 900.0
+   },
+   {
+    "k": "chip_le_raw",
+    "node": "fab_tw",
+    "out_week": 8,
+    "qty": 900.0
+   },
+   {
+    "k": "chip_le_raw",
+    "node": "fab_cn",
+    "out_week": 1,
+    "qty": 900.0
+   },
+   {
+    "k": "chip_le_raw",
+    "node": "fab_cn",
+    "out_week": 2,
+    "qty": 900.0
+   },
+   {
+    "k": "chip_le_raw",
+    "node": "fab_cn",
+    "out_week": 3,
+    "qty": 900.0
+   },
+   {
+    "k": "chip_le_raw",
+    "node": "fab_cn",
+    "out_week": 4,
+    "qty": 900.0
+   },
+   {
+    "k": "chip_le_raw",
+    "node": "fab_cn",
+    "out_week": 5,
+    "qty": 900.0
+   },
+   {
+    "k": "chip_le_raw",
+    "node": "fab_cn",
+    "out_week": 6,
+    "qty": 900.0
+   },
+   {
+    "k": "chip_le_raw",
+    "node": "fab_us",
+    "out_week": 1,
+    "qty": 450.0
+   },
+   {
+    "k": "chip_le_raw",
+    "node": "fab_us",
+    "out_week": 2,
+    "qty": 450.0
+   },
+   {
+    "k": "chip_le_raw",
+    "node": "fab_us",
+    "out_week": 3,
+    "qty": 450.0
+   },
+   {
+    "k": "chip_le_raw",
+    "node": "fab_us",
+    "out_week": 4,
+    "qty": 450.0
+   },
+   {
+    "k": "chip_le_raw",
+    "node": "fab_us",
+    "out_week": 5,
+    "qty": 450.0
+   },
+   {
+    "k": "chip_le_raw",
+    "node": "fab_us",
+    "out_week": 6,
+    "qty": 450.0
+   },
+   {
+    "k": "chip_le_raw",
+    "node": "fab_us",
+    "out_week": 7,
+    "qty": 450.0
+   },
+   {
+    "k": "chip_le_raw",
+    "node": "fab_us",
+    "out_week": 8,
+    "qty": 450.0
+   }
+  ],
+  "osat_wip": [
+   {
+    "k": "chip_le",
+    "node": "osat_sea",
+    "out_week": 1,
+    "qty": 2250.0
+   },
+   {
+    "k": "chip_le",
+    "node": "osat_sea",
+    "out_week": 2,
+    "qty": 2250.0
+   }
+  ],
+  "pipeline": [
+   {
+    "arrival_week": 1,
+    "dispatch_week": 0,
+    "edge": "E0",
+    "k": "lng",
+    "lane": "L0",
+    "qty": 11.0
+   },
+   {
+    "arrival_week": 1,
+    "dispatch_week": 0,
+    "edge": "E0",
+    "k": "lng",
+    "lane": "L1",
+    "qty": 12.3
+   },
+   {
+    "arrival_week": 1,
+    "dispatch_week": -1,
+    "edge": "E1",
+    "k": "lng",
+    "lane": "L0",
+    "qty": 11.0
+   },
+   {
+    "arrival_week": 2,
+    "dispatch_week": 0,
+    "edge": "E1",
+    "k": "lng",
+    "lane": "L0",
+    "qty": 11.0
+   },
+   {
+    "arrival_week": 1,
+    "dispatch_week": -2,
+    "edge": "E2",
+    "k": "lng",
+    "lane": "L1",
+    "qty": 12.3
+   },
+   {
+    "arrival_week": 2,
+    "dispatch_week": -1,
+    "edge": "E2",
+    "k": "lng",
+    "lane": "L1",
+    "qty": 12.3
+   },
+   {
+    "arrival_week": 3,
+    "dispatch_week": 0,
+    "edge": "E2",
+    "k": "lng",
+    "lane": "L1",
+    "qty": 12.3
+   },
+   {
+    "arrival_week": 1,
+    "dispatch_week": 0,
+    "edge": "E9",
+    "k": "wafer",
+    "lane": null,
+    "qty": 900.0
+   },
+   {
+    "arrival_week": 1,
+    "dispatch_week": 0,
+    "edge": "E11",
+    "k": "wafer",
+    "lane": null,
+    "qty": 900.0
+   },
+   {
+    "arrival_week": 1,
+    "dispatch_week": -2,
+    "edge": "E13",
+    "k": "wafer",
+    "lane": null,
+    "qty": 450.0
+   },
+   {
+    "arrival_week": 2,
+    "dispatch_week": -1,
+    "edge": "E13",
+    "k": "wafer",
+    "lane": null,
+    "qty": 450.0
+   },
+   {
+    "arrival_week": 3,
+    "dispatch_week": 0,
+    "edge": "E13",
+    "k": "wafer",
+    "lane": null,
+    "qty": 450.0
+   },
+   {
+    "arrival_week": 1,
+    "dispatch_week": 0,
+    "edge": "E17",
+    "k": "chip_le_raw",
+    "lane": null,
+    "qty": 900.0
+   },
+   {
+    "arrival_week": 1,
+    "dispatch_week": 0,
+    "edge": "E19",
+    "k": "chip_le_raw",
+    "lane": null,
+    "qty": 900.0
+   },
+   {
+    "arrival_week": 1,
+    "dispatch_week": -3,
+    "edge": "E20",
+    "k": "chip_le_raw",
+    "lane": null,
+    "qty": 450.0
+   },
+   {
+    "arrival_week": 2,
+    "dispatch_week": -2,
+    "edge": "E20",
+    "k": "chip_le_raw",
+    "lane": null,
+    "qty": 450.0
+   },
+   {
+    "arrival_week": 3,
+    "dispatch_week": -1,
+    "edge": "E20",
+    "k": "chip_le_raw",
+    "lane": null,
+    "qty": 450.0
+   },
+   {
+    "arrival_week": 4,
+    "dispatch_week": 0,
+    "edge": "E20",
+    "k": "chip_le_raw",
+    "lane": null,
+    "qty": 450.0
+   },
+   {
+    "arrival_week": 1,
+    "dispatch_week": 0,
+    "edge": "E22",
+    "k": "chip_le",
+    "lane": "L3",
+    "qty": 2250.0
+   },
+   {
+    "arrival_week": 1,
+    "dispatch_week": -2,
+    "edge": "E23",
+    "k": "chip_le",
+    "lane": "L3",
+    "qty": 2250.0
+   },
+   {
+    "arrival_week": 2,
+    "dispatch_week": -1,
+    "edge": "E23",
+    "k": "chip_le",
+    "lane": "L3",
+    "qty": 2250.0
+   },
+   {
+    "arrival_week": 3,
+    "dispatch_week": 0,
+    "edge": "E23",
+    "k": "chip_le",
+    "lane": "L3",
+    "qty": 2250.0
+   }
+  ],
+  "queue_lots": [],
+  "stock": [
+   {
+    "k": "lng",
+    "node": "src_gulf",
+    "qty": 25.0
+   },
+   {
+    "k": "lng",
+    "node": "src_usau",
+    "qty": 12.0
+   },
+   {
+    "k": "lng",
+    "node": "src_ru",
+    "qty": 12.0
+   },
+   {
+    "k": "lng",
+    "node": "grid_tw",
+    "qty": 17.29
+   },
+   {
+    "k": "wafer",
+    "node": "mat_jp",
+    "qty": 2750.0
+   },
+   {
+    "k": "lng",
+    "node": "grid_eu",
+    "qty": 24.6
+   },
+   {
+    "k": "wafer",
+    "node": "fab_tw",
+    "qty": 1800.0
+   },
+   {
+    "k": "wafer",
+    "node": "fab_cn",
+    "qty": 1800.0
+   },
+   {
+    "k": "wafer",
+    "node": "fab_us",
+    "qty": 900.0
+   },
+   {
+    "k": "chip_le",
+    "node": "sink_us",
+    "qty": 4500.0
+   }
+  ]
+ },
+ "instance_id": "chokepoint-tiny",
+ "kind": "tiny",
+ "lanes": [
+  {
+   "alt_of": null,
+   "chokepoints": [
+    "chk"
+   ],
+   "edges": [
+    "E0",
+    "E1"
+   ],
+   "id": "L0"
+  },
+  {
+   "alt_of": null,
+   "chokepoints": [
+    "chk"
+   ],
+   "edges": [
+    "E0",
+    "E2"
+   ],
+   "id": "L1"
+  },
+  {
+   "alt_of": null,
+   "chokepoints": [
+    "chk"
+   ],
+   "edges": [
+    "E8",
+    "E1"
+   ],
+   "id": "L2"
+  },
+  {
+   "alt_of": null,
+   "chokepoints": [
+    "chk"
+   ],
+   "edges": [
+    "E22",
+    "E23"
+   ],
+   "id": "L3"
+  }
+ ],
+ "nodes": [
+  {
+   "id": "src_gulf",
+   "region": "GULF",
+   "stock": {
+    "lng": {
+     "holding_cost": 0.0,
+     "salvage": 0.0,
+     "storage": 50.0,
+     "supply_rate": 25.0
+    }
+   },
+   "type": "source"
+  },
+  {
+   "id": "src_usau",
+   "region": "US",
+   "stock": {
+    "lng": {
+     "holding_cost": 0.0,
+     "salvage": 0.0,
+     "storage": 50.0,
+     "supply_rate": 12.0
+    }
+   },
+   "type": "source"
+  },
+  {
+   "id": "src_ru",
+   "region": "RU",
+   "stock": {
+    "lng": {
+     "holding_cost": 0.0,
+     "salvage": 0.0,
+     "storage": 50.0,
+     "supply_rate": 12.0
+    }
+   },
+   "type": "source"
+  },
+  {
+   "chokepoint": {
+    "class": "tiny-aggregate",
+    "k_c": 1.3,
+    "mu": {
+     "ct": 2250.0,
+     "tb": 23.3
+    },
+    "queue_holding": {
+     "chip_le": [
+      16.192307692307693,
+      16.192307692307693,
+      16.192307692307693
+     ],
+     "lng": [
+      273.870810711,
+      2003.9327612999998,
+      7180.7590613249995
+     ]
+    },
+    "war_risk_cost": {
+     "chip_le": [
+      0.0,
+      0.5,
+      2.0
+     ],
+     "lng": [
+      0.0,
+      1723.0,
+      6893.0
+     ]
+    }
+   },
+   "id": "chk",
+   "region": "GULF",
+   "stock": {
+    "chip_le": {
+     "holding_cost": 0.0,
+     "salvage": 5.0,
+     "storage": null
+    },
+    "lng": {
+     "holding_cost": 0.0,
+     "salvage": 1000.0,
+     "storage": null
+    }
+   },
+   "type": "chokepoint"
+  },
+  {
+   "grid": {
+    "base_load": 20.0,
+    "days_cover": {
+     "lng": 11.0
+    },
+    "deliverable": 22.0,
+    "ibar": {
+     "lng": 17.29
+    },
+    "priority": "base_first",
+    "rationed": "lng",
+    "shares": {
+     "lng": 0.5,
+     "unmodelled": 0.5
+    },
+    "voll": 4125277.26
+   },
+   "id": "grid_tw",
+   "region": "TW",
+   "stock": {
+    "lng": {
+     "holding_cost": 33.398879355,
+     "salvage": 2000.0,
+     "storage": 40.0
+    }
+   },
+   "type": "grid"
+  },
+  {
+   "id": "mat_jp",
+   "region": "JP",
+   "stock": {
+    "wafer": {
+     "holding_cost": 0.0,
+     "salvage": 0.0,
+     "storage": 5000.0,
+     "supply_rate": 2750.0
+    }
+   },
+   "type": "material"
+  },
+  {
+   "grid": {
+    "base_load": 40.0,
+    "days_cover": {
+     "lng": 14.0
+    },
+    "deliverable": 41.0,
+    "ibar": {
+     "lng": 24.6
+    },
+    "priority": "base_first",
+    "rationed": "lng",
+    "shares": {
+     "lng": 0.3,
+     "unmodelled": 0.7
+    },
+    "voll": 4125277.26
+   },
+   "id": "grid_eu",
+   "region": "EU",
+   "stock": {
+    "lng": {
+     "holding_cost": 33.398879355,
+     "salvage": 2500.0,
+     "storage": 60.0
+    }
+   },
+   "type": "grid"
+  },
+  {
+   "fab": {
+    "cap0": 1000.0,
+    "class": "leading",
+    "e": 0.002,
+    "grid": "grid_tw",
+    "input": "wafer",
+    "product": "chip_le_raw",
+    "tau": 8,
+    "w_scr": 2
+   },
+   "id": "fab_tw",
+   "region": "TW",
+   "stock": {
+    "chip_le_raw": {
+     "holding_cost": 16.192307692307693,
+     "salvage": 2.0,
+     "storage": 5000.0
+    },
+    "wafer": {
+     "holding_cost": 2.4288461538461537,
+     "salvage": 2.0,
+     "storage": 5000.0
+    }
+   },
+   "type": "fab"
+  },
+  {
+   "fab": {
+    "cap0": 1000.0,
+    "class": "mature",
+    "e": 0.0,
+    "grid": null,
+    "input": "wafer",
+    "product": "chip_le_raw",
+    "tau": 6,
+    "w_scr": 2
+   },
+   "id": "fab_cn",
+   "region": "CN",
+   "stock": {
+    "chip_le_raw": {
+     "holding_cost": 16.192307692307693,
+     "salvage": 2.0,
+     "storage": 5000.0
+    },
+    "wafer": {
+     "holding_cost": 2.4288461538461537,
+     "salvage": 2.0,
+     "storage": 5000.0
+    }
+   },
+   "type": "fab"
+  },
+  {
+   "fab": {
+    "cap0": 500.0,
+    "class": "leading",
+    "e": 0.002,
+    "grid": "grid_eu",
+    "input": "wafer",
+    "product": "chip_le_raw",
+    "tau": 8,
+    "w_scr": 2
+   },
+   "id": "fab_us",
+   "region": "US",
+   "stock": {
+    "chip_le_raw": {
+     "holding_cost": 16.192307692307693,
+     "salvage": 3.0,
+     "storage": 5000.0
+    },
+    "wafer": {
+     "holding_cost": 2.4288461538461537,
+     "salvage": 3.0,
+     "storage": 5000.0
+    }
+   },
+   "type": "fab"
+  },
+  {
+   "id": "osat_sea",
+   "osat": {
+    "packages": {
+     "chip_le_raw": "chip_le"
+    },
+    "tau": 2,
+    "thr": 2500.0
+   },
+   "region": "SEA",
+   "stock": {
+    "chip_le": {
+     "holding_cost": 16.192307692307693,
+     "salvage": 4.0,
+     "storage": 5000.0
+    },
+    "chip_le_raw": {
+     "holding_cost": 16.192307692307693,
+     "salvage": 4.0,
+     "storage": 5000.0
+    }
+   },
+   "type": "osat"
+  },
+  {
+   "id": "sink_us",
+   "region": "US",
+   "sink": {
+    "demand": {
+     "chip_le": {
+      "backlog": false,
+      "dbar": 2250.0,
+      "phi": 0.5,
+      "pi": 50360.0,
+      "seasonal": null,
+      "shock": [
+       1.0,
+       1.0,
+       1.0
+      ],
+      "sigma": 0.1
+     }
+    }
+   },
+   "stock": {
+    "chip_le": {
+     "holding_cost": 16.192307692307693,
+     "salvage": 7.0,
+     "storage": 10000.0
+    }
+   },
+   "type": "sink"
+  }
+ ],
+ "params": {
+  "alpha_max": 1.25,
+  "fleet_measure": {
+   "ct": 21000.0,
+   "tb": 265.2
+  },
+  "fleet_share": {
+   "ct": 0.06,
+   "tb": 0.05
+  },
+  "forecast_shares": [
+   1.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0
+  ],
+  "psi": 0.6,
+  "tau_alpha": 52.0,
+  "top_tariff": 0.25,
+  "upsilon": 0.9
+ },
+ "prohibitions_at_reset": [
+  {
+   "edge": "E7",
+   "k": "lng"
+  }
+ ],
+ "provenance": {
+  "T": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4: T = 26 on tiny",
+   "tag": "SYNTHETIC(prior: spec \u00a74.8)"
+  },
+  "commodities/chip_le/disposal_cost": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "commodities/chip_le/v": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "commodities/chip_le_raw/disposal_cost": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "commodities/chip_le_raw/v": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "commodities/lng/disposal_cost": {
+   "hi": null,
+   "lo": null,
+   "source": "0.1 v_k (\u00a711 row 5)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "commodities/lng/v": {
+   "hi": null,
+   "lo": null,
+   "source": "12.09 $/MMBtu x 3,412.14 MMBtu/GWh",
+   "tag": "DERIVED(IMF PNGASJPUSDM 2025 via W2-maritime)"
+  },
+  "commodities/wafer/disposal_cost": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "commodities/wafer/v": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E0/c0": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E0/tau": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E0/u0": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E1/c0": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E1/tau": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E1/u0": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E10/c0": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E10/tau": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E10/u0": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E11/c0": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E11/tau": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E11/u0": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E12/c0": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E12/tau": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E12/u0": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E13/c0": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E13/tau": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E13/u0": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E14/c0": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E14/tau": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E14/u0": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E15/c0": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E15/tau": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E16/c0": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E16/tau": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E17/c0": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E17/tau": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E17/u0": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E18/c0": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E18/tau": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E18/u0": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E19/c0": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E19/tau": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E19/u0": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E2/c0": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E2/tau": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E2/u0": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E20/c0": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E20/tau": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E20/u0": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E21/c0": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E21/tau": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E21/u0": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E22/c0": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E22/tau": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E22/u0": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E23/c0": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E23/tau": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E23/u0": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E24/c0": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E24/tau": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E24/u0": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E3/c0": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E3/tau": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E3/u0": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E4/c0": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E4/tau": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E4/u0": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E5/c0": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E5/tau": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E5/u0": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E6/c0": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E6/tau": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E6/u0": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E7/c0": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E7/tau": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E7/u0": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E8/c0": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E8/tau": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E8/u0": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E9/c0": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E9/tau": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "edges/E9/u0": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/fab_wip/0/out_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/fab_wip/0/qty": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/fab_wip/1/out_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/fab_wip/1/qty": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/fab_wip/10/out_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/fab_wip/10/qty": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/fab_wip/11/out_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/fab_wip/11/qty": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/fab_wip/12/out_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/fab_wip/12/qty": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/fab_wip/13/out_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/fab_wip/13/qty": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/fab_wip/14/out_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/fab_wip/14/qty": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/fab_wip/15/out_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/fab_wip/15/qty": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/fab_wip/16/out_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/fab_wip/16/qty": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/fab_wip/17/out_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/fab_wip/17/qty": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/fab_wip/18/out_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/fab_wip/18/qty": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/fab_wip/19/out_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/fab_wip/19/qty": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/fab_wip/2/out_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/fab_wip/2/qty": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/fab_wip/20/out_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/fab_wip/20/qty": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/fab_wip/21/out_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/fab_wip/21/qty": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/fab_wip/3/out_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/fab_wip/3/qty": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/fab_wip/4/out_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/fab_wip/4/qty": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/fab_wip/5/out_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/fab_wip/5/qty": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/fab_wip/6/out_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/fab_wip/6/qty": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/fab_wip/7/out_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/fab_wip/7/qty": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/fab_wip/8/out_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/fab_wip/8/qty": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/fab_wip/9/out_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/fab_wip/9/qty": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/osat_wip/0/out_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/osat_wip/0/qty": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/osat_wip/1/out_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/osat_wip/1/qty": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/0/arrival_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/0/dispatch_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/0/qty": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/1/arrival_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/1/dispatch_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/1/qty": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/10/arrival_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/10/dispatch_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/10/qty": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/11/arrival_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/11/dispatch_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/11/qty": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/12/arrival_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/12/dispatch_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/12/qty": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/13/arrival_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/13/dispatch_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/13/qty": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/14/arrival_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/14/dispatch_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/14/qty": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/15/arrival_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/15/dispatch_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/15/qty": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/16/arrival_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/16/dispatch_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/16/qty": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/17/arrival_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/17/dispatch_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/17/qty": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/18/arrival_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/18/dispatch_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/18/qty": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/19/arrival_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/19/dispatch_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/19/qty": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/2/arrival_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/2/dispatch_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/2/qty": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/20/arrival_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/20/dispatch_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/20/qty": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/21/arrival_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/21/dispatch_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/21/qty": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/3/arrival_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/3/dispatch_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/3/qty": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/4/arrival_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/4/dispatch_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/4/qty": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/5/arrival_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/5/dispatch_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/5/qty": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/6/arrival_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/6/dispatch_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/6/qty": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/7/arrival_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/7/dispatch_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/7/qty": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/8/arrival_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/8/dispatch_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/8/qty": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/9/arrival_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/9/dispatch_week": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/pipeline/9/qty": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/stock/0/qty": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/stock/1/qty": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/stock/2/qty": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/stock/3/qty": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/stock/4/qty": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/stock/5/qty": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/stock/6/qty": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/stock/7/qty": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/stock/8/qty": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "initial_state/stock/9/qty": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/chk/chokepoint/k_c": {
+   "hi": null,
+   "lo": null,
+   "source": "Suez 2021 realised 1.24-1.28 (Q7)",
+   "tag": "DERIVED(PortWatch)"
+  },
+  "nodes/chk/chokepoint/mu/ct": {
+   "hi": null,
+   "lo": null,
+   "source": "nominal routed flow through chk (\u00a72.4)",
+   "tag": "DERIVED(instance)"
+  },
+  "nodes/chk/chokepoint/mu/tb": {
+   "hi": null,
+   "lo": null,
+   "source": "nominal routed flow through chk (\u00a72.4)",
+   "tag": "DERIVED(instance)"
+  },
+  "nodes/chk/chokepoint/queue_holding/chip_le/0": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/chk/chokepoint/queue_holding/chip_le/1": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/chk/chokepoint/queue_holding/chip_le/2": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/chk/chokepoint/queue_holding/lng/0": {
+   "hi": null,
+   "lo": null,
+   "source": "h^Q/h 8.2 / 60 / 215 x h_lng (\u00a72.4; W2-maritime \u00a72.1)",
+   "tag": "DERIVED(W2-maritime)"
+  },
+  "nodes/chk/chokepoint/queue_holding/lng/1": {
+   "hi": null,
+   "lo": null,
+   "source": "h^Q/h 8.2 / 60 / 215 x h_lng (\u00a72.4; W2-maritime \u00a72.1)",
+   "tag": "DERIVED(W2-maritime)"
+  },
+  "nodes/chk/chokepoint/queue_holding/lng/2": {
+   "hi": null,
+   "lo": null,
+   "source": "h^Q/h 8.2 / 60 / 215 x h_lng (\u00a72.4; W2-maritime \u00a72.1)",
+   "tag": "DERIVED(W2-maritime)"
+  },
+  "nodes/chk/chokepoint/war_risk_cost/chip_le/0": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/chk/chokepoint/war_risk_cost/chip_le/1": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/chk/chokepoint/war_risk_cost/chip_le/2": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/chk/chokepoint/war_risk_cost/lng/0": {
+   "hi": null,
+   "lo": null,
+   "source": "0.505 and 2.02 $/MMBtu (\u00a72.4)",
+   "tag": "DERIVED(W2-maritime)"
+  },
+  "nodes/chk/chokepoint/war_risk_cost/lng/1": {
+   "hi": null,
+   "lo": null,
+   "source": "0.505 and 2.02 $/MMBtu (\u00a72.4)",
+   "tag": "DERIVED(W2-maritime)"
+  },
+  "nodes/chk/chokepoint/war_risk_cost/lng/2": {
+   "hi": null,
+   "lo": null,
+   "source": "0.505 and 2.02 $/MMBtu (\u00a72.4)",
+   "tag": "DERIVED(W2-maritime)"
+  },
+  "nodes/chk/stock/chip_le/holding_cost": {
+   "hi": null,
+   "lo": null,
+   "source": "0: queued cargo pays h^Q, not a holding cost ((23), \u00a72.1)",
+   "tag": "DERIVED(instance)"
+  },
+  "nodes/chk/stock/chip_le/salvage": {
+   "hi": null,
+   "lo": null,
+   "source": "c^min rule of \u00a711 row 1 (Q93): osat_sea 4 + E22 1",
+   "tag": "DERIVED(instance)"
+  },
+  "nodes/chk/stock/lng/holding_cost": {
+   "hi": null,
+   "lo": null,
+   "source": "0: queued cargo pays h^Q, not a holding cost ((23), \u00a72.1)",
+   "tag": "DERIVED(instance)"
+  },
+  "nodes/chk/stock/lng/salvage": {
+   "hi": null,
+   "lo": null,
+   "source": "c^min rule of \u00a711 row 1 (Q93): src_gulf 0 + E0 1,000",
+   "tag": "DERIVED(instance)"
+  },
+  "nodes/fab_cn/fab/cap0": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/fab_cn/fab/e": {
+   "hi": null,
+   "lo": null,
+   "source": "no grid: the fab's energy is outside the model (design \u00a72.4)",
+   "tag": "DERIVED(instance)"
+  },
+  "nodes/fab_cn/fab/tau": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/fab_cn/fab/w_scr": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/fab_cn/stock/chip_le_raw/holding_cost": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/fab_cn/stock/chip_le_raw/salvage": {
+   "hi": null,
+   "lo": null,
+   "source": "c^min rule of \u00a711 row 1; 0 at supply nodes (Q79)",
+   "tag": "DERIVED(instance)"
+  },
+  "nodes/fab_cn/stock/chip_le_raw/storage": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/fab_cn/stock/wafer/holding_cost": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/fab_cn/stock/wafer/salvage": {
+   "hi": null,
+   "lo": null,
+   "source": "c^min rule of \u00a711 row 1; 0 at supply nodes (Q79)",
+   "tag": "DERIVED(instance)"
+  },
+  "nodes/fab_cn/stock/wafer/storage": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/fab_tw/fab/cap0": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/fab_tw/fab/e": {
+   "hi": null,
+   "lo": null,
+   "source": "2,000 kWh/wafer, W2-industrial \u00a72.3",
+   "tag": "SYNTHETIC(prior: imec N3 REAL, TSMC fleet DERIVED)"
+  },
+  "nodes/fab_tw/fab/tau": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/fab_tw/fab/w_scr": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/fab_tw/stock/chip_le_raw/holding_cost": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/fab_tw/stock/chip_le_raw/salvage": {
+   "hi": null,
+   "lo": null,
+   "source": "c^min rule of \u00a711 row 1; 0 at supply nodes (Q79)",
+   "tag": "DERIVED(instance)"
+  },
+  "nodes/fab_tw/stock/chip_le_raw/storage": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/fab_tw/stock/wafer/holding_cost": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/fab_tw/stock/wafer/salvage": {
+   "hi": null,
+   "lo": null,
+   "source": "c^min rule of \u00a711 row 1; 0 at supply nodes (Q79)",
+   "tag": "DERIVED(instance)"
+  },
+  "nodes/fab_tw/stock/wafer/storage": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/fab_us/fab/cap0": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/fab_us/fab/e": {
+   "hi": null,
+   "lo": null,
+   "source": "2,000 kWh/wafer, W2-industrial \u00a72.3",
+   "tag": "SYNTHETIC(prior: imec N3 REAL, TSMC fleet DERIVED)"
+  },
+  "nodes/fab_us/fab/tau": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/fab_us/fab/w_scr": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/fab_us/stock/chip_le_raw/holding_cost": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/fab_us/stock/chip_le_raw/salvage": {
+   "hi": null,
+   "lo": null,
+   "source": "c^min rule of \u00a711 row 1; 0 at supply nodes (Q79)",
+   "tag": "DERIVED(instance)"
+  },
+  "nodes/fab_us/stock/chip_le_raw/storage": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/fab_us/stock/wafer/holding_cost": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/fab_us/stock/wafer/salvage": {
+   "hi": null,
+   "lo": null,
+   "source": "c^min rule of \u00a711 row 1; 0 at supply nodes (Q79)",
+   "tag": "DERIVED(instance)"
+  },
+  "nodes/fab_us/stock/wafer/storage": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/grid_eu/grid/base_load": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/grid_eu/grid/days_cover/lng": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/grid_eu/grid/deliverable": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/grid_eu/grid/ibar/lng": {
+   "hi": null,
+   "lo": null,
+   "source": "(16) D_g zeta G0 / 7 = 24.60 (\u00a72.4)",
+   "tag": "DERIVED(instance)"
+  },
+  "nodes/grid_eu/grid/shares/lng": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/grid_eu/grid/shares/unmodelled": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/grid_eu/grid/voll": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/grid_eu/stock/lng/holding_cost": {
+   "hi": null,
+   "lo": null,
+   "source": "h_lng = v_lng r / 52, r REAL(Fed funds 4.21 %)",
+   "tag": "DERIVED(instance)"
+  },
+  "nodes/grid_eu/stock/lng/salvage": {
+   "hi": null,
+   "lo": null,
+   "source": "c^min rule of \u00a711 row 1; 0 at supply nodes (Q79)",
+   "tag": "DERIVED(instance)"
+  },
+  "nodes/grid_eu/stock/lng/storage": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/grid_tw/grid/base_load": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/grid_tw/grid/days_cover/lng": {
+   "hi": null,
+   "lo": null,
+   "source": "Taiwan legal floor 11 d (W2-industrial \u00a72.2)",
+   "tag": "REAL"
+  },
+  "nodes/grid_tw/grid/deliverable": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/grid_tw/grid/ibar/lng": {
+   "hi": null,
+   "lo": null,
+   "source": "(16) D_g zeta G0 / 7 = 17.2857, written 17.29 (\u00a72.4)",
+   "tag": "DERIVED(instance)"
+  },
+  "nodes/grid_tw/grid/shares/lng": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/grid_tw/grid/shares/unmodelled": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/grid_tw/grid/voll": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/grid_tw/stock/lng/holding_cost": {
+   "hi": null,
+   "lo": null,
+   "source": "h_lng = v_lng r / 52, r REAL(Fed funds 4.21 %)",
+   "tag": "DERIVED(instance)"
+  },
+  "nodes/grid_tw/stock/lng/salvage": {
+   "hi": null,
+   "lo": null,
+   "source": "c^min rule of \u00a711 row 1; 0 at supply nodes (Q79)",
+   "tag": "DERIVED(instance)"
+  },
+  "nodes/grid_tw/stock/lng/storage": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/mat_jp/stock/wafer/holding_cost": {
+   "hi": null,
+   "lo": null,
+   "source": "0 at supply nodes (Q79)",
+   "tag": "DERIVED(instance)"
+  },
+  "nodes/mat_jp/stock/wafer/salvage": {
+   "hi": null,
+   "lo": null,
+   "source": "c^min rule of \u00a711 row 1; 0 at supply nodes (Q79)",
+   "tag": "DERIVED(instance)"
+  },
+  "nodes/mat_jp/stock/wafer/storage": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/mat_jp/stock/wafer/supply_rate": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/osat_sea/osat/tau": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/osat_sea/osat/thr": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/osat_sea/stock/chip_le/holding_cost": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/osat_sea/stock/chip_le/salvage": {
+   "hi": null,
+   "lo": null,
+   "source": "c^min rule of \u00a711 row 1; 0 at supply nodes (Q79)",
+   "tag": "DERIVED(instance)"
+  },
+  "nodes/osat_sea/stock/chip_le/storage": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/osat_sea/stock/chip_le_raw/holding_cost": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/osat_sea/stock/chip_le_raw/salvage": {
+   "hi": null,
+   "lo": null,
+   "source": "c^min rule of \u00a711 row 1; 0 at supply nodes (Q79)",
+   "tag": "DERIVED(instance)"
+  },
+  "nodes/osat_sea/stock/chip_le_raw/storage": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/sink_us/sink/demand/chip_le/dbar": {
+   "hi": null,
+   "lo": null,
+   "source": "(22) upsilon x 2,500 nominal delivered flow",
+   "tag": "DERIVED(instance)"
+  },
+  "nodes/sink_us/sink/demand/chip_le/phi": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/sink_us/sink/demand/chip_le/pi": {
+   "hi": null,
+   "lo": null,
+   "source": "10 x (36 + 0.25 x 20,000) (Q85)",
+   "tag": "SYNTHETIC(prior: spec \u00a78.1)"
+  },
+  "nodes/sink_us/sink/demand/chip_le/shock/0": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/sink_us/sink/demand/chip_le/shock/1": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/sink_us/sink/demand/chip_le/shock/2": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/sink_us/sink/demand/chip_le/sigma": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/sink_us/stock/chip_le/holding_cost": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/sink_us/stock/chip_le/salvage": {
+   "hi": null,
+   "lo": null,
+   "source": "c^min rule of \u00a711 row 1; 0 at supply nodes (Q79)",
+   "tag": "DERIVED(instance)"
+  },
+  "nodes/sink_us/stock/chip_le/storage": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/src_gulf/stock/lng/holding_cost": {
+   "hi": null,
+   "lo": null,
+   "source": "0 at supply nodes (Q79)",
+   "tag": "DERIVED(instance)"
+  },
+  "nodes/src_gulf/stock/lng/salvage": {
+   "hi": null,
+   "lo": null,
+   "source": "c^min rule of \u00a711 row 1; 0 at supply nodes (Q79)",
+   "tag": "DERIVED(instance)"
+  },
+  "nodes/src_gulf/stock/lng/storage": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/src_gulf/stock/lng/supply_rate": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/src_ru/stock/lng/holding_cost": {
+   "hi": null,
+   "lo": null,
+   "source": "0 at supply nodes (Q79)",
+   "tag": "DERIVED(instance)"
+  },
+  "nodes/src_ru/stock/lng/salvage": {
+   "hi": null,
+   "lo": null,
+   "source": "c^min rule of \u00a711 row 1; 0 at supply nodes (Q79)",
+   "tag": "DERIVED(instance)"
+  },
+  "nodes/src_ru/stock/lng/storage": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/src_ru/stock/lng/supply_rate": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/src_usau/stock/lng/holding_cost": {
+   "hi": null,
+   "lo": null,
+   "source": "0 at supply nodes (Q79)",
+   "tag": "DERIVED(instance)"
+  },
+  "nodes/src_usau/stock/lng/salvage": {
+   "hi": null,
+   "lo": null,
+   "source": "c^min rule of \u00a711 row 1; 0 at supply nodes (Q79)",
+   "tag": "DERIVED(instance)"
+  },
+  "nodes/src_usau/stock/lng/storage": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "nodes/src_usau/stock/lng/supply_rate": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "params/alpha_max": {
+   "hi": null,
+   "lo": null,
+   "source": "\u00a711 row 11",
+   "tag": "SYNTHETIC(prior: WPS 6047)"
+  },
+  "params/fleet_measure/ct": {
+   "hi": null,
+   "lo": null,
+   "source": "F^b = sum of tau_e u0_e over the pool's sea edges (proposal K3)",
+   "tag": "DERIVED(instance)"
+  },
+  "params/fleet_measure/tb": {
+   "hi": null,
+   "lo": null,
+   "source": "F^b = sum of tau_e u0_e over the pool's sea edges (proposal K3)",
+   "tag": "DERIVED(instance)"
+  },
+  "params/fleet_share/ct": {
+   "hi": null,
+   "lo": null,
+   "source": "0.06-0.12, lower end (Q49)",
+   "tag": "SYNTHETIC(prior: Alphaliner via gCaptain, Clarksons)"
+  },
+  "params/fleet_share/tb": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "params/forecast_shares/0": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "params/forecast_shares/1": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "params/forecast_shares/2": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "params/forecast_shares/3": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "params/forecast_shares/4": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "params/forecast_shares/5": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "params/forecast_shares/6": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "params/forecast_shares/7": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "params/forecast_shares/8": {
+   "hi": null,
+   "lo": null,
+   "source": "design \u00a72.4 (Q85); tiny is a correctness fixture (Q82)",
+   "tag": "SYNTHETIC(placeholder)"
+  },
+  "params/psi": {
+   "hi": null,
+   "lo": null,
+   "source": "range DERIVED(MOEA, IEA, METI) 0.3-0.8 (Q36)",
+   "tag": "SYNTHETIC(prior: onset evidence)"
+  },
+  "params/tau_alpha": {
+   "hi": null,
+   "lo": null,
+   "source": "1 yr = 52 weeks, \u00a711 row 11",
+   "tag": "SYNTHETIC(prior: WPS 6047)"
+  },
+  "params/top_tariff": {
+   "hi": null,
+   "lo": null,
+   "source": "spec chip_tariff_25 (\u00a711 row 25)",
+   "tag": "SYNTHETIC(prior)"
+  },
+  "params/upsilon": {
+   "hi": null,
+   "lo": null,
+   "source": "utilisation 0.9 (Q76 owner D2; \u00a711 row 60)",
+   "tag": "SYNTHETIC"
+  }
+ },
+ "region_class": {
+  "AU": "default",
+  "CN": "default",
+  "EU": "default",
+  "GULF": "default",
+  "IN": "default",
+  "JP": "default",
+  "KR": "default",
+  "KZ": "default",
+  "ROW": "default",
+  "RU": "default",
+  "SEA": "default",
+  "TW": "default",
+  "UA": "default",
+  "US": "default"
+ },
+ "regions": [
+  "TW",
+  "KR",
+  "JP",
+  "CN",
+  "US",
+  "EU",
+  "GULF",
+  "RU",
+  "AU",
+  "SEA",
+  "IN",
+  "UA",
+  "KZ",
+  "ROW"
+ ],
+ "routing_table": [
+  {
+   "dest": "TW",
+   "lanes": [
+    "L0"
+   ],
+   "origin": "GULF"
+  },
+  {
+   "dest": "EU",
+   "lanes": [
+    "L1"
+   ],
+   "origin": "GULF"
+  },
+  {
+   "dest": "TW",
+   "lanes": [
+    "L2"
+   ],
+   "origin": "RU"
+  },
+  {
+   "dest": "US",
+   "lanes": [
+    "L3"
+   ],
+   "origin": "SEA"
+  }
+ ],
+ "schema_version": "1",
+ "trade_adjacency": [],
+ "units": {
+  "chip_le": "wafer-eq 300 mm",
+  "chip_le_raw": "wafer-eq 300 mm",
+  "cost": "USD",
+  "lng": "GWh fuel",
+  "wafer": "wafer-eq 300 mm"
+ },
+ "use": [
+  {
+   "fab": "fab_tw",
+   "material": "mat_jp"
+  },
+  {
+   "fab": "fab_cn",
+   "material": "mat_jp"
+  },
+  {
+   "fab": "fab_us",
+   "material": "mat_jp"
+  }
+ ]
+}
