@@ -98,11 +98,12 @@ def scaled(action, group, a, u0, ov_u0, mask):
     return act
 
 
-def play_from(env, shim, obs, wire, tail, head_weeks: int) -> float:
-    """USD from this week to the end: ``wire`` now, the shim's agent for head_weeks, ``tail`` (or the shim) after."""
+def play_from(env, shim, obs, wire, tail, head_weeks: int, eval_weeks: int = 0) -> float:
+    """USD from this week on: ``wire`` now, the shim's agent for head_weeks, ``tail`` (or the shim) after, for
+    ``eval_weeks`` weeks (0: to the episode's end; the branches share the cut, so no end credit is needed)."""
     obs, reward, done, _tr, _info = env.step(wire)
     total, n = -reward, 1
-    while not done:
+    while not done and (eval_weeks <= 0 or n < eval_weeks):
         player = shim if tail is None or n <= head_weeks else tail
         obs, reward, done, _tr, _info = env.step(player.act(obs))
         total -= reward
@@ -110,7 +111,7 @@ def play_from(env, shim, obs, wire, tail, head_weeks: int) -> float:
     return total
 
 
-def episode(task, ep, spec, agent, tail, evals, head_weeks, min_gain, nodes) -> dict:
+def episode(task, ep, spec, agent, tail, evals, head_weeks, min_gain, nodes, eval_weeks=0) -> dict:
     from shockbench_flow.dynamics.env import Env
     from shockbench_flow_agent import agent_config
     from shockbench_flow_agent.convert import action_to_wire, observation_dict
@@ -148,7 +149,7 @@ def episode(task, ep, spec, agent, tail, evals, head_weeks, min_gain, nodes) -> 
         def cost_of(action):
             ec, sc = copy.deepcopy((env, shim))
             tc = None if tail_shim is None else copy.deepcopy(tail_shim)
-            return play_from(ec, sc, obs, action_to_wire(layout, week, action), tc, head_weeks)
+            return play_from(ec, sc, obs, action_to_wire(layout, week, action), tc, head_weeks, eval_weeks)
 
         best, best_cost = base_action, cost_of(base_action)
         base_cost, n_eval = best_cost, 1
@@ -188,6 +189,7 @@ def main(
     jobs: int = 4,
     task: str = "small",
     base_rows: str = "",
+    eval_weeks: int = 0,
 ):
     """Play the search on Small dev episodes; RSS (and paired vs ``base_rows`` J per episode JSON if given)."""
     from shockbench_flow_agent import EpisodeSet
@@ -199,12 +201,12 @@ def main(
     out_dir.mkdir(parents=True, exist_ok=True)
     t0 = time.time()
     rows = Parallel(n_jobs=jobs)(
-        delayed(episode)(task, ep, es._spec, agent, tail, evals, head_weeks, min_gain, nodes) for ep in eps
+        delayed(episode)(task, ep, es._spec, agent, tail, evals, head_weeks, min_gain, nodes, eval_weeks) for ep in eps
     )
     (out_dir / "rows.json").write_text(json.dumps(rows, indent=1))
     rss = es.rss([r["J_cents"] for r in rows])["rss"]
     print(
-        f"agent={agent} tail={tail or 'self'} head={head_weeks} evals={evals}: "
+        f"agent={agent} tail={tail or 'self'} head={head_weeks} evals={evals} eval_weeks={eval_weeks or 'end'}: "
         f"{len(rows)} eps in {time.time() - t0:.0f} s -> {out_dir}"
     )
     print(

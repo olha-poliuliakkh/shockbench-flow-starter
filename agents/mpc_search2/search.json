@@ -1,0 +1,1 @@
+{"head": {"milp_nodes": 100, "milp_time": 0.4}, "tail": {"fab_threshold": 0.0, "horizon": 8, "milp_time": 0.05}}
