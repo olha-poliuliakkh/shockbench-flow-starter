@@ -29,6 +29,12 @@ What this module adds to ``mpc_nobuf``:
   - fabs, weeks with headroom (G_bar > y_bar at the fab's grid): wafers held or disposed there priced at
     ``wafer_hold_price`` x v_wafer, so the plan starts the wafers it has, as the simulator does.
   A solve that fails with the alignment is repeated once without it.
+- Base load first in every window week (``two_pass_baseload``, off by default; independent of the alignment): after
+  the first solve, each grid-week that both sheds base load and powers fabs is bounded, its shed to 0 if the fabs'
+  energy would have covered it, else its fabs' lot starts to 0, and the LP is solved again (shared with the
+  alignment's week-1 bounds). Re-optimising can break the rule in grid-weeks the first plan kept;
+  ``two_pass_rounds`` > 1 bounds those too, one more solve per round. The plan in hand stands when a solve fails or
+  the time left is short.
 - Incidence lists from ``network.Network`` keep the build linear in the LP's size; the solve has a time limit.
 """
 
@@ -630,28 +636,61 @@ class CompactLP:
                 options={"time_limit": max(0.05, left)},
             )
 
+        solve_start = time.process_time()
         res = run(ub)
+        first_solve = time.process_time() - solve_start
         self.status = int(res.status)
         if res.x is None or res.status != 0:
             self.last_align = info
             return None
-        if fab_w1 and align["fab_second_solve"]:  # base load first in week 1: a grid that sheds powers no fab
-            ub2, changed = ub.copy(), 0
-            for grid in range(NG):
-                if not net.grid_fabs[grid]:
-                    continue
-                shed = float(res.x[col("sh", 0, grid)])
-                fab_energy = sum(e_f * float(res.x[col("p", 0, f)]) for f, e_f in net.grid_fabs[grid])
-                tol = 1e-6 * max(1.0, float(win["y_bar"][0, grid]))
-                if shed > tol and fab_energy > tol:
-                    ub2[col("sh" if fab_energy >= shed else "rho", 0, grid)] = 0.0
-                    changed += 1
-            info |= {"week1_base_first_bounds": changed}
-            if changed:
-                res2 = run(ub2)
-                info["week1_second_solve"] = bool(res2.x is not None and res2.status == 0)
-                if info["week1_second_solve"]:
-                    res = res2
+        # base load first by more solves: in week 1 with the alignment's split (align_fab_second_solve), in every
+        # window week with two_pass_baseload (``two_pass_rounds`` rounds of bounds); the week-1 bounds ride along
+        two_pass = float(P_["two_pass_baseload"]) >= 0.5
+        week1 = fab_w1 and align["fab_second_solve"]
+        weeks = range(H) if two_pass else (range(1) if week1 else range(0))
+        rounds = max(1, int(P_["two_pass_rounds"])) if two_pass else 1
+        upper, bounded, solves = ub, [], 0
+        for _round in range(rounds if len(weeks) else 0):
+            ub2, changed = upper.copy(), []
+            for h in weeks:
+                for grid in range(NG):
+                    if not net.grid_fabs[grid]:
+                        continue
+                    shed = float(res.x[col("sh", h, grid)])
+                    fab_energy = sum(e_f * float(res.x[col("p", h, f)]) for f, e_f in net.grid_fabs[grid])
+                    tol = 1e-6 * max(1.0, float(win["y_bar"][h, grid]))
+                    if not (shed > tol and fab_energy > tol):
+                        continue
+                    if fab_energy >= shed:  # the fabs' energy would have covered the shed: serve base load first
+                        ub2[col("sh", h, grid)] = 0.0
+                    elif h == 0 and fab_w1:  # week 1 with the split: its fabs start nothing
+                        ub2[col("rho", 0, grid)] = 0.0
+                    else:  # the grid sheds anyway: its fabs get no energy
+                        for f, _e_f in net.grid_fabs[grid]:
+                            ub2[col("p", h, f)] = 0.0
+                    changed.append((h, grid))
+            if not changed:
+                break
+            left = float(time_limit) - (time.process_time() - start)
+            if left < 1.25 * first_solve:  # not enough time for another solve: keep the plan in hand
+                info["second_solve_skipped"] = "time"
+                break
+            res2 = run(ub2)
+            solves += 1
+            ok = bool(res2.x is not None and res2.status == 0)
+            if solves == 1:
+                info["second_solve"] = ok
+                if week1:
+                    info["week1_base_first_bounds"] = sum(1 for h, _g in changed if h == 0)
+                    info["week1_second_solve"] = ok
+            if not ok:
+                break
+            res, upper = res2, ub2
+            bounded += changed
+        if two_pass:
+            info |= {"two_pass_bounds": len(bounded), "two_pass_solves": solves, "two_pass_bounded": bounded}
+        elif week1 and "week1_base_first_bounds" not in info:
+            info["week1_base_first_bounds"] = 0
         self.last_align = info
         self.last_plan = {"x": res.x, "cost": cost_vec, "off": off, "sizes": sizes, "H": H, "objective": float(res.fun)}
         self.last_plan["align"] = dict(info)

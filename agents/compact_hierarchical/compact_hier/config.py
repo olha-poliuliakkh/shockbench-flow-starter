@@ -54,6 +54,8 @@ DEFAULTS = {
     "align_fab_second_solve": 1.0,  # 1: base load first in week 1 by a second solve when the plan breaks it
     "osat_hold_price": 1.0,  # x v_k per unit-week of raw chips held (or disposed) at OSATs: package, then ship
     "wafer_hold_price": 1.0,  # x v_wafer per unit-week of wafers held (or disposed) at fabs in weeks with headroom
+    "two_pass_baseload": 0.0,  # 1: base load first in every window week by a second solve (off: week 1 at most)
+    "two_pass_rounds": 1,  # rounds of bounds and solves with two_pass_baseload (1: the two-pass solve)
     # ---- the maritime controller (maritime.py)
     "reroute": 1.0,  # 1: bound dispatches into closed straits before the solve; 0: off (mpc_nobuf's LP alone)
     "reroute_open_below": 0.05,  # a strait this open or less counts as closed for routing

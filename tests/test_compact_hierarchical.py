@@ -327,3 +327,49 @@ def test_the_second_solve_can_be_switched_off(agent_class):
     plan = _plan(agent_class(config, params=base | {"align_fab_second_solve": 0.0}), obs)
     assert plan["align"]["aligned"] and "week1_base_first_bounds" not in plan["align"]
     assert plan["sizes"]["rho"] > 0  # the week-1 split stays
+
+
+# ----- base load first in every window week (two_pass_baseload) ----------------------------------------------------
+def _violations(plan, net, obs_y_bar):
+    """(week, grid) pairs of the plan that both shed base load and power fabs."""
+    out = []
+    for h in range(plan["H"]):
+        sh, p = _block(plan, "sh", h, net.NG), _block(plan, "p", h, len(net.fabs))
+        for g, fabs in enumerate(net.grid_fabs):
+            tol = 1e-6 * max(1.0, float(obs_y_bar[g]))
+            if sh[g] > tol and sum(e * p[f] for f, e in fabs) > tol:
+                out.append((h, g))
+    return out
+
+
+def _violation_energy(plan, net, y_bar) -> float:
+    total = 0.0
+    for h, g in _violations(plan, net, y_bar):
+        p = _block(plan, "p", h, len(net.fabs))
+        total += min(float(_block(plan, "sh", h, net.NG)[g]), sum(e * p[f] for f, e in net.grid_fabs[g]))
+    return total
+
+
+@pytest.mark.parametrize("align", [1.0, 0.0])
+def test_two_pass_serves_base_load_first_where_it_bounds(agent_class, align):
+    _env, obs, config = _reset("small")
+    base = dict(agent_class(config).params) | {"align_chip_production": align, "align_fab_second_solve": 0.0}
+    net, y_bar = agent_class(config).net, obs["graph_now.grid.y_bar"]
+    first = _plan(agent_class(config, params=base), obs)
+    plan = _plan(agent_class(config, params=base | {"two_pass_baseload": 1.0}), obs)
+    info = plan["align"]
+    bounded = {tuple(x) for x in info["two_pass_bounded"]}
+    assert bounded == set(_violations(first, net, y_bar)) and info["second_solve"]
+    assert not bounded & set(_violations(plan, net, y_bar))  # every bounded grid-week now serves base load first
+    assert _violation_energy(plan, net, y_bar) < _violation_energy(first, net, y_bar)
+    more = _plan(agent_class(config, params=base | {"two_pass_baseload": 1.0, "two_pass_rounds": 3}), obs)
+    assert _violation_energy(more, net, y_bar) <= _violation_energy(plan, net, y_bar) + 1e-6
+    assert (plan["sizes"]["rho"] > 0) == (align == 1.0)
+
+
+def test_two_pass_is_off_by_default(agent_class):
+    import json
+
+    config = _config(agent_class)
+    assert config.DEFAULTS["two_pass_baseload"] == 0.0
+    assert json.loads((AGENT / "params.json").read_text())["two_pass_baseload"] == 0.0

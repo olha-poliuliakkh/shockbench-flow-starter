@@ -26,6 +26,8 @@
   "align_fab_second_solve": 1.0,
   "osat_hold_price": 1.0,
   "wafer_hold_price": 1.0,
+  "two_pass_baseload": 0.0,
+  "two_pass_rounds": 1,
   "reroute": 0.0,
   "reroute_open_below": 0.05,
   "reroute_max_wait": 2,
