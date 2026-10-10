@@ -64,7 +64,7 @@ def test_outputs_keep_the_best_accepted_trial(tune, tmp_path):
     add(0.70, 0.70, None, 16, anchor="defaults")
     add(0.75, 0.75, None, 24)
     add(0.90 - 1.0, 0.90, "3 week(s) over 1.5 s", 52)  # penalized: never the best, whatever its RSS
-    tune.write_outputs(study, base, full, tmp_path)
+    tune.write_outputs(study, base, full, tmp_path, "pass1")
     best = json.loads((tmp_path / "best_small_params.json").read_text())
     info = json.loads((tmp_path / "best_small_trial.json").read_text())
     assert best["horizon_small"] == 24 and info["trial"] == 1 and info["trials_rejected"] == 1
@@ -73,3 +73,27 @@ def test_outputs_keep_the_best_accepted_trial(tune, tmp_path):
     assert params["horizon_small"] == 24
     assert (tmp_path / "trials.csv").read_text().count("\n") == 4
     assert "vs_defaults_in_sample" in info  # quick references have no harm levels: the gap records why it is absent
+
+
+def test_pass2_keeps_the_crisis_floor_above_the_static_one(tune):
+    space = tune.SPACES["pass2"]
+    assert space["short_price"][1] <= 0.1 and space["safety_price"][2] > 0.5
+    study = optuna.create_study(direction="maximize", sampler=optuna.samplers.RandomSampler(seed=1))
+    for _ in range(50):
+        knobs = tune.suggest(study.ask(), "pass2")
+        assert set(knobs) == set(tune.KNOBS)
+        assert knobs["safety_frac"] <= knobs["crisis_frac"] <= tune.CRISIS_MAX
+
+
+def test_a_queued_configuration_round_trips(tune):
+    pass1_best = {"horizon_small": 28, "terminal_frac_small": 0.66, "floor_taper_weeks": 7, "safety_frac": 0.59}
+    pass1_best |= {"safety_price": 0.48, "short_price": 1.018, "crisis_frac": 0.32, "crisis_price_mult": 1.3}
+    pass1_best |= {"reroute_max_wait": 5}
+    params = tune.trial_params(pass1_best, "pass2")
+    assert params["crisis_gap"] == 0.0  # 0.32 below 0.59: the same (inert) crisis floor, now at the static one
+    back = tune.knobs_from(params)
+    assert back["crisis_frac"] == pytest.approx(0.59)
+    assert all(back[k] == pytest.approx(pass1_best[k]) for k in tune.KNOBS if k != "crisis_frac")
+    assert tune.near_bounds({"short_price": 0.0105, "safety_price": 0.48}, "pass2") == {
+        "short_price": {"value": 0.0105, "low": 0.01, "high": 30.0}
+    }

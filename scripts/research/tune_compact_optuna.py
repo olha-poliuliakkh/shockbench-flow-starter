@@ -1,14 +1,21 @@
 """Optuna search of ``agents/compact_hierarchical``'s knobs on Small: 64 episodes of root 202610, in this process.
 
     uv sync --extra evolve                                                     # optuna
-    uv run python scripts/research/tune_compact_optuna.py --trials=200         # a new study (or continue it)
-    uv run python scripts/research/tune_compact_optuna.py --trials=50 --study=compact_small   # continue by name
+    uv run python scripts/research/tune_compact_optuna.py --trials=80 \
+        --seed_params=outputs/research/tune_compact_optuna/compact_small/best_small_params.json   # pass 2
+    uv run python scripts/research/tune_compact_optuna.py --space=pass1 --trials=50   # continue the first sweep
     uv run python scripts/research/tune_compact_optuna.py --smoke              # plumbing check: 2 episodes, no files
 
 Each trial plays the agent with the trial's knobs (every other knob from ``config.DEFAULTS`` and ``params.json``,
 never from ``SBF_PARAM_*`` variables) on the same Small episodes 0..63 of root 202610, serially, in this process:
 ``EpisodeSet.play`` with a factory building ``Agent(config, params=...)``, so no zip, subprocess or file per trial.
 The objective, maximized, is the episodes' RSS.
+
+**Spaces** (``SPACES``). ``pass1`` is the first sweep's. ``pass2`` (the default) widens the bounds pass 1's best sat
+on: ``short_price`` from 0.01 (was 1), ``safety_price`` to 5 (was 0.5), ``safety_frac`` to 0.85, ``reroute_max_wait``
+to 10. It also draws ``crisis_gap`` in [0, 1] in place of ``crisis_frac``, with
+crisis_frac = safety_frac + crisis_gap x (0.95 - safety_frac), so a crisis floor is never below the static one.
+A study keeps the space it started with: a pass-2 run uses its own study (``compact_small_pass2`` by default).
 
 **Rejection.** A trial is rejected at the first episode chunk where the agent
 - ran over 1.5 s of CPU in some week (the harness's meter, ``cpu_budget=1.5``: the naive rule plays that week), or
@@ -21,9 +28,10 @@ The objective, maximized, is the episodes' RSS.
 **Early stop.** Episodes are played in 4 chunks of 16. After each, the trial reports the RSS of the episodes played so
 far (the same prefix for every trial), and the median pruner may stop it (``--noprune`` turns it off).
 
-**Anchors.** Two trials are queued first: the agent's defaults, and the configuration measured at 0.7848 (24-week
-window, terminal credit 0.7 on Small). The best trial's paired gap against the defaults is computed on the same
-episodes; it is in-sample, so confirm on another root and on dev (the commands are printed at the end).
+**Anchors.** Queued first: ``params.json`` as it stands ("defaults"), the file given by ``--seed_params`` ("seed"),
+and in pass 1 also the configuration measured at 0.7848 (24-week window, terminal credit 0.7 on Small). The best
+trial's paired gap against the defaults is computed on the same episodes; it is in-sample, so confirm on another root
+and on dev (the commands are printed at the end, with any parameter of the best trial within 3 % of a bound).
 
 **Outputs** (``outputs/research/tune_compact_optuna/<study>/``, rewritten after every trial):
 - ``study.db``: the Optuna storage (SQLite); running the script again with the same ``--study`` continues it. Several
@@ -57,29 +65,42 @@ ENTROPY = 202610
 CPU_LIMIT_S = 1.5  # per week, the harness's meter (a week over it is played by the naive rule)
 CHUNKS = 4
 
-# the queued anchors: the defaults (params.json), and the configuration measured at 0.7848 on 64 Small episodes
+# the queued anchors of pass 1: the defaults (params.json), and the configuration measured at 0.7848 on 64 episodes
 ANCHORS = {
     "defaults": {},
     "h24_credit07": {"horizon_small": 24, "terminal_frac_small": 0.7},
 }
 
+CRISIS_MAX = 0.95  # pass 2: crisis_frac = safety_frac + crisis_gap x (CRISIS_MAX - safety_frac), so crisis >= safety
+# (kind, low, high, step): "int" steps, "float" uniform, "log" log-uniform
+SPACES = {
+    "pass1": {
+        "horizon_small": ("int", 16, 52, 4),
+        "terminal_frac_small": ("float", 0.0, 1.0, None),
+        "floor_taper_weeks": ("int", 0, 16, 1),
+        "safety_frac": ("float", 0.0, 0.7, None),
+        "safety_price": ("log", 0.005, 0.5, None),
+        "short_price": ("log", 1.0, 30.0, None),
+        "crisis_frac": ("float", 0.3, 0.95, None),
+        "crisis_price_mult": ("log", 1.0, 10.0, None),
+        "reroute_max_wait": ("int", 0, 6, 1),
+    },
+    # pass 1's best sat on short_price's lower bound (1.018 of 1) and near safety_price's upper one (0.48 of 0.5),
+    # with crisis_frac (0.32) below safety_frac (0.59), where the crisis floor raise does nothing
+    "pass2": {
+        "horizon_small": ("int", 16, 52, 4),
+        "terminal_frac_small": ("float", 0.0, 1.0, None),
+        "floor_taper_weeks": ("int", 0, 16, 1),
+        "safety_frac": ("float", 0.0, 0.85, None),
+        "safety_price": ("log", 0.005, 5.0, None),
+        "short_price": ("log", 0.01, 30.0, None),
+        "crisis_gap": ("float", 0.0, 1.0, None),
+        "crisis_price_mult": ("log", 1.0, 10.0, None),
+        "reroute_max_wait": ("int", 0, 10, 1),
+    },
+}
 
-def suggest(trial) -> dict:
-    """The search space: the knobs of docs/research (Small); every other knob keeps params.json's value."""
-    return {
-        "horizon_small": trial.suggest_int("horizon_small", 16, 52, step=4),
-        "terminal_frac_small": trial.suggest_float("terminal_frac_small", 0.0, 1.0),
-        "floor_taper_weeks": trial.suggest_int("floor_taper_weeks", 0, 16),
-        "safety_frac": trial.suggest_float("safety_frac", 0.0, 0.7),
-        "safety_price": trial.suggest_float("safety_price", 0.005, 0.5, log=True),
-        "short_price": trial.suggest_float("short_price", 1.0, 30.0, log=True),
-        "crisis_frac": trial.suggest_float("crisis_frac", 0.3, 0.95),
-        "crisis_price_mult": trial.suggest_float("crisis_price_mult", 1.0, 10.0, log=True),
-        "reroute_max_wait": trial.suggest_int("reroute_max_wait", 0, 6),
-    }
-
-
-SPACE_KEYS = (
+KNOBS = (
     "horizon_small",
     "terminal_frac_small",
     "floor_taper_weeks",
@@ -90,6 +111,57 @@ SPACE_KEYS = (
     "crisis_price_mult",
     "reroute_max_wait",
 )
+
+
+def suggest(trial, space: str) -> dict:
+    """The trial's agent knobs (KNOBS) drawn from ``SPACES[space]``; every other knob keeps params.json's value."""
+    drawn = {}
+    for name, (kind, lo, hi, step) in SPACES[space].items():
+        if kind == "int":
+            drawn[name] = trial.suggest_int(name, lo, hi, step=step)
+        else:
+            drawn[name] = trial.suggest_float(name, lo, hi, log=kind == "log")
+    return knobs_from(drawn)
+
+
+def knobs_from(drawn: dict) -> dict:
+    """The agent's knobs from a trial's parameters (pass 2's crisis_gap becomes crisis_frac)."""
+    knobs = {k: v for k, v in drawn.items() if k in KNOBS}
+    if "crisis_gap" in drawn:
+        knobs["crisis_frac"] = knobs["safety_frac"] + drawn["crisis_gap"] * (CRISIS_MAX - knobs["safety_frac"])
+    return knobs
+
+
+def trial_params(knobs: dict, space: str) -> dict:
+    """The inverse of ``suggest`` for a queued configuration, clipped into the space (ints onto their grid)."""
+    out = {}
+    for name, (kind, lo, hi, step) in SPACES[space].items():
+        if name == "crisis_gap":
+            room = CRISIS_MAX - knobs["safety_frac"]
+            value = (knobs["crisis_frac"] - knobs["safety_frac"]) / room if room > 0 else 0.0
+        else:
+            value = knobs[name]
+        value = min(max(value, lo), hi)
+        out[name] = int(lo + round((value - lo) / step) * step) if kind == "int" else float(value)
+    return out
+
+
+def near_bounds(params: dict, space: str, margin: float = 0.03) -> dict:
+    """The trial's parameters within ``margin`` of a bound (in log terms for log-uniform ones)."""
+    out = {}
+    for name, (kind, lo, hi, _step) in SPACES[space].items():
+        if name not in params:
+            continue
+        v = params[name]
+        x = (np.log(v) - np.log(lo)) / (np.log(hi) - np.log(lo)) if kind == "log" else (v - lo) / (hi - lo)
+        if x <= margin or x >= 1 - margin:
+            out[name] = {"value": v, "low": lo, "high": hi}
+    return out
+
+
+def knobs_of(trial) -> dict:
+    """A finished trial's agent knobs (pass-1 trials without the attribute: its parameters are the knobs)."""
+    return trial.user_attrs.get("knobs") or {k: v for k, v in trial.params.items() if k in KNOBS}
 
 
 def load_agent():
@@ -163,7 +235,7 @@ def complete_params(base: dict, values: dict) -> dict:
     return params
 
 
-def write_outputs(study, base: dict, full_set, out: Path) -> None:
+def write_outputs(study, base: dict, full_set, out: Path, space: str) -> None:
     """best_small_params.json, best_small_trial.json and trials.csv from the study's finished trials."""
     import optuna
 
@@ -180,7 +252,7 @@ def write_outputs(study, base: dict, full_set, out: Path) -> None:
                 "rejected": t.user_attrs.get("rejected") or "",
                 "anchor": t.user_attrs.get("anchor", ""),
                 "seconds": t.user_attrs.get("seconds"),
-                **{k: t.params.get(k) for k in SPACE_KEYS},
+                **{k: knobs_of(t).get(k) for k in KNOBS},
             }
         )
     with open(out / "trials.csv", "w", newline="") as f:
@@ -191,13 +263,15 @@ def write_outputs(study, base: dict, full_set, out: Path) -> None:
     if not accepted:
         return
     best = max(accepted, key=lambda t: t.user_attrs["rss"])
-    params = complete_params(base, best.params)
+    params = complete_params(base, knobs_of(best))
     (out / "best_small_params.json").write_text(json.dumps(params, indent=2) + "\n")
     info = {
         "trial": best.number,
         "rss": best.user_attrs["rss"],
         "levels": best.user_attrs.get("levels"),
-        "params": best.params,
+        "knobs": knobs_of(best),
+        "space": space,
+        "near_bounds": near_bounds(best.params, space),
         "task": TASK,
         "episodes": EPISODES,
         "entropy": ENTROPY,
@@ -219,7 +293,9 @@ def write_outputs(study, base: dict, full_set, out: Path) -> None:
 
 def main(
     trials: int = 100,
-    study: str = "compact_small",
+    space: str = "pass2",
+    study: str = "",
+    seed_params: str = "",
     reject: str = "penalize",
     prune: bool = True,
     seed: int = 0,
@@ -230,7 +306,10 @@ def main(
 
     Args:
         trials: trials to run in this call (a continued study adds them).
-        study: the study's name; its folder and SQLite storage are outputs/research/tune_compact_optuna/<study>/.
+        space: "pass2" (default: widened bounds, crisis_frac >= safety_frac) or "pass1" (the first sweep's space).
+        study: the study's name (default compact_small for pass1, compact_small_pass2 for pass2); its folder and
+            SQLite storage are outputs/research/tune_compact_optuna/<study>/.
+        seed_params: a complete knob file queued as the first trial (pass 1's best_small_params.json, say).
         reject: "penalize" (the RSS so far minus 1) or "prune" (optuna.TrialPruned) for a trial over budget.
         prune: the median pruner on the RSS after each chunk (--noprune: every trial plays all 64 episodes).
         seed: the TPE sampler's seed.
@@ -244,6 +323,9 @@ def main(
         sys.exit("optuna is not installed: uv sync --extra evolve")
     if reject not in ("penalize", "prune"):
         raise ValueError(f"reject must be 'penalize' or 'prune', got {reject!r}")
+    if space not in SPACES:
+        raise ValueError(f"space must be one of {sorted(SPACES)}, got {space!r}")
+    study = study or ("compact_small" if space == "pass1" else f"compact_small_{space}")
     stray = sorted(k for k in os.environ if k.startswith("SBF_PARAM"))
     if stray:
         print(f"note: {stray} are ignored here: trials use params.json and the trial's knobs only", file=sys.stderr)
@@ -264,12 +346,20 @@ def main(
     st = optuna.create_study(
         study_name=study, storage=storage, direction="maximize", sampler=sampler, pruner=pruner, load_if_exists=True
     )
-    for name, values in ANCHORS.items():
-        anchor = {k: complete_params(base, values)[k] for k in SPACE_KEYS}
-        st.enqueue_trial(anchor, user_attrs={"anchor": name}, skip_if_exists=True)
+    foreign = sorted({k for t in st.trials for k in t.params} - set(SPACES[space]))
+    if foreign:
+        sys.exit(f"study {study!r} was run with another space (parameters {foreign}): pass another --study")
+    anchors = {"defaults": {}} if space != "pass1" else dict(ANCHORS)
+    if seed_params:
+        anchors["seed"] = config.load(AGENT_DIR, environ={"SBF_PARAMS_FILE": str(Path(seed_params).resolve())})
+    for name, values in anchors.items():
+        knobs = {k: complete_params(base, values)[k] for k in KNOBS}
+        st.enqueue_trial(trial_params(knobs, space), user_attrs={"anchor": name}, skip_if_exists=True)
 
     def objective(trial):
-        params = complete_params(base, suggest(trial))
+        knobs = suggest(trial, space)
+        trial.set_user_attr("knobs", knobs)
+        params = complete_params(base, knobs)
 
         def report(step, value):
             trial.report(value, step)
@@ -296,7 +386,7 @@ def main(
         if smoke:
             return
         try:  # a file that fails to write must not stop a sweep of hours
-            write_outputs(study_, base, evaluator.full, out)
+            write_outputs(study_, base, evaluator.full, out, space)
         except Exception as exc:  # noqa: BLE001
             print(f"warning: outputs not written after this trial: {type(exc).__name__}: {exc}", file=sys.stderr)
 
@@ -310,6 +400,8 @@ def main(
     if best_file.is_file():
         info = json.loads((out / "best_small_trial.json").read_text())
         print(f"best accepted trial {info['trial']}: RSS {info['rss']:.4f}; written {best_file}")
+        if info.get("near_bounds"):
+            print(f"  near a bound of the search (widen before trusting): {info['near_bounds']}")
         if "vs_defaults_in_sample" in info:
             g = info["vs_defaults_in_sample"]
             gap = f"{g['diff']:+.4f} [{g['lo']:+.4f}, {g['hi']:+.4f}]" if "diff" in g else g.get("error")

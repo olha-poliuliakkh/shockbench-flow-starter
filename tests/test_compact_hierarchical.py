@@ -163,11 +163,11 @@ def test_env_overrides_reject_typos_and_bad_values(agent_class):
         config.load(AGENT, environ={"SBF_PARAMS_FILE": "no_such_preset.json"})
 
 
-def test_baseline_preset_differs_from_default_only_in_the_new_logic(agent_class):
+def test_baseline_preset_is_mpc_nobuf_without_the_new_logic(agent_class):
+    """params_baseline.json: the rerouting and crisis logic off, mpc_nobuf's safety stocks and short price (whatever
+    params.json is tuned to)."""
     config = _config(agent_class)
-    default = config.load(AGENT, environ={})
     base = config.load(AGENT, environ={"SBF_PARAMS_FILE": "params_baseline.json"})
-    assert {k for k in default if default[k] != base[k]} == {"reroute", "crisis"}
     assert base["reroute"] == 0 and base["crisis"] == 0 and base["safety_frac"] == 0.5 and base["short_price"] == 10
     # a variable beats the preset
     both = config.load(AGENT, environ={"SBF_PARAMS_FILE": "params_baseline.json", "SBF_PARAM_REROUTE": "1"})
