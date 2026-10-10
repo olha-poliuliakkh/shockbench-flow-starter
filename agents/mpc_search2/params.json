@@ -1,1 +1,1 @@
-{"rule_chips": 0.0, "buffer_weight": 0.0, "short_price": 10.0, "milp_weeks": 4, "milp_time": 0.8, "safety_frac": 1.5, "safety_price": 0.02, "horizon": 20, "osat_raw_price": 2.0}
+{"rule_chips": 0.0, "buffer_weight": 0.0, "short_price": 10.0, "milp_weeks": 4, "milp_time": 0.5, "safety_frac": 1.5, "safety_price": 0.02, "horizon": 20, "osat_raw_price": 2.0}

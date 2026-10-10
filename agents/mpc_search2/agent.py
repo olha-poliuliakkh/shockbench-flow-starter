@@ -41,6 +41,7 @@ SEARCH = {
     "min_gain": 0.001,  # keep a correction only if it saves this share of the base branch's cost
     "cpu_budget": 1.7,  # seconds of CPU this week (Small); the search is skipped when it would not fit
     "cpu_budget_full": 3.4,
+    "eval_weeks": 24,  # weeks a branch is played after the correction (both branches share the cut; τ of return ≈ 6-12)
 }
 if (HERE / "search.json").is_file():
     SEARCH.update(json.loads((HERE / "search.json").read_text()))
@@ -257,7 +258,8 @@ class Agent:
         st = copy.deepcopy(state)
         head, tail = copy.deepcopy(self.head), copy.deepcopy(self.tail)
         total, act = 0.0, action
-        for h in range(self.T - t + 1):
+        horizon = min(self.T - t + 1, SEARCH["eval_weeks"]) if SEARCH["eval_weeks"] > 0 else self.T - t + 1
+        for h in range(horizon):
             week = t + h
             try:
                 flows, ov, holds, inv = validate_action(self.inst, marks, week, action_to_wire(self.lay, week, act))
